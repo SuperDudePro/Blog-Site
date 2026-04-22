@@ -72,7 +72,7 @@ export function HomePage() {
       <section className="content-band content-band--muted">
         <div className="section-heading">
           <span className="eyebrow">browse the lanes</span>
-          <h2>The five public-facing homes for the writing.</h2>
+          <h2>Everything first, then the five public-facing homes for the writing.</h2>
         </div>
 
         <div className="section-grid">

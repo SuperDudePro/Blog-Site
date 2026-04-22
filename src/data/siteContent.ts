@@ -1,4 +1,5 @@
 export type SectionKey =
+  | 'everything'
   | 'diary'
   | 'life-education'
   | 'music-playlists'
@@ -16,9 +17,12 @@ export type Section = {
 export type Post = {
   title: string;
   excerpt: string;
-  section: SectionKey;
+  section: Exclude<SectionKey, 'everything'>;
   date: string;
+  publishedAt?: string;
   status: 'Featured' | 'Recent' | 'Starter';
+  imageUrl?: string;
+  imageAlt?: string;
 };
 
 export const site = {
@@ -31,6 +35,14 @@ export const site = {
 };
 
 export const sections: Section[] = [
+  {
+    key: 'everything',
+    name: 'Everything',
+    shortName: 'Everything',
+    description: 'All posts in one place, shown together instead of split into lanes.',
+    intro:
+      'This is the full running list. Same cards, same posts, just all together in one place so you can scan everything without choosing a lane first.',
+  },
   {
     key: 'diary',
     name: 'Diary of an Old Dad',
@@ -81,6 +93,7 @@ export const starterPosts: Post[] = [
     section: 'slow-travel',
     date: 'Coming soon',
     status: 'Featured',
+    imageAlt: 'Placeholder for a slow-travel post image',
   },
   {
     title: 'What It Means to Raise Two Generations at Once',
@@ -89,6 +102,7 @@ export const starterPosts: Post[] = [
     section: 'diary',
     date: 'Coming soon',
     status: 'Recent',
+    imageAlt: 'Placeholder for a family diary post image',
   },
   {
     title: 'Life Education Is Not an Education Blog',
@@ -96,6 +110,7 @@ export const starterPosts: Post[] = [
     section: 'life-education',
     date: 'Coming soon',
     status: 'Recent',
+    imageAlt: 'Placeholder for a life education post image',
   },
   {
     title: 'The Songs That Make a Family Trip Feel Real',
@@ -104,6 +119,7 @@ export const starterPosts: Post[] = [
     section: 'music-playlists',
     date: 'Coming soon',
     status: 'Starter',
+    imageAlt: 'Placeholder for a music playlists post image',
   },
   {
     title: 'Advice I Wish I Could Hand My Kids Before They Need It',
@@ -111,6 +127,7 @@ export const starterPosts: Post[] = [
     section: 'advice',
     date: 'Coming soon',
     status: 'Starter',
+    imageAlt: 'Placeholder for an advice post image',
   },
   {
     title: 'The Ordinary Day That Turns Into the Story Later',
@@ -119,11 +136,13 @@ export const starterPosts: Post[] = [
     section: 'diary',
     date: 'Coming soon',
     status: 'Starter',
+    imageAlt: 'Placeholder for a diary post image',
   },
 ];
 
 export const navigation = [
   { label: 'Home', href: '#/' },
+  { label: 'Everything', href: '#/section/everything' },
   { label: 'Diary of an Old Dad', href: '#/section/diary' },
   { label: 'Life Education', href: '#/section/life-education' },
   { label: 'Music Playlists', href: '#/section/music-playlists' },
@@ -134,4 +153,24 @@ export const navigation = [
 
 export function getSectionName(sectionKey: SectionKey): string {
   return sections.find((section) => section.key === sectionKey)?.name ?? sectionKey;
+}
+
+export function sortPosts(posts: Post[]): Post[] {
+  return [...posts].sort((a, b) => {
+    if (a.publishedAt && b.publishedAt) {
+      return new Date(b.publishedAt).getTime() - new Date(a.publishedAt).getTime();
+    }
+
+    if (a.publishedAt) return -1;
+    if (b.publishedAt) return 1;
+    return 0;
+  });
+}
+
+export function getPostsForSection(sectionKey: SectionKey): Post[] {
+  if (sectionKey === 'everything') {
+    return sortPosts(starterPosts);
+  }
+
+  return sortPosts(starterPosts.filter((post) => post.section === sectionKey));
 }

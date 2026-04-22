@@ -1,6 +1,6 @@
 import { ImagePlaceholder } from '../components/ImagePlaceholder';
 import { PostCard } from '../components/PostCard';
-import { sections, starterPosts, type SectionKey } from '../data/siteContent';
+import { getPostsForSection, sections, type SectionKey } from '../data/siteContent';
 
 type Props = {
   sectionKey: SectionKey;
@@ -8,13 +8,13 @@ type Props = {
 
 export function SectionPage({ sectionKey }: Props) {
   const section = sections.find((item) => item.key === sectionKey);
-  const posts = starterPosts.filter((post) => post.section === sectionKey);
+  const posts = getPostsForSection(sectionKey);
 
   if (!section) {
     return (
       <div className="page-wrap">
         <h1>Section not found</h1>
-        <p>This starter build expects one of the five current public sections.</p>
+        <p>This starter build expects one of the current public sections.</p>
       </div>
     );
   }
@@ -36,7 +36,11 @@ export function SectionPage({ sectionKey }: Props) {
       <section className="content-band">
         <div className="section-heading">
           <span className="eyebrow">starter entries</span>
-          <h2>Placeholder cards for the first pieces in this lane.</h2>
+          <h2>
+            {section.key === 'everything'
+              ? 'All posts together in one running list.'
+              : 'Placeholder cards for the first pieces in this lane.'}
+          </h2>
         </div>
 
         <div className="post-grid">
@@ -44,9 +48,11 @@ export function SectionPage({ sectionKey }: Props) {
             posts.map((post) => <PostCard key={post.title} post={post} />)
           ) : (
             <article className="post-card">
-              <span className="post-pill">Coming soon</span>
-              <h3>No entries have been dropped into this section yet.</h3>
-              <p>That is fine. Keep the lane available, and add real pieces as they emerge.</p>
+              <div className="post-card__body">
+                <span className="post-pill">Coming soon</span>
+                <h3>No entries have been dropped into this section yet.</h3>
+                <p>That is fine. Keep the lane available, and add real pieces as they emerge.</p>
+              </div>
             </article>
           )}
         </div>
