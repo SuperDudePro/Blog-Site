@@ -18,7 +18,7 @@ export function HomePage() {
 
           <div className="hero__actions">
             <a className="button button--primary" href="#/about">
-              Start Here
+              About
             </a>
             <a className="button button--ghost" href="#recent-writing">
               Latest Writing

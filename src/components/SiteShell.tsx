@@ -12,7 +12,7 @@ export function SiteShell({ children }: Props) {
         <div className="site-header__inner">
           <a className="site-brand" href="#/">
             <span className="site-brand__title">{site.title}</span>
-            <span className="site-brand__tag">{site.tagline}</span>
+            <span className="site-brand__tag">{site.headerTagline ?? site.tagline}</span>
           </a>
 
           <nav className="site-nav" aria-label="Primary navigation">

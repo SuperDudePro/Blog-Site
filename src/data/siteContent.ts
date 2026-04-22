@@ -27,6 +27,7 @@ export type Post = {
 
 export const site = {
   title: 'Our Old Dad',
+  headerTagline: 'Raising Two Generations',
   tagline: 'Flailing, Raging, and Raising Two Generations',
   intro:
     "I'm a 61-year-old teacher and father of four, raising a 4-year-old daughter and a 2-year-old son while still helping two older kids find their way into adult life. This site follows our attempt to build a slow-travel life, use life education to explore the world, and document the strange, funny, exhausting adventure of being an old dad doing all of it at once.",
@@ -143,11 +144,11 @@ export const starterPosts: Post[] = [
 export const navigation = [
   { label: 'Home', href: '#/' },
   { label: 'Everything', href: '#/section/everything' },
-  { label: 'Diary of an Old Dad', href: '#/section/diary' },
+  { label: 'Diary', href: '#/section/diary' },
   { label: 'Life Education', href: '#/section/life-education' },
-  { label: 'Music Playlists', href: '#/section/music-playlists' },
+  { label: 'Playlists', href: '#/section/music-playlists' },
   { label: 'Slow Travel', href: '#/section/slow-travel' },
-  { label: 'Advice from an Old Dad', href: '#/section/advice' },
+  { label: 'Advice', href: '#/section/advice' },
   { label: 'About', href: '#/about' },
 ];
 
