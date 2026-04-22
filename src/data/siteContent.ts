@@ -92,8 +92,7 @@ export const starterPosts: Post[] = [
   },
   {
     title: 'Life Education Is Not an Education Blog',
-    excerpt:
-      'A clarifying post about what belongs in this lane and what does not.',
+    excerpt: 'A clarifying post about what belongs in this lane and what does not.',
     section: 'life-education',
     date: 'Coming soon',
     status: 'Recent',
@@ -108,8 +107,7 @@ export const starterPosts: Post[] = [
   },
   {
     title: 'Advice I Wish I Could Hand My Kids Before They Need It',
-    excerpt:
-      'A direct, plainspoken piece in the Advice from an Old Dad lane.',
+    excerpt: 'A direct, plainspoken piece in the Advice from an Old Dad lane.',
     section: 'advice',
     date: 'Coming soon',
     status: 'Starter',
@@ -133,3 +131,7 @@ export const navigation = [
   { label: 'Advice from an Old Dad', href: '#/section/advice' },
   { label: 'About', href: '#/about' },
 ];
+
+export function getSectionName(sectionKey: SectionKey): string {
+  return sections.find((section) => section.key === sectionKey)?.name ?? sectionKey;
+}

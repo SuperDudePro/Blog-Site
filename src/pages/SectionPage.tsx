@@ -46,9 +46,7 @@ export function SectionPage({ sectionKey }: Props) {
             <article className="post-card">
               <span className="post-pill">Coming soon</span>
               <h3>No entries have been dropped into this section yet.</h3>
-              <p>
-                That is fine. Keep the lane available, and add real pieces as they emerge.
-              </p>
+              <p>That is fine. Keep the lane available, and add real pieces as they emerge.</p>
             </article>
           )}
         </div>
