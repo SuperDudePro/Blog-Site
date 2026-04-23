@@ -9,7 +9,7 @@ const post: BlogPost = {
     'A Journey playlist turned into a map of memory, bad timing, school dances, and the Steve Perry years.',
   section: 'music-playlists',
   publishedAt: '2026-04-22',
-  status: 'Featured',
+  status: 'Recent',
   heroImage: topSquare,
   heroAlt: 'Black-and-white concert photo of Steve Perry singing onstage under spotlights.',
   cardImage: topSquare,
