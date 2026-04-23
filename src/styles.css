@@ -169,6 +169,11 @@ h1 {
   font-size: clamp(2.4rem, 5vw, 4.6rem);
 }
 
+.page-hero--post h1 {
+  font-size: clamp(2.1rem, 4vw, 3.35rem);
+  text-wrap: balance;
+}
+
 h2 {
   font-size: clamp(1.6rem, 3vw, 2.6rem);
 }
@@ -231,6 +236,7 @@ p {
 .button--ghost:hover {
   background: var(--accent-soft);
   border-color: var(--accent);
+  color: var(--accent);
 }
 
 .image-placeholder {
@@ -464,6 +470,24 @@ p {
   min-height: 420px;
 }
 
+.page-hero--post {
+  grid-template-columns: minmax(0, 1.12fr) minmax(280px, 0.88fr);
+  align-items: stretch;
+}
+
+.page-hero--post > div:first-child {
+  padding: 1.7rem 1.8rem;
+}
+
+.page-hero--post .feature-image {
+  aspect-ratio: 1 / 1;
+  min-height: 0;
+}
+
+.page-hero--post .feature-image__img {
+  object-position: center 24%;
+}
+
 .feature-image__img {
   display: block;
   width: 100%;
@@ -507,6 +531,33 @@ p {
   text-decoration: underline;
   text-decoration-thickness: 1px;
   text-underline-offset: 0.14em;
+}
+
+.post-article .button {
+  text-decoration: none;
+}
+
+.post-links .button--primary {
+  color: white;
+  background: var(--black);
+  border-color: var(--box-border);
+}
+
+.post-links .button--primary:hover {
+  color: white;
+  background: var(--accent);
+  border-color: var(--accent);
+}
+
+.post-links .button--ghost {
+  color: var(--text);
+  background: transparent;
+}
+
+.post-links .button--ghost:hover {
+  color: var(--accent);
+  background: var(--accent-soft);
+  border-color: var(--accent);
 }
 
 .post-article em {

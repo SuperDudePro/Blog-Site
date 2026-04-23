@@ -1,5 +1,5 @@
 import type { BlogPost } from '../../postTypes';
-import hero from './hero.jpg';
+import topSquare from './top-square.jpg';
 import bandInline from './band-inline.jpg';
 
 const post: BlogPost = {
@@ -10,10 +10,10 @@ const post: BlogPost = {
   section: 'music-playlists',
   publishedAt: '2026-04-22',
   status: 'Featured',
-  heroImage: hero,
-  heroAlt: 'Black-and-white promotional photo of five Journey band members standing together on steps.',
-  cardImage: hero,
-  cardAlt: 'Black-and-white promotional photo of Journey in the Steve Perry era.',
+  heroImage: topSquare,
+  heroAlt: 'Black-and-white concert photo of Steve Perry singing onstage under spotlights.',
+  cardImage: topSquare,
+  cardAlt: 'Black-and-white concert photo of Steve Perry singing during Journey\'s classic era.',
   bodyHtml: `
     <p>Some bands are good. Some bands are important. And then there are bands that get wired so deeply into your life that making a playlist turns into an accidental memoir.</p>
     <p>Journey is one of those bands for me.</p>
