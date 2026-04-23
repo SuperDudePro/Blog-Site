@@ -1,6 +1,7 @@
 import { ImagePlaceholder } from '../components/ImagePlaceholder';
 import { PostCard } from '../components/PostCard';
-import { getPostsForSection, sections, type SectionKey } from '../data/siteContent';
+import { getPostsForSection } from '../content/loadPosts';
+import { sections, type SectionKey } from '../data/siteContent';
 
 type Props = {
   sectionKey: SectionKey;
@@ -14,7 +15,7 @@ export function SectionPage({ sectionKey }: Props) {
     return (
       <div className="page-wrap">
         <h1>Section not found</h1>
-        <p>This starter build expects one of the current public sections.</p>
+        <p>This build expects one of the current public sections.</p>
       </div>
     );
   }
@@ -29,23 +30,23 @@ export function SectionPage({ sectionKey }: Props) {
         </div>
         <ImagePlaceholder
           label={`${section.shortName} image block`}
-          detail="Drop a section-level grayscale image here later, or replace this with a collage or framed quote."
+          detail="Replace this later with a section-level grayscale image, quote card, or collage."
         />
       </section>
 
       <section className="content-band">
         <div className="section-heading">
-          <span className="eyebrow">starter entries</span>
+          <span className="eyebrow">posts</span>
           <h2>
             {section.key === 'everything'
-              ? 'All posts together in one running list.'
-              : 'Placeholder cards for the first pieces in this lane.'}
+              ? 'All current posts together in one running list.'
+              : `Everything currently filed under ${section.name}.`}
           </h2>
         </div>
 
         <div className="post-grid">
           {posts.length > 0 ? (
-            posts.map((post) => <PostCard key={post.title} post={post} />)
+            posts.map((post) => <PostCard key={post.slug} post={post} />)
           ) : (
             <article className="post-card">
               <div className="post-card__body">

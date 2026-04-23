@@ -14,17 +14,6 @@ export type Section = {
   intro: string;
 };
 
-export type Post = {
-  title: string;
-  excerpt: string;
-  section: Exclude<SectionKey, 'everything'>;
-  date: string;
-  publishedAt?: string;
-  status: 'Featured' | 'Recent' | 'Starter';
-  imageUrl?: string;
-  imageAlt?: string;
-};
-
 export const site = {
   title: 'Our Old Dad',
   headerTagline: 'Raising Two Generations',
@@ -86,61 +75,6 @@ export const sections: Section[] = [
   },
 ];
 
-export const starterPosts: Post[] = [
-  {
-    title: 'Why We Are Building the Adventure Before We Feel Ready',
-    excerpt:
-      'A starter piece about time, age, and why the plan has to become a life before it becomes perfect.',
-    section: 'slow-travel',
-    date: 'Coming soon',
-    status: 'Featured',
-    imageAlt: 'Placeholder for a slow-travel post image',
-  },
-  {
-    title: 'What It Means to Raise Two Generations at Once',
-    excerpt:
-      'A field-note style introduction to being an older father with little kids and almost-grown kids at the same time.',
-    section: 'diary',
-    date: 'Coming soon',
-    status: 'Recent',
-    imageAlt: 'Placeholder for a family diary post image',
-  },
-  {
-    title: 'Life Education Is Not an Education Blog',
-    excerpt: 'A clarifying post about what belongs in this lane and what does not.',
-    section: 'life-education',
-    date: 'Coming soon',
-    status: 'Recent',
-    imageAlt: 'Placeholder for a life education post image',
-  },
-  {
-    title: 'The Songs That Make a Family Trip Feel Real',
-    excerpt:
-      'A first playlist-led piece: road songs, memory songs, and songs that help stitch time together.',
-    section: 'music-playlists',
-    date: 'Coming soon',
-    status: 'Starter',
-    imageAlt: 'Placeholder for a music playlists post image',
-  },
-  {
-    title: 'Advice I Wish I Could Hand My Kids Before They Need It',
-    excerpt: 'A direct, plainspoken piece in the Advice from an Old Dad lane.',
-    section: 'advice',
-    date: 'Coming soon',
-    status: 'Starter',
-    imageAlt: 'Placeholder for an advice post image',
-  },
-  {
-    title: 'The Ordinary Day That Turns Into the Story Later',
-    excerpt:
-      'A piece about noticing the family moments that only become important in hindsight.',
-    section: 'diary',
-    date: 'Coming soon',
-    status: 'Starter',
-    imageAlt: 'Placeholder for a diary post image',
-  },
-];
-
 export const navigation = [
   { label: 'Home', href: '#/' },
   { label: 'Everything', href: '#/section/everything' },
@@ -154,24 +88,4 @@ export const navigation = [
 
 export function getSectionName(sectionKey: SectionKey): string {
   return sections.find((section) => section.key === sectionKey)?.name ?? sectionKey;
-}
-
-export function sortPosts(posts: Post[]): Post[] {
-  return [...posts].sort((a, b) => {
-    if (a.publishedAt && b.publishedAt) {
-      return new Date(b.publishedAt).getTime() - new Date(a.publishedAt).getTime();
-    }
-
-    if (a.publishedAt) return -1;
-    if (b.publishedAt) return 1;
-    return 0;
-  });
-}
-
-export function getPostsForSection(sectionKey: SectionKey): Post[] {
-  if (sectionKey === 'everything') {
-    return sortPosts(starterPosts);
-  }
-
-  return sortPosts(starterPosts.filter((post) => post.section === sectionKey));
 }
