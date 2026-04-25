@@ -49,7 +49,7 @@ export function PostPage({ slug }: Props) {
           </div>
         </div>
 
-        <FeaturedImage src={post.heroImage} alt={post.heroAlt} className="feature-image feature-image--tall" />
+        <FeaturedImage src={post.heroImage} alt={post.heroAlt} className="feature-image" />
       </section>
 
       <article className="post-article" dangerouslySetInnerHTML={{ __html: post.bodyHtml }} />
