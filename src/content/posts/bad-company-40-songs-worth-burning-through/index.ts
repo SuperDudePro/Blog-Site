@@ -11,15 +11,15 @@ const post: BlogPost = {
   publishedAt: '2026-04-23',
   status: 'Featured',
   heroImage: topSquare,
-  heroAlt: 'Black-and-white live photo of Bad Company performing onstage during the classic era.',
+  heroAlt: 'Square image of the Bad Company album Desolation Angels with band autographs across the cover.',
   cardImage: topSquare,
-  cardAlt: 'Black-and-white vintage performance photo of Bad Company onstage.',
+  cardAlt: 'Bad Company Desolation Angels album cover with signatures across it.',
   bodyHtml: `
     <p>Saturday morning, Bad Company’s “Early in the Morning” came on my mix, and that was it. Whenever I hear that song, I fall into a trance and start playing it on repeat until I get my fix.</p>
     <p>After that, I did what these songs usually make me do: I started running through Bad Company’s albums, all the way through their sixth one, <em>Rough Diamonds</em>. Even though I know their catalog pretty well, I still manage to underestimate how much that music can move me and how solid those early albums sound from front to back.</p>
     <figure class="post-figure">
-      <img src="${bandInline}" alt="Black-and-white promotional photo of four Bad Company band members standing together." />
-      <figcaption>Bad Company from the run of albums that still does most of the damage for me.</figcaption>
+      <img src="${bandInline}" alt="Black-and-white live photo of Bad Company performing to a massive outdoor crowd, seen from behind the drummer." />
+      <figcaption>The kind of live shot that reminds you how big this band could feel.</figcaption>
     </figure>
     <p><em>Desolation Angels</em> came out in March 1979, right at the end of eighth grade for me. I had already heard plenty of Bad Company on AM and FM radio before then, but I still had not bought one of their albums for myself. Then I heard “Rock ’n’ Roll Fantasy,” got mesmerized, bought the album, and nearly wore it out.</p>
     <p>A couple of months later, I came into what felt like a small fortune at my eighth-grade graduation party: cash, checks, and savings bonds. Back then, giving savings bonds to kids was a pretty standard way for adults to nudge us toward the future and whatever responsible expenses were supposedly waiting there. I am pretty sure none of my savings bonds from either eighth grade or high school lasted more than a few months. I usually cashed them early, ate the penalty, and felt a little guilty about it. Still do, a little.</p>
