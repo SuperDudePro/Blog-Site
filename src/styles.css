@@ -930,12 +930,34 @@ p {
 }
 
 
+.hero {
+  grid-template-columns: minmax(0, 1fr) minmax(240px, 280px);
+}
+
 .feature-image--home-skull {
+  width: min(100%, 280px);
+  max-width: 280px;
+  min-height: auto;
+  aspect-ratio: 1 / 1;
+  justify-self: end;
   background: #f7f5f0;
 }
 
 .feature-image--home-skull .feature-image__img {
-  object-fit: contain;
-  padding: 0.35rem;
+  object-fit: cover;
+  object-position: center;
+  padding: 0;
   background: #f7f5f0;
+}
+
+@media (max-width: 820px) {
+  .hero {
+    grid-template-columns: 1fr;
+  }
+
+  .feature-image--home-skull {
+    width: min(100%, 320px);
+    max-width: 320px;
+    justify-self: center;
+  }
 }
