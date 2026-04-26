@@ -1,3 +1,5 @@
+import everythingImage from '../assets/everything-page-girl.jpg';
+
 export type SectionKey =
   | 'everything'
   | 'diary'
@@ -12,6 +14,8 @@ export type Section = {
   shortName: string;
   description: string;
   intro: string;
+  imageSrc?: string;
+  imageAlt?: string;
 };
 
 export const site = {
@@ -30,6 +34,9 @@ export const sections: Section[] = [
     shortName: 'Everything',
     description: 'All posts in one place.',
     intro: 'All posts in one place.',
+    imageSrc: everythingImage,
+    imageAlt:
+      'A young child laughing with clown-style red face makeup, shown in grayscale except for the red makeup.',
   },
   {
     key: 'diary',

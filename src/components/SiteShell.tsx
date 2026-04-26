@@ -24,12 +24,16 @@ export function SiteShell({ children }: Props) {
 
   return (
     <div className="site-shell">
+      <a className="skip-link" href="#main-content">
+        Skip to main content
+      </a>
+
       <header className="site-header">
         <div className="site-header__inner">
           <a className={`site-brand ${homeActive ? 'site-brand--active' : ''}`} href="#/">
             <span className="site-brand__row">
               <SmileyMark size={28} />
-              <span className="site-brand__title">{site.title}</span>
+              <h2 className="site-brand__title">{site.title}</h2>
             </span>
             <span className="site-brand__tag">{site.headerTagline ?? site.tagline}</span>
           </a>
@@ -40,6 +44,7 @@ export function SiteShell({ children }: Props) {
                 key={item.href}
                 href={item.href}
                 className={`site-nav__link ${isActive(item.href) ? 'is-active' : ''}`}
+                aria-current={isActive(item.href) ? 'page' : undefined}
               >
                 {item.label}
               </a>
@@ -48,7 +53,9 @@ export function SiteShell({ children }: Props) {
         </div>
       </header>
 
-      <main className="site-main">{children}</main>
+      <main id="main-content" className="site-main" tabIndex={-1}>
+        {children}
+      </main>
 
       <footer className="site-footer">
         <div className="site-footer__inner">
@@ -68,6 +75,7 @@ export function SiteShell({ children }: Props) {
                 key={item.href}
                 href={item.href}
                 className={`site-footer__link ${isActive(item.href) ? 'is-active' : ''}`}
+                aria-current={isActive(item.href) ? 'page' : undefined}
               >
                 {item.label}
               </a>

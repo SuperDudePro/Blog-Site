@@ -1,3 +1,4 @@
+import { FeaturedImage } from '../components/FeaturedImage';
 import { ImagePlaceholder } from '../components/ImagePlaceholder';
 import { PostCard } from '../components/PostCard';
 import { getPostsForSection } from '../content/loadPosts';
@@ -28,19 +29,18 @@ export function SectionPage({ sectionKey }: Props) {
           <h1>{section.name}</h1>
           <p className="lead">{section.intro}</p>
         </div>
-        <ImagePlaceholder
-          label={section.shortName}
-          detail={section.description}
-        />
+        {section.imageSrc ? (
+          <FeaturedImage src={section.imageSrc} alt={section.imageAlt} className="feature-image feature-image--section" />
+        ) : (
+          <ImagePlaceholder label={section.shortName} detail={section.description} />
+        )}
       </section>
 
       <section className="content-band">
         <div className="section-heading">
           <span className="eyebrow">posts</span>
           <h2>
-            {section.key === 'everything'
-              ? 'All posts in one place.'
-              : `${section.name}`}
+            {section.key === 'everything' ? 'All posts in one place.' : `${section.name}`}
           </h2>
         </div>
 
