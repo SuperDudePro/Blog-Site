@@ -1,4 +1,5 @@
 import everythingImage from '../assets/everything-page-girl.png';
+import playlistsHeadphonesImage from '../assets/playlists-headphones.jpg';
 
 export type SectionKey =
   | 'everything'
@@ -61,6 +62,9 @@ export const sections: Section[] = [
     description: 'Songs, seasons, road soundtracks, memory triggers, and what to put on next.',
     intro:
       'Playlists, music memories, and little essays about the songs that stick around.',
+    imageSrc: playlistsHeadphonesImage,
+    imageAlt:
+      'A stylized head wearing large headphones, with sunglasses and a colorful beard on a black background.',
   },
   {
     key: 'slow-travel',
