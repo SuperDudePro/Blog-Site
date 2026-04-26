@@ -19,9 +19,8 @@ export const site = {
   headerTagline: 'Raising Two Generations',
   tagline: 'Flailing, Raging, and Raising Two Generations',
   intro:
-    "I'm a 61-year-old teacher and father of four, raising a 4-year-old daughter and a 2-year-old son while still helping two older kids find their way into adult life. This site follows our attempt to build a slow-travel life, use life education to explore the world, and document the strange, funny, exhausting adventure of being an old dad doing all of it at once.",
-  footerNote:
-    'A record of fatherhood, slow travel, life education, music, and the work of building a bigger life before time runs out.',
+    'Notes on fatherhood, music, memory, learning, and the attempt to build a bigger life while time is still on the clock.',
+  footerNote: 'A dad diary with fewer lies and better playlists.',
 };
 
 export const sections: Section[] = [
@@ -29,9 +28,8 @@ export const sections: Section[] = [
     key: 'everything',
     name: 'Everything',
     shortName: 'Everything',
-    description: 'All posts in one place, shown together instead of split into lanes.',
-    intro:
-      'This is the full running list. Same cards, same posts, just all together in one place so you can scan everything without choosing a lane first.',
+    description: 'All posts in one place.',
+    intro: 'All posts in one place.',
   },
   {
     key: 'diary',
@@ -39,7 +37,7 @@ export const sections: Section[] = [
     shortName: 'Diary',
     description: 'Scenes, memory, family life, and the day-to-day absurdity of being an old dad.',
     intro:
-      'This is the most lived-in lane on the site: remembered scenes, current moments, family stories, and the kind of ordinary chaos that becomes the real record later.',
+      'Scenes from family life, remembered moments, and the ordinary chaos that turns into the real record later.',
   },
   {
     key: 'life-education',
@@ -47,7 +45,7 @@ export const sections: Section[] = [
     shortName: 'Life Education',
     description: 'What is worth learning, how kids grow, and what makes a life feel real.',
     intro:
-      'Not a policy blog and not a school rant bin. This section is for what matters in learning, judgment, capability, and building a life that is more than compliance.',
+      'Thoughts on learning, judgment, capability, and the kind of education that reaches beyond compliance.',
   },
   {
     key: 'music-playlists',
@@ -55,7 +53,7 @@ export const sections: Section[] = [
     shortName: 'Playlists',
     description: 'Songs, seasons, road soundtracks, memory triggers, and what to put on next.',
     intro:
-      'Some posts will be actual playlists. Some will be little essays disguised as playlists. This lane gives music a place without pretending it has to be separate from the rest of life.',
+      'Playlists, music memories, and little essays about the songs that stick around.',
   },
   {
     key: 'slow-travel',
@@ -63,7 +61,7 @@ export const sections: Section[] = [
     shortName: 'Slow Travel',
     description: 'Building the trip, building the life, and learning how to move more slowly on purpose.',
     intro:
-      'This is where the planning, experiments, route sketches, lessons from the road, and the deeper why behind slow travel will live.',
+      'Planning the road ahead, learning from the trips already taken, and figuring out how to move more slowly on purpose.',
   },
   {
     key: 'advice',
@@ -71,7 +69,7 @@ export const sections: Section[] = [
     shortName: 'Advice',
     description: 'Direct pieces, sharper takes, hard-earned advice, and a little fatherly bluntness.',
     intro:
-      'Less scene, more point. When a post wants to get to the lesson, the warning, or the argument without too much setup, it belongs here.',
+      'Sharper takes, direct lessons, warnings, and hard-earned advice without too much setup.',
   },
 ];
 

@@ -29,8 +29,8 @@ export function SectionPage({ sectionKey }: Props) {
           <p className="lead">{section.intro}</p>
         </div>
         <ImagePlaceholder
-          label={`${section.shortName} image block`}
-          detail="A section image, quote card, or collage can live here."
+          label={section.shortName}
+          detail={section.description}
         />
       </section>
 
@@ -39,8 +39,8 @@ export function SectionPage({ sectionKey }: Props) {
           <span className="eyebrow">posts</span>
           <h2>
             {section.key === 'everything'
-              ? 'All current posts together in one running list.'
-              : `Everything currently filed under ${section.name}.`}
+              ? 'All posts in one place.'
+              : `${section.name}`}
           </h2>
         </div>
 
@@ -50,9 +50,9 @@ export function SectionPage({ sectionKey }: Props) {
           ) : (
             <article className="post-card">
               <div className="post-card__body">
-                <span className="post-pill">Coming soon</span>
-                <h3>No entries in this section yet.</h3>
-                <p>More writing will appear here over time.</p>
+                <span className="post-pill">Soon</span>
+                <h3>No posts in this section yet.</h3>
+                <p>More writing will appear here soon.</p>
               </div>
             </article>
           )}

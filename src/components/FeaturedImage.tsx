@@ -11,7 +11,7 @@ export function FeaturedImage({ src, alt, className }: Props) {
     return (
       <ImagePlaceholder
         label="Featured image"
-        detail="Drop a grayscale documentary-style image here later."
+        detail="A visual note from the latest post."
         tall
       />
     );
