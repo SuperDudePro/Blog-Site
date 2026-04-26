@@ -1,6 +1,7 @@
 import { FeaturedImage } from '../components/FeaturedImage';
 import { ImagePlaceholder } from '../components/ImagePlaceholder';
 import { PostCard } from '../components/PostCard';
+import { RotatingGallery } from '../components/RotatingGallery';
 import { getPostsForSection } from '../content/loadPosts';
 import { sections, type SectionKey } from '../data/siteContent';
 
@@ -11,6 +12,7 @@ type Props = {
 export function SectionPage({ sectionKey }: Props) {
   const section = sections.find((item) => item.key === sectionKey);
   const posts = getPostsForSection(sectionKey);
+  const isPlaylistPage = sectionKey === 'music-playlists';
 
   if (!section) {
     return (
@@ -23,34 +25,40 @@ export function SectionPage({ sectionKey }: Props) {
 
   return (
     <div className="page-wrap">
-      <section className="page-hero">
-        <div>
+      {isPlaylistPage ? (
+        <section className="playlist-hero">
           <span className="eyebrow">section</span>
           <h1>{section.name}</h1>
-          <p className="lead">{section.intro}</p>
-        </div>
-        {section.imageSrc ? (
-          <FeaturedImage
-            src={section.imageSrc}
-            alt={section.imageAlt}
-            className="feature-image feature-image--section"
-          />
-        ) : (
-          <ImagePlaceholder label={section.shortName} detail={section.description} />
-        )}
-      </section>
-
-      {section.secondaryImageSrc ? (
-        <section className="content-band content-band--section-art">
-          <div className="section-art-wrap">
+          {section.galleryImages?.length ? (
+            <RotatingGallery images={section.galleryImages} intervalMs={6000} />
+          ) : section.imageSrc ? (
             <FeaturedImage
-              src={section.secondaryImageSrc}
-              alt={section.secondaryImageAlt}
-              className="feature-image feature-image--section-secondary"
+              src={section.imageSrc}
+              alt={section.imageAlt}
+              className="feature-image feature-image--playlist-single"
             />
-          </div>
+          ) : (
+            <ImagePlaceholder label={section.shortName} detail={section.description} />
+          )}
         </section>
-      ) : null}
+      ) : (
+        <section className="page-hero">
+          <div>
+            <span className="eyebrow">section</span>
+            <h1>{section.name}</h1>
+            <p className="lead">{section.intro}</p>
+          </div>
+          {section.imageSrc ? (
+            <FeaturedImage
+              src={section.imageSrc}
+              alt={section.imageAlt}
+              className="feature-image feature-image--section"
+            />
+          ) : (
+            <ImagePlaceholder label={section.shortName} detail={section.description} />
+          )}
+        </section>
+      )}
 
       <section className="content-band">
         <div className="section-heading">

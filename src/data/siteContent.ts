@@ -1,6 +1,6 @@
 import everythingImage from '../assets/everything-page-girl.png';
-import playlistsSkullHeroImage from '../assets/playlists-skull-hero.png';
 import playlistsSkullMainImage from '../assets/playlists-skull-main.png';
+import playlistsSkullInkImage from '../assets/playlists-skull-ink-enhanced.png';
 
 export type SectionKey =
   | 'everything'
@@ -10,6 +10,11 @@ export type SectionKey =
   | 'slow-travel'
   | 'advice';
 
+export type SectionGalleryImage = {
+  src: string;
+  alt: string;
+};
+
 export type Section = {
   key: SectionKey;
   name: string;
@@ -18,8 +23,7 @@ export type Section = {
   intro: string;
   imageSrc?: string;
   imageAlt?: string;
-  secondaryImageSrc?: string;
-  secondaryImageAlt?: string;
+  galleryImages?: SectionGalleryImage[];
 };
 
 export const site = {
@@ -65,12 +69,16 @@ export const sections: Section[] = [
     description: 'Songs, seasons, road soundtracks, memory triggers, and what to put on next.',
     intro:
       'Playlists, music memories, and little essays about the songs that stick around.',
-    imageSrc: playlistsSkullHeroImage,
-    imageAlt:
-      'A grayscale pencil-style drawing of a skull with a purple beard wearing over-ear headphones, with musical notes around it.',
-    secondaryImageSrc: playlistsSkullMainImage,
-    secondaryImageAlt:
-      'A charcoal-style drawing of a bearded skull wearing retro headphones and sunglasses, with light purple highlights.',
+    galleryImages: [
+      {
+        src: playlistsSkullInkImage,
+        alt: 'A pencil-style grayscale drawing of an old skull with a purple beard wearing large headphones, surrounded by music notes.',
+      },
+      {
+        src: playlistsSkullMainImage,
+        alt: 'A charcoal-style drawing of a bearded skull in retro headphones and sunglasses with soft purple highlights.',
+      },
+    ],
   },
   {
     key: 'slow-travel',
