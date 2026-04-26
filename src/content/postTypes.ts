@@ -1,19 +1,19 @@
-import type { SectionKey } from '../data/siteContent';
+import type { ReactNode } from "react";
 
-export type PublicSectionKey = Exclude<SectionKey, 'everything'>;
-export type PostStatus = 'Featured' | 'Recent' | 'Starter';
+export type PostStatus = "Featured" | "Recent" | "Coming Soon";
 
-export type BlogPost = {
+export type LifeEducationPost = {
   slug: string;
   title: string;
   excerpt: string;
-  section: PublicSectionKey;
   publishedAt: string;
   displayDate?: string;
   status?: PostStatus;
+  topic?: string;
+  tags?: string[];
   heroImage?: string;
   heroAlt?: string;
   cardImage?: string;
   cardAlt?: string;
-  bodyHtml: string;
+  body: ReactNode;
 };

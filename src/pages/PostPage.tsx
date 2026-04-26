@@ -1,6 +1,6 @@
-import { FeaturedImage } from '../components/FeaturedImage';
-import { getPostBySlug, formatPostDate } from '../content/loadPosts';
-import { getSectionName } from '../data/siteContent';
+import { PageShell } from "../components/PageShell";
+import { BackBar } from "../components/BackBar";
+import { getPostBySlug, formatPostDate } from "../content/loadPosts";
 
 type Props = {
   slug: string;
@@ -11,48 +11,47 @@ export function PostPage({ slug }: Props) {
 
   if (!post) {
     return (
-      <div className="page-wrap">
-        <section className="page-hero">
-          <div>
-            <span className="eyebrow">not found</span>
-            <h1>That post is not here.</h1>
-            <p className="lead">
-              The route exists, but no post folder with that slug was found under src/content/posts.
-            </p>
-            <div className="hero__actions">
-              <a className="button button--primary" href="#/section/everything">
-                Browse everything
-              </a>
-            </div>
-          </div>
-          <FeaturedImage />
+      <PageShell>
+        <section className="doc-hero">
+          <div className="doc-pill">Post not found</div>
+          <h1 className="doc-title">That post is not here.</h1>
+          <p className="doc-subtitle">The route exists, but no matching post folder was found under src/posts.</p>
         </section>
-      </div>
+        <BackBar><a href="/posts" className="back-link">← Back to Posts</a></BackBar>
+      </PageShell>
     );
   }
 
   return (
-    <div className="page-wrap">
-      <section className="page-hero page-hero--post">
-        <div>
-          <span className="eyebrow">{getSectionName(post.section)}</span>
-          <h1>{post.title}</h1>
-          <p className="lead">{post.excerpt}</p>
-          <p className="post-page__meta">{formatPostDate(post)}</p>
-          <div className="hero__actions">
-            <a className="button button--primary" href={`#/section/${post.section}`}>
-              More in this section
-            </a>
-            <a className="button button--ghost" href="#/section/everything">
-              Browse everything
-            </a>
+    <PageShell>
+      <article>
+        <section className="post-hero">
+          <div className="post-hero-copy">
+            <div className="doc-pill">{post.topic ?? "Post"}</div>
+            <h1 className="doc-title">{post.title}</h1>
+            <p className="doc-subtitle">{post.excerpt}</p>
+            <p className="post-page-meta">{formatPostDate(post)}</p>
+            <div className="post-hero-actions">
+              <a className="why-button" href="/posts">Browse all posts</a>
+            </div>
           </div>
+          {post.heroImage ? (
+            <div className="post-hero-media">
+              <img src={post.heroImage} alt={post.heroAlt ?? ""} loading="eager" decoding="async" />
+            </div>
+          ) : null}
+        </section>
+        <BackBar><a href="/posts" className="back-link">← Back to Posts</a></BackBar>
+        <section className="post-article">
+          {post.body}
+        </section>
+      </article>
+      <footer className="footer">
+        <div className="footer-inner">
+          <div className="footer-text">© LifeEducation.org</div>
+          <a className="footer-link" href="mailto:LifeEducationInformation@gmail.com">LifeEducationInformation@gmail.com</a>
         </div>
-
-        <FeaturedImage src={post.heroImage} alt={post.heroAlt} className="feature-image" />
-      </section>
-
-      <article className="post-article" dangerouslySetInnerHTML={{ __html: post.bodyHtml }} />
-    </div>
+      </footer>
+    </PageShell>
   );
 }
