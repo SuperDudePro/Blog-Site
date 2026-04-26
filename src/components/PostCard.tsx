@@ -1,43 +1,36 @@
-import { formatPostDate } from "../content/loadPosts";
-import type { LifeEducationPost } from "../content/postTypes";
+import { formatPostDate } from '../content/loadPosts';
+import type { BlogPost } from '../content/postTypes';
+import { getSectionName } from '../data/siteContent';
+import { ImagePlaceholder } from './ImagePlaceholder';
 
 type Props = {
-  post: LifeEducationPost;
+  post: BlogPost;
 };
 
 export function PostCard({ post }: Props) {
   const imageSrc = post.cardImage ?? post.heroImage;
-  const imageAlt = post.cardAlt ?? post.heroAlt ?? "";
+  const imageAlt = post.cardAlt ?? post.heroAlt ?? post.title;
 
   return (
     <article className="post-card">
-      <a className="post-card-media" href={`/posts/${post.slug}`} aria-label={`Read ${post.title}`}>
+      <div className="post-card__media">
         {imageSrc ? (
-          <img className="post-card-image" src={imageSrc} alt={imageAlt} loading="lazy" decoding="async" />
+          <img className="post-card__image" src={imageSrc} alt={imageAlt} />
         ) : (
-          <div className="post-card-placeholder" aria-hidden="true">
-            <span>LifeEducation</span>
-          </div>
+          <ImagePlaceholder label="Post image" detail="Add a grayscale post image later." compact />
         )}
-      </a>
-      <div className="post-card-body">
-        <div className="post-card-kicker">
-          <span className="post-pill">{post.status ?? "Recent"}</span>
-          <span>{formatPostDate(post)}</span>
-        </div>
-        {post.topic ? <div className="post-card-topic">{post.topic}</div> : null}
-        <h2 className="post-card-title">
-          <a href={`/posts/${post.slug}`}>{post.title}</a>
-        </h2>
-        <p className="post-card-excerpt">{post.excerpt}</p>
-        {post.tags?.length ? (
-          <div className="post-tags" aria-label="Post tags">
-            {post.tags.slice(0, 4).map((tag) => (
-              <span key={tag} className="post-tag">{tag}</span>
-            ))}
-          </div>
-        ) : null}
-        <a className="post-read-link" href={`/posts/${post.slug}`}>Read post</a>
+      </div>
+
+      <div className="post-card__body">
+        <span className="post-pill">{post.status ?? 'Recent'}</span>
+        <p className="post-card__meta">
+          {formatPostDate(post)} · {getSectionName(post.section)}
+        </p>
+        <h3>{post.title}</h3>
+        <p>{post.excerpt}</p>
+        <a className="text-link" href={`#/post/${post.slug}`}>
+          Read post
+        </a>
       </div>
     </article>
   );
