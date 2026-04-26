@@ -2,6 +2,7 @@ import { FeaturedImage } from '../components/FeaturedImage';
 import { PostCard } from '../components/PostCard';
 import { SectionCard } from '../components/SectionCard';
 import { getFeaturedPost, posts } from '../content/loadPosts';
+import homeSkullImage from '../assets/home-skull-square.png';
 import { sections, site } from '../data/siteContent';
 
 export function HomePage() {
@@ -28,9 +29,9 @@ export function HomePage() {
         </div>
 
         <FeaturedImage
-          src={featured?.heroImage}
-          alt={featured?.heroAlt}
-          className="feature-image feature-image--tall"
+          src={homeSkullImage}
+          alt="A square charcoal-style drawing of a skull with headphones, aviator sunglasses, and purple beard highlights."
+          className="feature-image feature-image--tall feature-image--home-skull"
         />
       </section>
 

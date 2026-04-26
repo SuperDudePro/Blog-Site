@@ -928,3 +928,14 @@ p {
     min-height: 320px;
   }
 }
+
+
+.feature-image--home-skull {
+  background: #f7f5f0;
+}
+
+.feature-image--home-skull .feature-image__img {
+  object-fit: contain;
+  padding: 0.35rem;
+  background: #f7f5f0;
+}
