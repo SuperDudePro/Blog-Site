@@ -17,7 +17,7 @@ export function PostPage({ slug }: Props) {
             <span className="eyebrow">not found</span>
             <h1>That post is not here.</h1>
             <p className="lead">
-              The route exists, but no post folder with that slug was found under src/content/posts.
+              That link does not point to a post that exists here.
             </p>
             <div className="hero__actions">
               <a className="button button--primary" href="#/section/everything">

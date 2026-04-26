@@ -89,3 +89,5 @@ export const navigation = [
 export function getSectionName(sectionKey: SectionKey): string {
   return sections.find((section) => section.key === sectionKey)?.name ?? sectionKey;
 }
+
+export const featuredPostSlug: string | null = null;

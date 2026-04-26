@@ -9,7 +9,7 @@ const post: BlogPost = {
     'A Bad Company playlist brought back eighth-grade graduation money, a record-store splurge, and a band that still hits harder than I remember.',
   section: 'music-playlists',
   publishedAt: '2026-04-23',
-  status: 'Featured',
+  status: 'Recent',
   heroImage: topSquare,
   heroAlt: 'Square image of the Bad Company album Desolation Angels with band autographs across the cover.',
   cardImage: topSquare,

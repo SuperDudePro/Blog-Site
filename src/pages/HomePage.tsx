@@ -12,7 +12,7 @@ export function HomePage() {
     <>
       <section className="hero">
         <div className="hero__copy">
-          <span className="eyebrow">voice-first writing project</span>
+          <span className="eyebrow">field notes</span>
           <h1>{site.title}</h1>
           <p className="hero__tagline">{site.tagline}</p>
           <p className="hero__intro">{site.intro}</p>
@@ -39,8 +39,8 @@ export function HomePage() {
           <span className="eyebrow">featured</span>
           <h2>
             {featured
-              ? 'Start with the newest piece already dropped into the system.'
-              : 'The first real post will show up here automatically.'}
+              ? 'Start with the latest piece.'
+              : 'The latest writing appears here.'}
           </h2>
         </div>
 
@@ -49,13 +49,13 @@ export function HomePage() {
 
           <article className="featured-card">
             <span className="post-pill">{featured?.status ?? 'Waiting'}</span>
-            <h3>{featured?.title ?? 'No post has been dropped in yet.'}</h3>
+            <h3>{featured?.title ?? 'Latest writing'}</h3>
             <p>
               {featured?.excerpt ??
-                'Once the first post folder exists under src/content/posts, the home page will pull it in automatically.'}
+                'The most recent post leads the page unless a different feature is chosen.'}
             </p>
             <a className="button button--primary" href={featured ? `#/post/${featured.slug}` : '#/about'}>
-              {featured ? 'Read featured post' : 'Read about the project'}
+              {featured ? 'Read latest post' : 'Read about the site'}
             </a>
           </article>
         </div>
@@ -64,7 +64,7 @@ export function HomePage() {
       <section className="content-band" id="recent-writing">
         <div className="section-heading">
           <span className="eyebrow">recent writing</span>
-          <h2>Now the post cards are real. Drop in another folder and this list grows.</h2>
+          <h2>Recent writing, memory, music, and whatever else made the cut.</h2>
         </div>
 
         <div className="post-grid">
@@ -74,8 +74,8 @@ export function HomePage() {
             <article className="post-card post-card--empty">
               <div className="post-card__body">
                 <span className="post-pill">Ready</span>
-                <h3>No extra posts yet.</h3>
-                <p>The system is wired. The next move is just another post folder.</p>
+                <h3>No posts yet.</h3>
+                <p>More writing will collect here as it is published.</p>
               </div>
             </article>
           )}
@@ -97,7 +97,7 @@ export function HomePage() {
 
       <section className="content-band content-band--closing">
         <div className="closing-note">
-          <span className="eyebrow">the project</span>
+          <span className="eyebrow">closing note</span>
           <h2>Black-and-white field notes from a late-built family adventure.</h2>
           <p>{site.footerNote}</p>
         </div>

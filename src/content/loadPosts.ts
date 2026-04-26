@@ -1,4 +1,4 @@
-import type { SectionKey } from '../data/siteContent';
+import { featuredPostSlug, type SectionKey } from '../data/siteContent';
 import type { BlogPost } from './postTypes';
 
 const modules = import.meta.glob('./posts/*/index.ts', { eager: true }) as Record<
@@ -11,7 +11,11 @@ export const posts: BlogPost[] = Object.values(modules)
   .sort((a, b) => new Date(b.publishedAt).getTime() - new Date(a.publishedAt).getTime());
 
 export function getFeaturedPost(): BlogPost | undefined {
-  return posts.find((post) => post.status === 'Featured') ?? posts[0];
+  if (featuredPostSlug) {
+    return posts.find((post) => post.slug === featuredPostSlug) ?? posts[0];
+  }
+
+  return posts[0];
 }
 
 export function getPostBySlug(slug: string): BlogPost | undefined {

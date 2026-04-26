@@ -23,7 +23,7 @@ const post: BlogPost = {
     </figure>
     <p>I was somewhere between 15 and 25 for the decade, which means that music should hit me right in the sentimental machinery. It should be impossible for me to hear it clearly. It should all be wrapped up in first cars, bad hair, part-time jobs, movie theaters, girls I was too scared to talk to, and the general drama of being young enough to think every song was somehow about me.</p>
     <p>And some of it is.</p>
-    <p>But I have to be honest: the 80s are one of my least favorite decades musically.</p>
+    <p>But I have to be honest: the 80s is one of my least favorite decades musically.</p>
     <p>There. I said it.</p>
     <p>I know that is wrong in some official cultural sense. The 80s have won. They have been recycled, merchandised, playlisted, rebooted, Halloween-costumed, and <em>Stranger Things</em>-ed into permanent victory. People love the 80s now in a way that sometimes makes me feel like maybe I lived through a different decade.</p>
     <p>Because when I think of 80s music, I do not just think of the good stuff. I think of the stuff that makes my teeth hurt.</p>

@@ -24,9 +24,7 @@ export function AboutPage() {
           <h2>The short version</h2>
           <p>{site.intro}</p>
           <p>
-            The site is meant to lead with voice, publish often, and stay flexible. It is not a
-            polished lifestyle brand and it is not a giant content machine. It is a place to write,
-            document, argue, remember, plan, and keep moving.
+            The site leads with voice, publishes often, and stays flexible. It is not a polished lifestyle brand and it is not a giant content machine. It is a place to write, document, argue, remember, plan, and keep moving.
           </p>
         </div>
 
@@ -47,8 +45,7 @@ export function AboutPage() {
           <span className="eyebrow">working principle</span>
           <h2>Build the adventure while you are still in it.</h2>
           <p>
-            This starter site keeps the visuals restrained and the publishing workflow simple so the
-            focus stays on getting writing out into the world.
+            The visuals stay restrained and the publishing workflow stays simple so the focus can remain on getting writing out into the world.
           </p>
         </div>
       </section>

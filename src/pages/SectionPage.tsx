@@ -15,7 +15,7 @@ export function SectionPage({ sectionKey }: Props) {
     return (
       <div className="page-wrap">
         <h1>Section not found</h1>
-        <p>This build expects one of the current public sections.</p>
+        <p>That section does not exist here.</p>
       </div>
     );
   }
@@ -30,7 +30,7 @@ export function SectionPage({ sectionKey }: Props) {
         </div>
         <ImagePlaceholder
           label={`${section.shortName} image block`}
-          detail="Replace this later with a section-level grayscale image, quote card, or collage."
+          detail="A section image, quote card, or collage can live here."
         />
       </section>
 
@@ -51,8 +51,8 @@ export function SectionPage({ sectionKey }: Props) {
             <article className="post-card">
               <div className="post-card__body">
                 <span className="post-pill">Coming soon</span>
-                <h3>No entries have been dropped into this section yet.</h3>
-                <p>That is fine. Keep the lane available, and add real pieces as they emerge.</p>
+                <h3>No entries in this section yet.</h3>
+                <p>More writing will appear here over time.</p>
               </div>
             </article>
           )}
