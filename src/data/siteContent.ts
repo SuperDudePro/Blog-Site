@@ -1,5 +1,6 @@
 import everythingImage from '../assets/everything-page-girl.png';
-import playlistsHeadphonesImage from '../assets/playlists-headphones.jpg';
+import playlistsSkullHeroImage from '../assets/playlists-skull-hero.png';
+import playlistsSkullMainImage from '../assets/playlists-skull-main.png';
 
 export type SectionKey =
   | 'everything'
@@ -17,6 +18,8 @@ export type Section = {
   intro: string;
   imageSrc?: string;
   imageAlt?: string;
+  secondaryImageSrc?: string;
+  secondaryImageAlt?: string;
 };
 
 export const site = {
@@ -62,9 +65,12 @@ export const sections: Section[] = [
     description: 'Songs, seasons, road soundtracks, memory triggers, and what to put on next.',
     intro:
       'Playlists, music memories, and little essays about the songs that stick around.',
-    imageSrc: playlistsHeadphonesImage,
+    imageSrc: playlistsSkullHeroImage,
     imageAlt:
-      'A stylized head wearing large headphones, with sunglasses and a colorful beard on a black background.',
+      'A grayscale pencil-style drawing of a skull with a purple beard wearing over-ear headphones, with musical notes around it.',
+    secondaryImageSrc: playlistsSkullMainImage,
+    secondaryImageAlt:
+      'A charcoal-style drawing of a bearded skull wearing retro headphones and sunglasses, with light purple highlights.',
   },
   {
     key: 'slow-travel',

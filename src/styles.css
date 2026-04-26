@@ -837,3 +837,22 @@ p {
     font-size: 2.6rem;
   }
 }
+
+
+.content-band--section-art {
+  padding-top: 0;
+}
+
+.section-art-wrap {
+  width: min(100%, 760px);
+  margin: 0 auto;
+}
+
+.feature-image--section-secondary {
+  min-height: 260px;
+}
+
+.feature-image--section-secondary .feature-image__img {
+  object-fit: contain;
+  background: #f7f5f0;
+}

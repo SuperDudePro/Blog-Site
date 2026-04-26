@@ -30,11 +30,27 @@ export function SectionPage({ sectionKey }: Props) {
           <p className="lead">{section.intro}</p>
         </div>
         {section.imageSrc ? (
-          <FeaturedImage src={section.imageSrc} alt={section.imageAlt} className="feature-image feature-image--section" />
+          <FeaturedImage
+            src={section.imageSrc}
+            alt={section.imageAlt}
+            className="feature-image feature-image--section"
+          />
         ) : (
           <ImagePlaceholder label={section.shortName} detail={section.description} />
         )}
       </section>
+
+      {section.secondaryImageSrc ? (
+        <section className="content-band content-band--section-art">
+          <div className="section-art-wrap">
+            <FeaturedImage
+              src={section.secondaryImageSrc}
+              alt={section.secondaryImageAlt}
+              className="feature-image feature-image--section-secondary"
+            />
+          </div>
+        </section>
+      ) : null}
 
       <section className="content-band">
         <div className="section-heading">
