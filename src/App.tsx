@@ -5,14 +5,19 @@ import { HomePage } from './pages/HomePage';
 import { PostPage } from './pages/PostPage';
 import { SectionPage } from './pages/SectionPage';
 import type { SectionKey } from './data/siteContent';
-import { getLegacyPostSlug, getPostHash } from './data/legacyRoutes';
 
 type Route =
   | { page: 'home' }
   | { page: 'about' }
-  | { page: 'section'; sectionKey: SectionKey }
+  | { page: 'section'; sectionKey: SectionKey; oldLinkNotice?: boolean }
   | { page: 'post'; slug: string }
   | { page: 'not-found' };
+
+function isOldDirectLink(): boolean {
+  const pathname = window.location.pathname;
+
+  return !window.location.hash && pathname !== '/' && pathname !== '/index.html';
+}
 
 function routeFromHash(hash: string): Route {
   const currentHash = hash || '#/';
@@ -38,11 +43,8 @@ function routeFromHash(hash: string): Route {
 }
 
 function getCurrentRoute(): Route {
-  const legacySlug = getLegacyPostSlug(window.location.pathname);
-
-  if (legacySlug && !window.location.hash) {
-    window.history.replaceState(null, '', `${window.location.origin}${window.location.pathname}${window.location.search}${getPostHash(legacySlug)}`);
-    return { page: 'post', slug: legacySlug };
+  if (isOldDirectLink()) {
+    return { page: 'section', sectionKey: 'everything', oldLinkNotice: true };
   }
 
   return routeFromHash(window.location.hash);
@@ -52,22 +54,28 @@ export default function App() {
   const [route, setRoute] = useState<Route>(() => getCurrentRoute());
 
   useEffect(() => {
-    const handleHashChange = () => {
+    const handleNavigationChange = () => {
       setRoute(getCurrentRoute());
       window.scrollTo({ top: 0, behavior: 'auto' });
     };
 
-    window.addEventListener('hashchange', handleHashChange);
-    return () => window.removeEventListener('hashchange', handleHashChange);
+    window.addEventListener('hashchange', handleNavigationChange);
+    window.addEventListener('popstate', handleNavigationChange);
+    return () => {
+      window.removeEventListener('hashchange', handleNavigationChange);
+      window.removeEventListener('popstate', handleNavigationChange);
+    };
   }, []);
 
   return (
     <SiteShell>
       {route.page === 'home' && <HomePage />}
       {route.page === 'about' && <AboutPage />}
-      {route.page === 'section' && <SectionPage sectionKey={route.sectionKey} />}
+      {route.page === 'section' && (
+        <SectionPage sectionKey={route.sectionKey} oldLinkNotice={route.oldLinkNotice} />
+      )}
       {route.page === 'post' && <PostPage slug={route.slug} />}
-      {route.page === 'not-found' && <HomePage />}
+      {route.page === 'not-found' && <SectionPage sectionKey="everything" oldLinkNotice />}
     </SiteShell>
   );
 }

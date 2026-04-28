@@ -961,3 +961,23 @@ p {
     justify-self: center;
   }
 }
+
+.old-link-notice {
+  width: min(calc(100% - 2rem), 820px);
+  margin: 0 auto 1.5rem;
+  padding: 1.25rem 1.35rem;
+  background: var(--surface);
+  border: 4px solid var(--box-border);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow);
+}
+
+.old-link-notice h2 {
+  margin-bottom: 0.7rem;
+  font-size: clamp(1.35rem, 2vw, 2rem);
+}
+
+.old-link-notice p {
+  margin-bottom: 0;
+  max-width: 64ch;
+}

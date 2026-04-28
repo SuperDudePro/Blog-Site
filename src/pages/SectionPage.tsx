@@ -7,9 +7,10 @@ import { sections, type SectionKey } from '../data/siteContent';
 
 type Props = {
   sectionKey: SectionKey;
+  oldLinkNotice?: boolean;
 };
 
-export function SectionPage({ sectionKey }: Props) {
+export function SectionPage({ sectionKey, oldLinkNotice = false }: Props) {
   const section = sections.find((item) => item.key === sectionKey);
   const posts = getPostsForSection(sectionKey);
   const isPlaylistPage = sectionKey === 'music-playlists';
@@ -58,6 +59,18 @@ export function SectionPage({ sectionKey }: Props) {
             <ImagePlaceholder label={section.shortName} detail={section.description} />
           )}
         </section>
+      )}
+
+      {oldLinkNotice && sectionKey === 'everything' && (
+        <aside className="old-link-notice" aria-labelledby="old-link-notice-title">
+          <span className="eyebrow">old link</span>
+          <h2 id="old-link-notice-title">You reached Our Old Dad from an old link.</h2>
+          <p>
+            The site has been rebuilt, and some old post URLs have moved. The piece you were
+            looking for may still be here under a new title or section. Browse everything below,
+            or use the sections above to poke around.
+          </p>
+        </aside>
       )}
 
       <section className="content-band">
