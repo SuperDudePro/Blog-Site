@@ -5,6 +5,7 @@ import { HomePage } from './pages/HomePage';
 import { PostPage } from './pages/PostPage';
 import { SectionPage } from './pages/SectionPage';
 import type { SectionKey } from './data/siteContent';
+import { getLegacyPostSlug, getPostHash } from './data/legacyRoutes';
 
 type Route =
   | { page: 'home' }
@@ -13,7 +14,7 @@ type Route =
   | { page: 'post'; slug: string }
   | { page: 'not-found' };
 
-function getRouteFromHash(hash: string): Route {
+function routeFromHash(hash: string): Route {
   const currentHash = hash || '#/';
 
   if (currentHash === '#/' || currentHash === '#') {
@@ -36,12 +37,23 @@ function getRouteFromHash(hash: string): Route {
   return { page: 'not-found' };
 }
 
+function getCurrentRoute(): Route {
+  const legacySlug = getLegacyPostSlug(window.location.pathname);
+
+  if (legacySlug && !window.location.hash) {
+    window.history.replaceState(null, '', `${window.location.origin}${window.location.pathname}${window.location.search}${getPostHash(legacySlug)}`);
+    return { page: 'post', slug: legacySlug };
+  }
+
+  return routeFromHash(window.location.hash);
+}
+
 export default function App() {
-  const [route, setRoute] = useState<Route>(() => getRouteFromHash(window.location.hash));
+  const [route, setRoute] = useState<Route>(() => getCurrentRoute());
 
   useEffect(() => {
     const handleHashChange = () => {
-      setRoute(getRouteFromHash(window.location.hash));
+      setRoute(getCurrentRoute());
       window.scrollTo({ top: 0, behavior: 'auto' });
     };
 
