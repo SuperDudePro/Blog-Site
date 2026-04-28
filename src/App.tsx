@@ -4,7 +4,8 @@ import { AboutPage } from './pages/AboutPage';
 import { HomePage } from './pages/HomePage';
 import { PostPage } from './pages/PostPage';
 import { SectionPage } from './pages/SectionPage';
-import type { SectionKey } from './data/siteContent';
+import { getPostBySlug } from './content/loadPosts';
+import { sections, type SectionKey } from './data/siteContent';
 
 type Route =
   | { page: 'home' }
@@ -13,10 +14,44 @@ type Route =
   | { page: 'post'; slug: string }
   | { page: 'not-found' };
 
-function isOldDirectLink(): boolean {
-  const pathname = window.location.pathname;
+function normalizePath(pathname: string): string {
+  const cleanPath = pathname.replace(/\/+$/, '');
 
-  return !window.location.hash && pathname !== '/' && pathname !== '/index.html';
+  return cleanPath || '/';
+}
+
+function routeFromCleanPath(pathname: string): Route | null {
+  const cleanPath = normalizePath(pathname);
+
+  if (cleanPath === '/' || cleanPath === '/index.html') {
+    return null;
+  }
+
+  if (cleanPath === '/about') {
+    return { page: 'about' };
+  }
+
+  if (cleanPath.startsWith('/post/')) {
+    const slug = decodeURIComponent(cleanPath.replace('/post/', ''));
+
+    if (getPostBySlug(slug)) {
+      return { page: 'post', slug };
+    }
+
+    return { page: 'section', sectionKey: 'everything', oldLinkNotice: true };
+  }
+
+  if (cleanPath.startsWith('/section/')) {
+    const sectionKey = decodeURIComponent(cleanPath.replace('/section/', '')) as SectionKey;
+
+    if (sections.some((section) => section.key === sectionKey)) {
+      return { page: 'section', sectionKey };
+    }
+
+    return { page: 'section', sectionKey: 'everything', oldLinkNotice: true };
+  }
+
+  return { page: 'section', sectionKey: 'everything', oldLinkNotice: true };
 }
 
 function routeFromHash(hash: string): Route {
@@ -43,8 +78,14 @@ function routeFromHash(hash: string): Route {
 }
 
 function getCurrentRoute(): Route {
-  if (isOldDirectLink()) {
-    return { page: 'section', sectionKey: 'everything', oldLinkNotice: true };
+  if (window.location.hash) {
+    return routeFromHash(window.location.hash);
+  }
+
+  const cleanPathRoute = routeFromCleanPath(window.location.pathname);
+
+  if (cleanPathRoute) {
+    return cleanPathRoute;
   }
 
   return routeFromHash(window.location.hash);
