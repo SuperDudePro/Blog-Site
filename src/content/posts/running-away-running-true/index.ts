@@ -8,7 +8,7 @@ const post: BlogPost = {
   title: 'Running Away, Running True',
   excerpt:
     'Regret wants to edit the past selectively. But if I pulled too many threads out of my life, I might also lose the part that matters most.',
-  section: 'life',
+  section: 'diary',
   publishedAt: '2026-04-28',
   status: 'Starter',
   heroImage,
