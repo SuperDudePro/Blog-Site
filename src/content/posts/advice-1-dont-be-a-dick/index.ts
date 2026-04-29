@@ -4,18 +4,18 @@ import patchImage from './dont-be-a-dick-patch.jpg';
 
 const post: BlogPost = {
   slug: 'advice-1-dont-be-a-dick',
-  title: 'Hey, Dudes! Advice From an Old Dad, No. 1: Don\'t Be a Dick',
+  title: 'Hey, Dudes! Advice From an Old Dad, No. 1: Don’t Be a Dick',
   excerpt:
-    "The first rule is not elegant or fancy, but it covers a surprising amount of ground: don't be a dick.",
+    "The first rule is not elegant or fancy, but it covers a surprising amount of ground: don’t be a dick.",
   section: 'advice',
   publishedAt: '2026-04-27',
-  status: 'Starter',
+  status: 'Recent',
   heroImage: heroDesk,
   heroAlt:
-    'A worn wooden desk with a yellow legal pad labeled Advice #1, a pen, reading glasses, a coffee mug, and a small flower doodle.',
+    'A cozy writing desk with a notebook, coffee, and a warm old-dad advice-post mood.',
   cardImage: patchImage,
   cardAlt:
-    'An embroidered circular patch with a smiling flower and the words “DON’T BE A DICK.”',
+    'An embroidered circular patch with a smiling flower and the words DON’T BE A DICK.',
   bodyHtml: `
     <p>Hey, dudes,</p>
     <p>If I’m going to do this, I should probably do it honestly.</p>

@@ -7,9 +7,9 @@ const post: BlogPost = {
   title: 'The Wrong Ruler',
   excerpt:
     'Ross Perot had enough money to stop forever. The fact that he kept going forced me to notice what kind of life I thought money was supposed to buy.',
-  section: 'diary',
+  section: 'life-education',
   publishedAt: '2026-04-28',
-  status: 'Starter',
+  status: 'Recent',
   heroImage,
   heroAlt:
     'Hand-drawn editorial illustration of an older dad at a table with a giant ruler labeled enough stretching toward distant billionaire symbols.',

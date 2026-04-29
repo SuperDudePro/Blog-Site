@@ -1,7 +1,7 @@
 import type { SectionKey } from '../data/siteContent';
 
 export type PublicSectionKey = Exclude<SectionKey, 'everything'>;
-export type PostStatus = 'Featured' | 'Recent' | 'Starter';
+export type PostStatus = 'Featured' | 'Recent';
 
 export type BlogPost = {
   slug: string;

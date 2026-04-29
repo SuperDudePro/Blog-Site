@@ -10,7 +10,7 @@ const post: BlogPost = {
     'Regret wants to edit the past selectively. But if I pulled too many threads out of my life, I might also lose the part that matters most.',
   section: 'diary',
   publishedAt: '2026-04-28',
-  status: 'Starter',
+  status: 'Recent',
   heroImage,
   heroAlt:
     'An older father walks toward a bright open doorway while holding a young girl’s hand and carrying a toddler, with a dark hallway behind them.',
