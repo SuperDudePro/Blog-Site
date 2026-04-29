@@ -1,7 +1,7 @@
 import type { BlogPost } from '../../postTypes';
 import heroImage from './running-away-running-true-hero.png';
-import walkingImage from './father-walking-into-light.png';
 import tangledImage from './tangled-paths-hands.png';
+import signpostImage from './running-away-running-true-signpost.png';
 
 const post: BlogPost = {
   slug: 'running-away-running-true',
@@ -13,10 +13,10 @@ const post: BlogPost = {
   status: 'Starter',
   heroImage,
   heroAlt:
-    'An off-white editorial illustration with purple accents for the essay Running Away, Running True, combining the title, supporting imagery, and a purple signpost showing two directions: Running Away and Running True.',
+    'An older father walks toward a bright open doorway while holding a young girl’s hand and carrying a toddler, with a dark hallway behind them.',
   cardImage: heroImage,
   cardAlt:
-    'Editorial illustration for Running Away, Running True with an off-white background, purple accents, and a signpost pointing to Running Away and Running True.',
+    'An older father walks with two young children from a dark hallway toward a bright open doorway.',
   bodyHtml: `
     <p>I think about regrets a lot.</p>
 
@@ -37,14 +37,14 @@ const post: BlogPost = {
 
     <p>They were not part of some clean master plan. They were not the tidy result of careful ambition and good timing. They were a disguised gift. An old dad’s gift.</p>
 
-    <figure class="post-figure">
-      <img src="${walkingImage}" alt="A father seen from behind walking toward an open door while carrying a toddler and holding a young girl’s hand." />
-      <figcaption>Some parts of life show up late and still turn out to be the part that matters most.</figcaption>
-    </figure>
-
     <p>That is what makes regret so slippery.</p>
 
     <p>Regret wants to edit the past selectively. It wants to remove the bad judgment, the dumb exits, the wasted time, the pain. But it rarely admits that if you start pulling on those threads, you may also unravel the parts of your life you would now protect at all costs.</p>
+
+    <figure class="post-figure">
+      <img src="${tangledImage}" alt="Large hands pulling bright glowing threads apart to reveal the silhouettes of two children in the center." />
+      <figcaption>Regret wants to pull out the bad threads without admitting what else might come undone.</figcaption>
+    </figure>
 
     <p>So no, I don’t believe in “no regrets.”</p>
 
@@ -92,11 +92,6 @@ const post: BlogPost = {
 
     <p>Sometimes it is how a person stays true to himself before he has the words to explain what he is protecting.</p>
 
-    <figure class="post-figure">
-      <img src="${tangledImage}" alt="Large hands pulling bright glowing threads apart to reveal the silhouettes of two children in the center." />
-      <figcaption>Untangling a life usually happens by feel long before it happens by explanation.</figcaption>
-    </figure>
-
     <p>I do not think I was built especially well for long-term toleration of what feels false.</p>
 
     <p>That has cost me.</p>
@@ -108,6 +103,11 @@ const post: BlogPost = {
     <p>Some of what looked like avoidance from the outside was probably fidelity from the inside.</p>
 
     <p>Those exits stopped the drift toward a life that was becoming unrecognizable as mine.</p>
+
+    <figure class="post-figure">
+      <img src="${signpostImage}" alt="A hand-drawn landscape with purple accents and a wooden signpost pointing toward Running Away and Running True." />
+      <figcaption>Sometimes the path only makes sense after you stop pretending every exit was the same kind of mistake.</figcaption>
+    </figure>
 
     <p>Maybe that is the shape of my life: not a clean march toward one grand vision, but a long uneven mix of running toward and running away.</p>
 
