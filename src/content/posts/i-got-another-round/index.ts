@@ -1,6 +1,7 @@
 import type { BlogPost } from '../../postTypes';
 import topSquare from './top-square.jpg';
 import philippines from './philippines.jpg';
+import colorado from './colorado.jpg';
 
 const post: BlogPost = {
   slug: 'i-got-another-round',
@@ -25,6 +26,11 @@ const post: BlogPost = {
     </figure>
 
     <p>The second one is from a couple of years ago. Raven on one side. Alexander on the other. Big white beard. Crocs on Raven&rsquo;s feet. Leaves on the ground. Colorado. I&rsquo;m sixty in that picture. Sixty-one now.</p>
+
+    <figure class="post-figure">
+      <img src="${colorado}" alt="Older Will, big white beard and green Champion hoodie, standing on a Colorado sidewalk with autumn trees behind him, holding baby Alexander on the left and toddler Raven on the right." loading="lazy" decoding="async" />
+      <figcaption>Colorado, with Raven and Alexander.</figcaption>
+    </figure>
 
     <p>In my head, I&rsquo;m still the guy in the first picture.</p>
 
