@@ -7,7 +7,7 @@ const post: BlogPost = {
   slug: 'i-got-another-round',
   title: 'I Got Another Round',
   excerpt:
-    'Two pictures, sixteen years apart. Same guy, different game. The setup for what we are about to try.',
+    'Two pictures, thirteen years apart. Same guy, different game. The setup for what we are about to try.',
   section: 'slow-travel',
   publishedAt: '2026-05-09',
   status: 'Recent',
