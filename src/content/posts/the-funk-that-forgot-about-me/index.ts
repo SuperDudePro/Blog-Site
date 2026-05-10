@@ -1,4 +1,6 @@
 import type { BlogPost } from '../../postTypes';
+import heroImage from './hero.jpg';
+import topSquare from './top-square.jpg';
 
 const post: BlogPost = {
   slug: 'the-funk-that-forgot-about-me',
@@ -8,6 +10,12 @@ const post: BlogPost = {
   section: 'diary',
   publishedAt: '2026-05-10',
   status: 'Recent',
+  heroImage,
+  heroAlt:
+    'Charcoal-style sketch of an older man at a late-night desk avoiding Monday work by watching a vintage television clip on a laptop, surrounded by teacher papers and purple-accented notes.',
+  cardImage: topSquare,
+  cardAlt:
+    'Charcoal-style sketch of a late-night teacher desk with a laptop, old television references, school papers, and restrained purple accents.',
   bodyHtml: `
     <p>Teachers know this funk, even when they pretend they don&rsquo;t.</p>
 
