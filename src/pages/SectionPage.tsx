@@ -1,5 +1,4 @@
 import { FeaturedImage } from '../components/FeaturedImage';
-import { ImagePlaceholder } from '../components/ImagePlaceholder';
 import { PostCard } from '../components/PostCard';
 import { RotatingGallery } from '../components/RotatingGallery';
 import { getPostsForSection } from '../content/loadPosts';
@@ -13,7 +12,6 @@ type Props = {
 export function SectionPage({ sectionKey, oldLinkNotice = false }: Props) {
   const section = sections.find((item) => item.key === sectionKey);
   const posts = getPostsForSection(sectionKey);
-  const isPlaylistPage = sectionKey === 'music-playlists';
 
   if (!section) {
     return (
@@ -24,42 +22,33 @@ export function SectionPage({ sectionKey, oldLinkNotice = false }: Props) {
     );
   }
 
+  const hasGallery = Boolean(section.galleryImages?.length);
+  const hasImage = Boolean(section.imageSrc);
+  const hasVisual = hasGallery || hasImage;
+
   return (
     <div className="page-wrap">
-      {isPlaylistPage ? (
-        <section className="playlist-hero">
+      <section className={`section-hero ${hasVisual ? 'section-hero--with-visual' : 'section-hero--text-only'}`}>
+        <div className="section-copy-card">
           <span className="eyebrow">section</span>
           <h1>{section.name}</h1>
-          {section.galleryImages?.length ? (
-            <RotatingGallery images={section.galleryImages} intervalMs={6000} />
-          ) : section.imageSrc ? (
-            <FeaturedImage
-              src={section.imageSrc}
-              alt={section.imageAlt}
-              className="feature-image feature-image--playlist-single"
-            />
-          ) : (
-            <ImagePlaceholder label={section.shortName} detail={section.description} />
-          )}
-        </section>
-      ) : (
-        <section className="page-hero">
-          <div>
-            <span className="eyebrow">section</span>
-            <h1>{section.name}</h1>
-            <p className="lead">{section.intro}</p>
+          <p className="lead">{section.intro}</p>
+        </div>
+
+        {hasVisual && (
+          <div className="section-visual" aria-label={`${section.name} section image`}>
+            {hasGallery ? (
+              <RotatingGallery images={section.galleryImages ?? []} intervalMs={6000} />
+            ) : (
+              <FeaturedImage
+                src={section.imageSrc}
+                alt={section.imageAlt}
+                className="feature-image feature-image--section"
+              />
+            )}
           </div>
-          {section.imageSrc ? (
-            <FeaturedImage
-              src={section.imageSrc}
-              alt={section.imageAlt}
-              className="feature-image feature-image--section"
-            />
-          ) : (
-            <ImagePlaceholder label={section.shortName} detail={section.description} />
-          )}
-        </section>
-      )}
+        )}
+      </section>
 
       {oldLinkNotice && sectionKey === 'everything' && (
         <aside className="old-link-notice" aria-labelledby="old-link-notice-title">
@@ -85,7 +74,7 @@ export function SectionPage({ sectionKey, oldLinkNotice = false }: Props) {
           {posts.length > 0 ? (
             posts.map((post) => <PostCard key={post.slug} post={post} />)
           ) : (
-            <article className="post-card">
+            <article className="post-card post-card--empty">
               <div className="post-card__body">
                 <span className="post-pill">Soon</span>
                 <h3>No posts in this section yet.</h3>
