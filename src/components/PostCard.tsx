@@ -12,7 +12,7 @@ export function PostCard({ post }: Props) {
   const imageAlt = post.cardAlt ?? post.heroAlt ?? post.title;
 
   return (
-    <article className="post-card">
+    <a className="post-card post-card--clickable" href={`#/post/${post.slug}`} aria-label={`Read ${post.title}`}>
       <div className="post-card__media">
         {imageSrc ? (
           <img className="post-card__image" src={imageSrc} alt={imageAlt} />
@@ -28,10 +28,10 @@ export function PostCard({ post }: Props) {
         </p>
         <h3>{post.title}</h3>
         <p>{post.excerpt}</p>
-        <a className="text-link" href={`#/post/${post.slug}`}>
+        <span className="text-link" aria-hidden="true">
           Read post
-        </a>
+        </span>
       </div>
-    </article>
+    </a>
   );
 }

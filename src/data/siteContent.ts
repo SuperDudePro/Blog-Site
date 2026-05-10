@@ -90,7 +90,7 @@ export const sections: Section[] = [
   },
   {
     key: 'advice',
-    name: 'Advice from an Old Dad',
+    name: "An Old Dad's Advice",
     shortName: 'Advice',
     description: 'Direct pieces, sharper takes, hard-earned advice, and a little fatherly bluntness.',
     intro:
