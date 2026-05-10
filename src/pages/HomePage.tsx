@@ -2,13 +2,12 @@ import { FeaturedImage } from '../components/FeaturedImage';
 import { PostCard } from '../components/PostCard';
 import { SectionCard } from '../components/SectionCard';
 import { getFeaturedPost, posts } from '../content/loadPosts';
-import homeSkullImage from '../assets/home-skull-square.png';
+import homeSkullImage from '../assets/home-skull-square.webp';
 import { sections, site } from '../data/siteContent';
 
 export function HomePage() {
   const featured = getFeaturedPost();
   const recentPosts = posts.filter((post) => post.slug !== featured?.slug).slice(0, 6);
-  const featuredHref = featured ? `#/post/${featured.slug}` : '#/section/everything';
 
   return (
     <>
@@ -20,7 +19,7 @@ export function HomePage() {
           <p className="hero__intro">{site.intro}</p>
 
           <div className="hero__actions">
-            <a className="button button--primary" href={featuredHref}>
+            <a className="button button--primary" href={featured ? `#/post/${featured.slug}` : '#/section/everything'}>
               Read latest post
             </a>
             <a className="button button--ghost" href="#/section/everything">
@@ -43,15 +42,19 @@ export function HomePage() {
         </div>
 
         <div className="featured-grid">
-          <a className="featured-media-link" href={featuredHref} aria-label={featured ? `Read ${featured.title}` : 'Browse all posts'}>
-            <FeaturedImage src={featured?.cardImage ?? featured?.heroImage} alt={featured?.cardAlt ?? featured?.heroAlt} />
-          </a>
+          <FeaturedImage src={featured?.cardImage ?? featured?.heroImage} alt={featured?.cardAlt ?? featured?.heroAlt} />
 
-          <a className="featured-card featured-card--clickable" href={featuredHref} aria-label={featured ? `Read ${featured.title}` : 'Browse all posts'}>
+          <a
+            className="featured-card card-link"
+            href={featured ? `#/post/${featured.slug}` : '#/section/everything'}
+            aria-label={featured ? `Read ${featured.title}` : 'Browse all posts'}
+          >
             <span className="post-pill">{featured?.status ?? 'Recent'}</span>
             <h3>{featured?.title ?? 'Latest writing'}</h3>
-            <p>{featured?.excerpt ?? 'The newest post appears here automatically.'}</p>
-            <span className="button button--primary" aria-hidden="true">
+            <p>
+              {featured?.excerpt ?? 'The newest post appears here automatically.'}
+            </p>
+            <span className="button button--primary button--fake">
               {featured ? 'Read post' : 'Browse all posts'}
             </span>
           </a>

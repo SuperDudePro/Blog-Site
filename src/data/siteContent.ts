@@ -1,6 +1,6 @@
-import everythingImage from '../assets/everything-page-girl.png';
-import playlistsSkullMainImage from '../assets/playlists-skull-main.png';
-import playlistsSkullInkImage from '../assets/playlists-skull-ink-enhanced.png';
+import everythingImage from '../assets/everything-page-girl.webp';
+import playlistsSkullMainImage from '../assets/playlists-skull-main.webp';
+import playlistsSkullInkImage from '../assets/playlists-skull-ink-enhanced.webp';
 
 export type SectionKey =
   | 'everything'

@@ -5,7 +5,9 @@
   "type": "module",
   "scripts": {
     "dev": "vite",
-    "build": "tsc -b && vite build",
+    "generate:sitemap": "node scripts/generate-sitemap.mjs",
+    "validate:content": "node scripts/validate-content.mjs",
+    "build": "npm run generate:sitemap && npm run validate:content && tsc --noEmit -p tsconfig.app.json && tsc --noEmit -p tsconfig.node.json && vite build",
     "preview": "vite preview"
   },
   "dependencies": {

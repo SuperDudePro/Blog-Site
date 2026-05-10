@@ -1,7 +1,7 @@
 import type { BlogPost } from '../../postTypes';
-import hero1977Stage from './hero-1977-stage.png';
-import collage1977Radio from './collage-1977-radio.png';
-import listeningRoom1977 from './listening-room-1977.png';
+import hero1977Stage from './hero-1977-stage.webp';
+import collage1977Radio from './collage-1977-radio.webp';
+import listeningRoom1977 from './listening-room-1977.webp';
 
 const post: BlogPost = {
   slug: '1977-the-year-that-wouldnt-pick-a-lane',

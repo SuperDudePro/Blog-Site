@@ -25,14 +25,24 @@ export function SectionPage({ sectionKey, oldLinkNotice = false }: Props) {
 
   return (
     <div className="page-wrap">
-      {isPlaylistPage ? (
-        <section className="playlist-hero">
-          <div className="section-intro-card section-intro-card--center">
-            <span className="eyebrow">section</span>
-            <h1>{section.name}</h1>
-            <p className="lead">{section.intro}</p>
-          </div>
+      <section className={isPlaylistPage ? 'playlist-hero' : `page-hero page-hero--section${section.imageSrc ? '' : ' page-hero--no-image'}`}>
+        <div className="section-intro-card">
+          <span className="eyebrow">section</span>
+          <h1>{section.name}</h1>
+          <p className="lead">{section.intro}</p>
+        </div>
 
+        {!isPlaylistPage && section.imageSrc ? (
+          <FeaturedImage
+            src={section.imageSrc}
+            alt={section.imageAlt}
+            className="feature-image feature-image--section"
+          />
+        ) : null}
+      </section>
+
+      {isPlaylistPage && (section.galleryImages?.length || section.imageSrc) ? (
+        <section className="content-band content-band--playlist-gallery" aria-label="playlist section art">
           {section.galleryImages?.length ? (
             <RotatingGallery images={section.galleryImages} intervalMs={6000} />
           ) : section.imageSrc ? (
@@ -43,23 +53,7 @@ export function SectionPage({ sectionKey, oldLinkNotice = false }: Props) {
             />
           ) : null}
         </section>
-      ) : (
-        <section className={`section-hero ${section.imageSrc ? 'section-hero--with-image' : 'section-hero--text-only'}`}>
-          <div className="section-intro-card">
-            <span className="eyebrow">section</span>
-            <h1>{section.name}</h1>
-            <p className="lead">{section.intro}</p>
-          </div>
-
-          {section.imageSrc ? (
-            <FeaturedImage
-              src={section.imageSrc}
-              alt={section.imageAlt}
-              className="feature-image feature-image--section"
-            />
-          ) : null}
-        </section>
-      )}
+      ) : null}
 
       {oldLinkNotice && sectionKey === 'everything' && (
         <aside className="old-link-notice" aria-labelledby="old-link-notice-title">
@@ -76,14 +70,16 @@ export function SectionPage({ sectionKey, oldLinkNotice = false }: Props) {
       <section className="content-band">
         <div className="section-heading">
           <span className="eyebrow">posts</span>
-          <h2>{section.key === 'everything' ? 'All posts in one place.' : `${section.name}`}</h2>
+          <h2>
+            {section.key === 'everything' ? 'All posts in one place.' : `${section.name}`}
+          </h2>
         </div>
 
         <div className="post-grid">
           {posts.length > 0 ? (
             posts.map((post) => <PostCard key={post.slug} post={post} />)
           ) : (
-            <article className="post-card">
+            <article className="post-card post-card--empty">
               <div className="post-card__body">
                 <span className="post-pill">Soon</span>
                 <h3>No posts in this section yet.</h3>

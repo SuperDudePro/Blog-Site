@@ -1,6 +1,6 @@
 import type { BlogPost } from '../../postTypes';
-import heroImage from './wrong-ruler-hero.png';
-import contrastImage from './wrong-ruler-contrast.png';
+import heroImage from './wrong-ruler-hero.webp';
+import contrastImage from './wrong-ruler-contrast.webp';
 
 const post: BlogPost = {
   slug: 'the-wrong-ruler',

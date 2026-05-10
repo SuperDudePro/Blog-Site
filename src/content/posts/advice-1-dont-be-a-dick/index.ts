@@ -1,5 +1,5 @@
 import type { BlogPost } from '../../postTypes';
-import heroDesk from './hero-writing-desk.png';
+import heroDesk from './hero-writing-desk.webp';
 import patchImage from './dont-be-a-dick-patch.jpg';
 
 const post: BlogPost = {

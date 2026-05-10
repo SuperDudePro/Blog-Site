@@ -1,7 +1,7 @@
 import type { BlogPost } from '../../postTypes';
 import topImage from './top-billboard-crop.png';
 import acmeBillboardImage from './inline-acme-billboard.png';
-import crosswalkImage from './inline-school-crosswalk.png';
+import crosswalkImage from './inline-school-crosswalk.webp';
 
 const post: BlogPost = {
   slug: 'dad-do-you-love-me-enough-to-protect-me',
