@@ -8,7 +8,7 @@ type Props = {
 
 export function SectionCard({ section }: Props) {
   return (
-    <SiteLink className="section-card card-link" href={sectionPath(section.key)} aria-label={`Open ${section.name}`}>
+    <SiteLink className="section-card card-link" href={sectionPath(section.key)}>
       <span className="post-pill">{section.shortName}</span>
       <h3>{section.name}</h3>
       <p>{section.description}</p>

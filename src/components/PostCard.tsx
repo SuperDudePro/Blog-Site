@@ -14,7 +14,7 @@ export function PostCard({ post }: Props) {
   const imageAlt = post.cardAlt ?? post.heroAlt ?? post.title;
 
   return (
-    <SiteLink className="post-card card-link" href={postPath(post.slug)} aria-label={`Read ${post.title}`}>
+    <SiteLink className="post-card card-link" href={postPath(post.slug)}>
       <div className="post-card__media">
         {imageSrc ? (
           <img className="post-card__image" src={imageSrc} alt={imageAlt} />
