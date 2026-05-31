@@ -36,7 +36,7 @@ const post: BlogPost = {
     <p>Every once in a while you get a moment like that, where what matters becomes obvious and a bunch of other things suddenly look cheap and pointless. It does not happen often. But when it does, you need to catch it.</p>
     <p>She meant it as an insult. Instead, she gave me one of the best compliments I have ever received.</p>
     <figure class="post-figure">
-      <img src="${shovelAndBoots}" alt="A snow shovel leaning against a wooden porch column at night, beside a pair of worn work boots and leather gloves, with a soft glow from the doorway." />
+      <img src="${shovelAndBoots}" alt="A snow shovel leaning against a wooden porch column at night, beside a pair of worn work boots and leather gloves, with a soft glow from the doorway." loading="lazy" decoding="async" />
       <figcaption>Done before anyone else was up.</figcaption>
     </figure>
     <p>A lot of people can understand doing something good if there is some reward attached to it. Money. Praise. Credit. At least a thank you. But there is a different kind of person who will do what needs doing anyway.</p>

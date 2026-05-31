@@ -23,6 +23,10 @@ export function RotatingGallery({ images, intervalMs = 6000 }: Props) {
 
   const current = images[index];
 
+  if (!current) {
+    return null;
+  }
+
   return (
     <div className="rotating-gallery" aria-label="Playlist artwork gallery">
       <div className="rotating-gallery__frame">

@@ -40,8 +40,9 @@ export function getLegacyPostSlug(pathname: string): string | null {
     return null;
   }
 
-  if (legacyPathRedirects[normalized]) {
-    return legacyPathRedirects[normalized];
+  const exactRedirect = legacyPathRedirects[normalized];
+  if (exactRedirect && currentSlugs.has(exactRedirect)) {
+    return exactRedirect;
   }
 
   const pathParts = normalized.split('/').filter(Boolean);
@@ -51,6 +52,10 @@ export function getLegacyPostSlug(pathname: string): string | null {
   }
 
   const lastPart = pathParts[pathParts.length - 1];
+  if (!lastPart) {
+    return null;
+  }
+
   const candidate = slugify(lastPart);
 
   if (candidate && currentSlugs.has(candidate)) {
@@ -58,8 +63,4 @@ export function getLegacyPostSlug(pathname: string): string | null {
   }
 
   return null;
-}
-
-export function getPostHash(slug: string): string {
-  return `#/post/${slug}`;
 }

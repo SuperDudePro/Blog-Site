@@ -1,7 +1,9 @@
 import { formatPostDate } from '../content/loadPosts';
 import type { BlogPost } from '../content/postTypes';
 import { getSectionName } from '../data/siteContent';
+import { postPath } from '../routes';
 import { ImagePlaceholder } from './ImagePlaceholder';
+import { SiteLink } from './SiteLink';
 
 type Props = {
   post: BlogPost;
@@ -12,7 +14,7 @@ export function PostCard({ post }: Props) {
   const imageAlt = post.cardAlt ?? post.heroAlt ?? post.title;
 
   return (
-    <a className="post-card card-link" href={`#/post/${post.slug}`} aria-label={`Read ${post.title}`}>
+    <SiteLink className="post-card card-link" href={postPath(post.slug)} aria-label={`Read ${post.title}`}>
       <div className="post-card__media">
         {imageSrc ? (
           <img className="post-card__image" src={imageSrc} alt={imageAlt} />
@@ -30,6 +32,6 @@ export function PostCard({ post }: Props) {
         <p>{post.excerpt}</p>
         <span className="text-link text-link--fake">Read post</span>
       </div>
-    </a>
+    </SiteLink>
   );
 }

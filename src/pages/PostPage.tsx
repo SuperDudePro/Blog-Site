@@ -1,6 +1,8 @@
 import { FeaturedImage } from '../components/FeaturedImage';
+import { SiteLink } from '../components/SiteLink';
 import { getPostBySlug, formatPostDate } from '../content/loadPosts';
 import { getSectionName } from '../data/siteContent';
+import { sectionPath } from '../routes';
 
 type Props = {
   slug: string;
@@ -20,9 +22,9 @@ export function PostPage({ slug }: Props) {
               That link does not point to a post that exists here.
             </p>
             <div className="hero__actions">
-              <a className="button button--primary" href="#/section/everything">
+              <SiteLink className="button button--primary" href={sectionPath('everything')}>
                 Browse everything
-              </a>
+              </SiteLink>
             </div>
           </div>
           <FeaturedImage />
@@ -40,12 +42,12 @@ export function PostPage({ slug }: Props) {
           <p className="lead">{post.excerpt}</p>
           <p className="post-page__meta">{formatPostDate(post)}</p>
           <div className="hero__actions">
-            <a className="button button--primary" href={`#/section/${post.section}`}>
+            <SiteLink className="button button--primary" href={sectionPath(post.section)}>
               More in this section
-            </a>
-            <a className="button button--ghost" href="#/section/everything">
+            </SiteLink>
+            <SiteLink className="button button--ghost" href={sectionPath('everything')}>
               Browse everything
-            </a>
+            </SiteLink>
           </div>
         </div>
 

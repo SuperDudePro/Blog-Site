@@ -1,9 +1,9 @@
 import { ImagePlaceholder } from './ImagePlaceholder';
 
 type Props = {
-  src?: string;
-  alt?: string;
-  className?: string;
+  src?: string | undefined;
+  alt?: string | undefined;
+  className?: string | undefined;
 };
 
 export function FeaturedImage({ src, alt, className }: Props) {

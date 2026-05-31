@@ -27,7 +27,7 @@ const post: BlogPost = {
     <p>She let my sister off the hook. I don’t know if it cost her anything at all by then. I knew her for maybe forty hours, and she has been taking up an unreasonable amount of room in my head ever since.</p>
     <p>I think about her every ten years or so. No warning.</p>
     <figure class="post-figure">
-      <img src="${mainTriptych}" alt="Illustrated triptych showing an older man daydreaming in a truck, a memory of a frightened girl facing an elderly woman in a chair, and a couple walking on Pearl Street in Boulder." />
+      <img src="${mainTriptych}" alt="Illustrated triptych showing an older man daydreaming in a truck, a memory of a frightened girl facing an elderly woman in a chair, and a couple walking on Pearl Street in Boulder." loading="lazy" decoding="async" />
       <figcaption>Three versions of the same thought loop: fantasy, memory, and the place that no longer carries the feeling by itself.</figcaption>
     </figure>
     <p>This time it was a podcast — Kim Krizan doing a Q&amp;A about writing <em>Before Sunrise</em> with Richard Linklater. She was describing a walk they took together, to a convenience store and back, just talking. And she said something that stuck: when you get lost in a conversation like that, you start giving the place credit for what was really happening between two people.</p>

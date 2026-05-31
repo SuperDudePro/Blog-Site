@@ -7,9 +7,41 @@ const validSections = new Set(['diary', 'life-education', 'music-playlists', 'sl
 const errors = [];
 const warnings = [];
 const posts = readPosts();
+const seenSlugs = new Map();
+const seenTitles = new Map();
 
 function fileExists(relativePath) {
   return fs.existsSync(path.join(root, relativePath));
+}
+
+function isRealIsoDate(value) {
+  if (!/^\d{4}-\d{2}-\d{2}$/.test(value)) {
+    return false;
+  }
+
+  const date = new Date(`${value}T00:00:00.000Z`);
+  return Number.isFinite(date.getTime()) && date.toISOString().slice(0, 10) === value;
+}
+
+function checkUnsafeHtml(post) {
+  const unsafePatterns = [
+    { label: '<script> tag', pattern: /<script[\s>]/i },
+    { label: 'inline event handler', pattern: /\son[a-z]+\s*=/i },
+    { label: 'javascript: URL', pattern: /javascript\s*:/i },
+  ];
+
+  for (const { label, pattern } of unsafePatterns) {
+    if (pattern.test(post.bodyHtml)) {
+      errors.push(`${post.folder}: bodyHtml contains unsafe HTML: ${label}`);
+    }
+  }
+
+  const blankTargetLinks = post.bodyHtml.match(/<a\b[^>]*target=(["'])_blank\1[^>]*>/gi) ?? [];
+  for (const link of blankTargetLinks) {
+    if (!/\brel=(["'])[^"']*\bnoreferrer\b[^"']*\1/i.test(link)) {
+      errors.push(`${post.folder}: target="_blank" links must include rel="noreferrer"`);
+    }
+  }
 }
 
 for (const post of posts) {
@@ -19,14 +51,28 @@ for (const post of posts) {
   }
 
   if (!post.slug) errors.push(`${post.folder}: missing slug`);
+  if (post.slug && !/^[a-z0-9]+(?:-[a-z0-9]+)*$/.test(post.slug)) {
+    errors.push(`${post.folder}: slug must be lowercase kebab-case`);
+  }
   if (post.slug && post.slug !== post.folder) errors.push(`${post.folder}: folder name does not match slug '${post.slug}'`);
+  if (post.slug) {
+    const firstFolder = seenSlugs.get(post.slug);
+    if (firstFolder) errors.push(`${post.folder}: duplicate slug '${post.slug}' also used by ${firstFolder}`);
+    seenSlugs.set(post.slug, post.folder);
+  }
   if (!post.title) errors.push(`${post.folder}: missing title`);
+  if (post.title) {
+    const firstFolder = seenTitles.get(post.title);
+    if (firstFolder) warnings.push(`${post.folder}: duplicate title '${post.title}' also used by ${firstFolder}`);
+    seenTitles.set(post.title, post.folder);
+  }
   if (!post.excerpt) errors.push(`${post.folder}: missing excerpt`);
-  if (!post.publishedAt || !/^\d{4}-\d{2}-\d{2}$/.test(post.publishedAt)) {
-    errors.push(`${post.folder}: publishedAt must be YYYY-MM-DD`);
+  if (!post.publishedAt || !isRealIsoDate(post.publishedAt)) {
+    errors.push(`${post.folder}: publishedAt must be a real YYYY-MM-DD date`);
   }
   if (!validSections.has(post.section)) errors.push(`${post.folder}: invalid or missing section '${post.section}'`);
   if (!post.hasBodyHtml) errors.push(`${post.folder}: missing bodyHtml`);
+  if (post.hasBodyHtml) checkUnsafeHtml(post);
 
   for (const image of post.importedImages) {
     if (!fileExists(`src/content/posts/${post.folder}/${image}`)) {
@@ -37,6 +83,9 @@ for (const post of posts) {
   if (post.hasHeroImage && !post.hasHeroAlt) errors.push(`${post.folder}: heroImage is set but heroAlt is missing`);
   if (post.hasCardImage && !post.hasCardAlt) errors.push(`${post.folder}: cardImage is set but cardAlt is missing`);
   if (post.bodyImages > post.bodyImageAlts) errors.push(`${post.folder}: one or more body <img> tags are missing alt text`);
+  if (post.bodyImages > post.bodyImagesWithLoading) {
+    warnings.push(`${post.folder}: one or more body <img> tags are missing loading="lazy"`);
+  }
 }
 
 const sitemapPath = path.join(root, 'public', 'sitemap.xml');

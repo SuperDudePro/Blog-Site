@@ -18,7 +18,7 @@ const post: BlogPost = {
     <p>Saturday morning, Bad Company’s “Early in the Morning” came on my mix, and that was it. Whenever I hear that song, I fall into a trance and start playing it on repeat until I get my fix.</p>
     <p>After that, I did what these songs usually make me do: I started running through Bad Company’s albums, all the way through their sixth one, <em>Rough Diamonds</em>. Even though I know their catalog pretty well, I still manage to underestimate how much that music can move me and how solid those early albums sound from front to back.</p>
     <figure class="post-figure">
-      <img src="${bandInline}" alt="Black-and-white live photo of Bad Company performing to a massive outdoor crowd, seen from behind the drummer." />
+      <img src="${bandInline}" alt="Black-and-white live photo of Bad Company performing to a massive outdoor crowd, seen from behind the drummer." loading="lazy" decoding="async" />
       <figcaption>The kind of live shot that reminds you how big this band could feel.</figcaption>
     </figure>
     <p><em>Desolation Angels</em> came out in March 1979, right at the end of eighth grade for me. I had already heard plenty of Bad Company on AM and FM radio before then, but I still had not bought one of their albums for myself. Then I heard “Rock ’n’ Roll Fantasy,” got mesmerized, bought the album, and nearly wore it out.</p>

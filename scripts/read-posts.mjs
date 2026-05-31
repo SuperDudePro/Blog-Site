@@ -4,9 +4,9 @@ import path from 'node:path';
 const root = process.cwd();
 const postsDir = path.join(root, 'src', 'content', 'posts');
 
-function capture(source, pattern) {
+function capture(source, pattern, group = 1) {
   const match = source.match(pattern);
-  return match ? match[1].trim() : '';
+  return match?.[group] ? match[group].trim() : '';
 }
 
 function hasField(source, field) {
@@ -29,13 +29,15 @@ export function readPosts() {
       }
 
       const source = fs.readFileSync(indexPath, 'utf8');
+      const bodyHtml = capture(source, /bodyHtml:\s*`([\s\S]*?)`\s*,?\s*\n\s*}/);
+
       return {
         folder,
         indexPath,
         source,
         slug: capture(source, /slug:\s*['"]([^'"]+)['"]/),
         title: capture(source, /title:\s*['"]([^'"]+)['"]/),
-        excerpt: capture(source, /excerpt:\s*([`'"])([\s\S]*?)\1,/).replace(/\s+/g, ' '),
+        excerpt: capture(source, /excerpt:\s*([`'"])([\s\S]*?)\1,/, 2).replace(/\s+/g, ' '),
         section: capture(source, /section:\s*['"]([^'"]+)['"]/),
         publishedAt: capture(source, /publishedAt:\s*['"]([^'"]+)['"]/),
         hasBodyHtml: hasField(source, 'bodyHtml'),
@@ -43,9 +45,11 @@ export function readPosts() {
         hasHeroAlt: hasField(source, 'heroAlt'),
         hasCardImage: hasField(source, 'cardImage'),
         hasCardAlt: hasField(source, 'cardAlt'),
+        bodyHtml,
         importedImages: Array.from(source.matchAll(/import\s+\w+\s+from\s+['"]\.\/([^'"]+\.(?:png|jpg|jpeg|webp))['"]/gi)).map((match) => match[1]),
         bodyImageAlts: Array.from(source.matchAll(/<img[\s\S]*?alt=(?:"[^"]+"|'[^']+')/gi)).length,
         bodyImages: Array.from(source.matchAll(/<img[\s\S]*?>/gi)).length,
+        bodyImagesWithLoading: Array.from(source.matchAll(/<img[\s\S]*?loading=(?:"[^"]+"|'[^']+')/gi)).length,
       };
     });
 }

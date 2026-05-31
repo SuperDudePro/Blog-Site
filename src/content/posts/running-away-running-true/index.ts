@@ -42,7 +42,7 @@ const post: BlogPost = {
     <p>Regret wants to edit the past selectively. It wants to remove the bad judgment, the dumb exits, the wasted time, the pain. But it rarely admits that if you start pulling on those threads, you may also unravel the parts of your life you would now protect at all costs.</p>
 
     <figure class="post-figure">
-      <img src="${tangledImage}" alt="Large hands pulling bright glowing threads apart to reveal the silhouettes of two children in the center." />
+      <img src="${tangledImage}" alt="Large hands pulling bright glowing threads apart to reveal the silhouettes of two children in the center." loading="lazy" decoding="async" />
       <figcaption>Regret wants to pull out the bad threads without admitting what else might come undone.</figcaption>
     </figure>
 
@@ -105,7 +105,7 @@ const post: BlogPost = {
     <p>Those exits stopped the drift toward a life that was becoming unrecognizable as mine.</p>
 
     <figure class="post-figure">
-      <img src="${signpostImage}" alt="A hand-drawn landscape with purple accents and a wooden signpost pointing toward Running Away and Running True." />
+      <img src="${signpostImage}" alt="A hand-drawn landscape with purple accents and a wooden signpost pointing toward Running Away and Running True." loading="lazy" decoding="async" />
       <figcaption>Sometimes the path only makes sense after you stop pretending every exit was the same kind of mistake.</figcaption>
     </figure>
 
