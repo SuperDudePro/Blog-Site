@@ -1,4 +1,6 @@
 import type { Section } from '../data/siteContent';
+import { sectionPath } from '../routes';
+import { SiteLink } from './SiteLink';
 
 type Props = {
   section: Section;
@@ -6,11 +8,11 @@ type Props = {
 
 export function SectionCard({ section }: Props) {
   return (
-    <a className="section-card card-link" href={`#/section/${section.key}`} aria-label={`Open ${section.name}`}>
+    <SiteLink className="section-card card-link" href={sectionPath(section.key)} aria-label={`Open ${section.name}`}>
       <span className="post-pill">{section.shortName}</span>
       <h3>{section.name}</h3>
       <p>{section.description}</p>
       <span className="text-link text-link--fake">Open section</span>
-    </a>
+    </SiteLink>
   );
 }

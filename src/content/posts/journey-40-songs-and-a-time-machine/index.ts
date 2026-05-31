@@ -18,7 +18,7 @@ const post: BlogPost = {
     <p>Some bands are good. Some bands are important. And then there are bands that get wired so deeply into your life that making a playlist turns into an accidental memoir.</p>
     <p>Journey is one of those bands for me.</p>
     <figure class="post-figure">
-      <img src="${bandInline}" alt="Black-and-white promotional photo of five Journey band members standing together on steps." />
+      <img src="${bandInline}" alt="Black-and-white promotional photo of five Journey band members standing together on steps." loading="lazy" decoding="async" />
       <figcaption>Journey in the era that still owns most of my memories of the band.</figcaption>
     </figure>
     <p>This started because Journey popped into my head and I put on <em>Evolution</em> from 1979. That led to the usual rabbit hole: one album became another, one song became five, and pretty soon I was not just listening. I was remembering.</p>

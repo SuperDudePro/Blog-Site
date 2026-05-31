@@ -56,7 +56,7 @@ const post: BlogPost = {
     <p>And on paper?</p>
     <p>Not much to show for it.</p>
     <figure class="post-figure">
-      <img src="${heroImage}" alt="Hand-drawn editorial illustration of an older dad at a table with a giant ruler labeled enough stretching toward distant billionaire symbols." />
+      <img src="${heroImage}" alt="Hand-drawn editorial illustration of an older dad at a table with a giant ruler labeled enough stretching toward distant billionaire symbols." loading="lazy" decoding="async" />
       <figcaption>The wrong ruler makes a decent life look smaller than it is.</figcaption>
     </figure>
     <p>That’s where the wrong ruler comes out.</p>
@@ -78,7 +78,7 @@ const post: BlogPost = {
     <p>That’s why teaching beats the other suits.</p>
     <p>Not because it’s easy. Not because I’m noble. Because at least some part of it feels real.</p>
     <figure class="post-figure">
-      <img src="${contrastImage}" alt="Split-screen image contrasting family time on a beach with a corporate boardroom, separated by rulers labeled with different measures of success." />
+      <img src="${contrastImage}" alt="Split-screen image contrasting family time on a beach with a corporate boardroom, separated by rulers labeled with different measures of success." loading="lazy" decoding="async" />
       <figcaption>A cleaner split-screen version of the same argument: family and presence on one side, corporate scale and net worth on the other.</figcaption>
     </figure>
     <p>Back to Perot.</p>

@@ -18,7 +18,7 @@ const post: BlogPost = {
     <p>I was the perfect age for 80s music.</p>
     <p>That is the annoying part.</p>
     <figure class="post-figure">
-      <img src="${zineInline}" alt="Low-fi collage illustration with cassette tape, handwritten playlist scraps, and rough college-radio zine textures." />
+      <img src="${zineInline}" alt="Low-fi collage illustration with cassette tape, handwritten playlist scraps, and rough college-radio zine textures." loading="lazy" decoding="async" />
       <figcaption>Skeptical nostalgia, which is about as close to honest as I can get with this decade.</figcaption>
     </figure>
     <p>I was somewhere between 15 and 25 for the decade, which means that music should hit me right in the sentimental machinery. It should be impossible for me to hear it clearly. It should all be wrapped up in first cars, bad hair, part-time jobs, movie theaters, girls I was too scared to talk to, and the general drama of being young enough to think every song was somehow about me.</p>

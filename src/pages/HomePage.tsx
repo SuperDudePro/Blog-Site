@@ -1,9 +1,11 @@
 import { FeaturedImage } from '../components/FeaturedImage';
 import { PostCard } from '../components/PostCard';
 import { SectionCard } from '../components/SectionCard';
+import { SiteLink } from '../components/SiteLink';
 import { getFeaturedPost, posts } from '../content/loadPosts';
 import homeSkullImage from '../assets/home-skull-square.webp';
 import { sections, site } from '../data/siteContent';
+import { postPath, sectionPath } from '../routes';
 
 export function HomePage() {
   const featured = getFeaturedPost();
@@ -19,12 +21,12 @@ export function HomePage() {
           <p className="hero__intro">{site.intro}</p>
 
           <div className="hero__actions">
-            <a className="button button--primary" href={featured ? `#/post/${featured.slug}` : '#/section/everything'}>
+            <SiteLink className="button button--primary" href={featured ? postPath(featured.slug) : sectionPath('everything')}>
               Read latest post
-            </a>
-            <a className="button button--ghost" href="#/section/everything">
+            </SiteLink>
+            <SiteLink className="button button--ghost" href={sectionPath('everything')}>
               Browse all posts
-            </a>
+            </SiteLink>
           </div>
         </div>
 
@@ -44,9 +46,9 @@ export function HomePage() {
         <div className="featured-grid">
           <FeaturedImage src={featured?.cardImage ?? featured?.heroImage} alt={featured?.cardAlt ?? featured?.heroAlt} />
 
-          <a
+          <SiteLink
             className="featured-card card-link"
-            href={featured ? `#/post/${featured.slug}` : '#/section/everything'}
+            href={featured ? postPath(featured.slug) : sectionPath('everything')}
             aria-label={featured ? `Read ${featured.title}` : 'Browse all posts'}
           >
             <span className="post-pill">{featured?.status ?? 'Recent'}</span>
@@ -57,7 +59,7 @@ export function HomePage() {
             <span className="button button--primary button--fake">
               {featured ? 'Read post' : 'Browse all posts'}
             </span>
-          </a>
+          </SiteLink>
         </div>
       </section>
 

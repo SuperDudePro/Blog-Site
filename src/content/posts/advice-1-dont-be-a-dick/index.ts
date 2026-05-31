@@ -39,7 +39,7 @@ const post: BlogPost = {
     <p>Her explanation was about as good as the advice itself. She said, basically: if there’s nothing else you can manage, at least manage that. The world does not need one more person acting like a dick. So don’t do it.</p>
     <p>That’s pretty solid. Honestly, it may be better than most of what you’ll hear dressed up in nicer words.</p>
     <figure class="post-figure">
-      <img src="${patchImage}" alt="Embroidered circular patch with a smiling flower and the words DON’T BE A DICK." />
+      <img src="${patchImage}" alt="Embroidered circular patch with a smiling flower and the words DON’T BE A DICK." loading="lazy" decoding="async" />
       <figcaption>These are real patches. I borrowed the image from the place selling them. No endorsement. I just think it says what it needs to say, and I kind of want one.</figcaption>
     </figure>
     <p>A lot of life can be cleaned up if you start there.</p>

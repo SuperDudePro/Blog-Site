@@ -27,9 +27,11 @@ export type Section = {
 };
 
 export const site = {
+  url: 'https://www.ourolddad.com',
   title: 'Our Old Dad',
   headerTagline: 'Raising Two Generations',
   tagline: 'Flailing, Raging, and Raising Two Generations',
+  description: 'Family life, slow travel, playlists, and advice from an old dad.',
   intro:
     'Notes on fatherhood, music, memory, learning, and the attempt to build a bigger life while time is still on the clock.',
   footerNote: 'A dad diary with fewer lies and better playlists.',
@@ -99,14 +101,14 @@ export const sections: Section[] = [
 ];
 
 export const navigation = [
-  { label: 'Home', href: '#/' },
-  { label: 'Everything', href: '#/section/everything' },
-  { label: 'Diary', href: '#/section/diary' },
-  { label: 'Life Education', href: '#/section/life-education' },
-  { label: 'Playlists', href: '#/section/music-playlists' },
-  { label: 'Slow Travel', href: '#/section/slow-travel' },
-  { label: 'Advice', href: '#/section/advice' },
-  { label: 'About', href: '#/about' },
+  { label: 'Home', href: '/' },
+  { label: 'Everything', href: '/section/everything' },
+  { label: 'Diary', href: '/section/diary' },
+  { label: 'Life Education', href: '/section/life-education' },
+  { label: 'Playlists', href: '/section/music-playlists' },
+  { label: 'Slow Travel', href: '/section/slow-travel' },
+  { label: 'Advice', href: '/section/advice' },
+  { label: 'About', href: '/about' },
 ];
 
 export function getSectionName(sectionKey: SectionKey): string {

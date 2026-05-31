@@ -6,7 +6,7 @@ import { sections, type SectionKey } from '../data/siteContent';
 
 type Props = {
   sectionKey: SectionKey;
-  oldLinkNotice?: boolean;
+  oldLinkNotice?: boolean | undefined;
 };
 
 export function SectionPage({ sectionKey, oldLinkNotice = false }: Props) {

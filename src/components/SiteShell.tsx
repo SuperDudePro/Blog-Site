@@ -1,26 +1,28 @@
 import type { ReactNode } from 'react';
 import { navigation, site } from '../data/siteContent';
+import { homePath, normalizePath } from '../routes';
 import { SmileyMark } from './SmileyMark';
+import { SiteLink } from './SiteLink';
 
 type Props = {
   children: ReactNode;
 };
 
-function getCurrentHash() {
-  return window.location.hash || '#/';
+function getCurrentPath() {
+  return normalizePath(window.location.pathname);
 }
 
 function isActive(href: string) {
-  const current = getCurrentHash();
-  if (href === '#/') {
-    return current === '#/' || current === '#';
+  const current = getCurrentPath();
+  if (href === homePath) {
+    return current === homePath;
   }
   return current === href;
 }
 
 export function SiteShell({ children }: Props) {
-  const currentHash = getCurrentHash();
-  const homeActive = currentHash === '#/' || currentHash === '#';
+  const currentPath = getCurrentPath();
+  const homeActive = currentPath === homePath;
 
   return (
     <div className="site-shell">
@@ -30,24 +32,24 @@ export function SiteShell({ children }: Props) {
 
       <header className="site-header">
         <div className="site-header__inner">
-          <a className={`site-brand ${homeActive ? 'site-brand--active' : ''}`} href="#/">
+          <SiteLink className={`site-brand ${homeActive ? 'site-brand--active' : ''}`} href={homePath}>
             <span className="site-brand__row">
               <SmileyMark size={28} />
               <h2 className="site-brand__title">{site.title}</h2>
             </span>
             <span className="site-brand__tag">{site.headerTagline ?? site.tagline}</span>
-          </a>
+          </SiteLink>
 
           <nav className="site-nav" aria-label="Primary navigation">
             {navigation.map((item) => (
-              <a
+              <SiteLink
                 key={item.href}
                 href={item.href}
                 className={`site-nav__link ${isActive(item.href) ? 'is-active' : ''}`}
                 aria-current={isActive(item.href) ? 'page' : undefined}
               >
                 {item.label}
-              </a>
+              </SiteLink>
             ))}
           </nav>
         </div>
@@ -71,14 +73,14 @@ export function SiteShell({ children }: Props) {
 
           <nav className="site-footer__nav" aria-label="Footer navigation">
             {navigation.map((item) => (
-              <a
+              <SiteLink
                 key={item.href}
                 href={item.href}
                 className={`site-footer__link ${isActive(item.href) ? 'is-active' : ''}`}
                 aria-current={isActive(item.href) ? 'page' : undefined}
               >
                 {item.label}
-              </a>
+              </SiteLink>
             ))}
           </nav>
         </div>
