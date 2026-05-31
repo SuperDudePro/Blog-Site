@@ -22,3 +22,11 @@ The build regenerates `public/sitemap.xml`, validates the post catalog, runs Typ
 Each post lives in `src/content/posts/<slug>/index.ts` with its local images in the same folder.
 
 Post URLs are clean paths such as `/post/the-math-isnt-good`. Old hash URLs still resolve and are replaced with the canonical clean URL in the browser.
+
+To scaffold a post:
+
+```bash
+npm run create:post -- --title "Post Title" --section diary --excerpt "Short summary."
+```
+
+Then add the body/images and run `npm run build`. The sitemap is generated automatically.

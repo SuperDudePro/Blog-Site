@@ -1,5 +1,7 @@
 Our Old Dad post updates overlay
 
+Historical note: this file describes an older handoff package. For current post creation and update steps, use POSTING.md.
+
 Unzip this at the root of the Blog-Site repo.
 
 It updates:
