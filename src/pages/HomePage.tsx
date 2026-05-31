@@ -49,7 +49,6 @@ export function HomePage() {
           <SiteLink
             className="featured-card card-link"
             href={featured ? postPath(featured.slug) : sectionPath('everything')}
-            aria-label={featured ? `Read ${featured.title}` : 'Browse all posts'}
           >
             <span className="post-pill">{featured?.status ?? 'Recent'}</span>
             <h3>{featured?.title ?? 'Latest writing'}</h3>
