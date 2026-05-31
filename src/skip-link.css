@@ -1,0 +1,19 @@
+/* Keep the skip link available for keyboard users without showing it during normal browsing. */
+
+.skip-link {
+  position: fixed;
+  left: 1rem;
+  top: 1rem;
+  z-index: 10000;
+  transform: translateY(-160%);
+  opacity: 0;
+  pointer-events: none;
+  transition: transform 120ms ease, opacity 120ms ease;
+}
+
+.skip-link:focus,
+.skip-link:focus-visible {
+  transform: translateY(0);
+  opacity: 1;
+  pointer-events: auto;
+}
