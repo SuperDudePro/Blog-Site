@@ -38,6 +38,7 @@ vite build
 ## New Maintenance Commands
 
 ```bash
+npm run create:post -- --title "Post Title" --section diary --excerpt "Short summary."
 npm run generate:sitemap
 npm run validate:content
 ```
@@ -45,5 +46,7 @@ npm run validate:content
 ## Notes
 
 - `public/sitemap.xml` is now generated from the actual post folders.
-- The validation script checks post slugs, sections, dates, required fields, imported images, image alt text, sitemap coverage, and oversized images.
+- Post URLs are clean paths such as `/post/the-math-isnt-good`; old hash URLs are still accepted and canonicalized in the browser.
+- The validation script checks post slugs, duplicate slugs, sections, real dates, required fields, imported images, image alt text, unsafe body HTML, sitemap coverage, lazy body images, and oversized images.
+- Use `POSTING.md` for the current post creation and update workflow.
 - Production build was tested successfully before packaging.

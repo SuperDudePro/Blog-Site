@@ -2,7 +2,7 @@
 
 Target site: Our Old Dad
 Destination path: src/content/posts/dad-do-you-love-me-enough-to-protect-me/
-Post URL after deploy: https://www.ourolddad.com/#/post/dad-do-you-love-me-enough-to-protect-me
+Post URL after deploy: https://www.ourolddad.com/post/dad-do-you-love-me-enough-to-protect-me
 Slug: dad-do-you-love-me-enough-to-protect-me
 Title: Dad, Do You Love Me Enough to Protect Me?
 Published date: 2026-05-01
@@ -25,7 +25,7 @@ To:
 
 Blog-Site/src/content/posts/dad-do-you-love-me-enough-to-protect-me/
 
-Also copy public/sitemap.xml if you want the sitemap updated with the new post URL.
+Do not copy public/sitemap.xml by hand. Run npm run build from the Blog-Site root and the sitemap will be regenerated from the post folders.
 
 ## Build Check
 
