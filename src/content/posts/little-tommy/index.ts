@@ -1,22 +1,21 @@
 import type { BlogPost } from '../../postTypes';
-import cardImage from './card-image.webp';
 import heroImage from './hero-image.webp';
-import inlineImage from './inline-image.webp';
+import cardImage from './card-image.webp';
+import bodyImageOne from './body-image-1.webp';
+import bodyImageTwo from './body-image-2.webp';
 
 const post: BlogPost = {
   slug: 'little-tommy',
   title: 'Little Tommy',
   excerpt:
-    'A box of junk duplicate photos turns into a pre-internet experiment in how badly people need random things to mean something.',
+    'A pre-internet photo cleanout turns into a fake kid named Little Tommy, a pile of mailed junk pictures, and a small experiment in how hard people work to make nothing mean something.',
   section: 'diary',
   publishedAt: '2026-06-06',
   status: 'Recent',
   heroImage,
-  heroAlt:
-    'A desk covered with old photographs, envelopes, and a handwritten Little Tommy note in a 1990s-style office overlooking Colorado foothills.',
+  heroAlt: 'A man sorting old photographs and Little Tommy letters at an office desk near the Boulder Reservoir.',
   cardImage,
-  cardAlt:
-    'A worn envelope labeled Little Tommy lying on a scratched table over old black-and-white snapshots.',
+  cardAlt: 'A worn envelope labeled Little Tommy sitting on top of old black-and-white photographs.',
   bodyHtml: `
     <p>Sometime around 1995, I was living up in Nederland with two roommates, Brent and Reggie.</p>
     <p>Brent was one of the first people I met when I moved to Colorado in 1991. I'm pretty sure it was the first day. I say "pretty sure" because memory gets weird about things like that. Some things I know exactly. Some things I know because I've told the story that way long enough that the story has become the memory.</p>
@@ -59,9 +58,6 @@ const post: BlogPost = {
     <p>Love,</p>
     <p>Little Tommy</p>
     <p>Something like that. I don't remember the exact wording anymore, but that was the voice. Not cute exactly. Not fully threatening. Just wrong enough that you had to decide what kind of wrong it was. I wrote them by hand again and again at IBM, which is a good use of corporate time if you measure corporate time by historical value.</p>
-    <figure class="post-figure">
-      <img src="${inlineImage}" alt="An opened envelope, unrelated old snapshots, and a childlike handwritten note saying I thot you wood like these pitures." loading="lazy" decoding="async" />
-    </figure>
     <p>Then I put each letter in an envelope with a bundle of meaningless pictures. No real return address. Maybe Little Tommy. Maybe nothing.</p>
     <p>But I didn't mail them from Colorado. That would've ruined it.</p>
     <p>If somebody got a weird envelope full of strange photos and it was postmarked Boulder, a few people would've had a decent shot at figuring it out. "Of course Will did this" wouldn't have been the hardest detective work in the world.</p>
@@ -75,6 +71,11 @@ const post: BlogPost = {
     <p>One guy I worked with got a batch that included some pictures from a Purdue fraternity or West Lafayette or somewhere around that world. He brought it up like he was working a case. He had lost his wallet a few months earlier, and now he had a theory that some college kids at CU Boulder had found it and were using his ID to drink and do stupid college stuff. The pictures, in his mind, were somehow connected to that.</p>
     <p>They were not connected to that.</p>
     <p>They were connected to me having too many bad pictures.</p>
+
+    <figure class="post-figure">
+      <img src="${bodyImageOne}" alt="A Little Tommy note and old photos spread across a worn desk." loading="lazy" decoding="async" />
+    </figure>
+
     <p>Another woman got some random party photos from Illinois and became convinced it was a party she had been at a few months earlier. It wasn't. It wasn't the same state. It wasn't the same people. There was no reason to think that except that the human brain hates a vacuum and will decorate one if you leave it alone long enough.</p>
     <p>Somebody else got the same stack of photos and decided it meant a guy was following them. Same envelope as everybody else, just read as a warning instead of a puzzle.</p>
     <p>Another guy I knew from Purdue, who later ended up being part of one of my infamous bad work stories, had his own theory. He thought it might be somebody out to get him. Maybe the kid of some woman he'd had an affair with. Something like that. I don't remember all the pieces, but I remember the general shape: he had built a whole private investigation around four useless pictures and a fake child with bad handwriting.</p>
@@ -99,6 +100,11 @@ const post: BlogPost = {
     <p>Something like that. More hurt. More confused. More demanding. Less "I hope you like these" and more "I have entered into a relationship with you, and you are not holding up your end."</p>
     <p>Which, again, is a ridiculous thing to write to someone when the relationship consists entirely of you secretly mailing them garbage.</p>
     <p>But that was the point. Little Tommy had gone from generous to disappointed to emotionally unstable.</p>
+
+    <figure class="post-figure">
+      <img src="${bodyImageTwo}" alt="Stacks of addressed envelopes, handwritten notes, and sorted photographs on an office desk." loading="lazy" decoding="async" />
+    </figure>
+
     <p>Brent eventually told his family months later that he had been part of it, and they got genuinely mad at him. Wouldn't talk to him for a while, I think. I don't know what story they had built around it, but apparently it was not, "Our son and his idiot roommates are throwing away duplicate photos in the least efficient way possible."</p>
     <p>Reggie's mom may have been in on it too. She lived in the Bronx and was funny enough that I want that to be true, so I'm leaving it in with a question mark.</p>
     <p>The whole experiment remains open, I guess. Not scientifically. It would not pass peer review. There was no control group, unless the control group was everybody who never mentioned anything and just threw the pictures away like they should have.</p>
