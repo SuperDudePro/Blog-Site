@@ -27,9 +27,6 @@ const post: BlogPost = {
 
     <p>That is not wisdom. That is a problem with better shoes.</p>
 
-    <div class="post-links">
-      <a class="button button--primary" href="https://music.youtube.com/playlist?list=PLJ-R3jWagtQg7RQ2IxTkCDqkQBI-boRNo&amp;si=HTB8EtXMl0miRbeB" target="_blank" rel="noreferrer">Listen to the 1985 playlist</a>
-    </div>
 
     <p>And the funny part is, it was fun. I do not want to revise the whole thing into some fake tragedy where I was walking around Purdue under a dark cloud, wasting my youth while a sad violin played. That is not what it was. The highs were real, and some of them were the kind you do not get to schedule and cannot quite believe later.</p>
 
@@ -116,6 +113,12 @@ const post: BlogPost = {
     <p>1985 was a hell of a mirror. Scattered, loud, overconfident, restless, occasionally brilliant, sometimes ridiculous, and not nearly as organized as it thought it was.</p>
 
     <p>So was I.</p>
+
+    <div class="post-links">
+      <a class="button button--primary" href="https://www.youtube.com/playlist?list=PLJ-R3jWagtQg7RQ2IxTkCDqkQBI-boRNo" target="_blank" rel="noreferrer">Watch on YouTube</a>
+      <a class="button button--ghost" href="https://music.youtube.com/playlist?list=PLJ-R3jWagtQg7RQ2IxTkCDqkQBI-boRNo&amp;si=HTB8EtXMl0miRbeB" target="_blank" rel="noreferrer">Listen on YouTube Music</a>
+    </div>
+
   `,
 };
 
