@@ -20,6 +20,11 @@ const post: BlogPost = {
     <p>Right then the whole fear turned over, and I don't think it's turning back.</p>
     <p>Because here's what I realized once I let the doubt back in. The fear was never about leaving. It's what if I don't. What if I already know the system is the worse deal for them — know it cold — and I keep them in it anyway, because walking out scares me more than staying does. And then they get shaped by the exact thing I had the keys to walk them out of, and I'm the reason.</p>
     <p>The fear keeps the same questions ready. <em>What if you ruin them? What if they fall behind? What if they end up helpless?</em> Every one of those points the danger outward, past the door, into the dark. None of them asks the honest one. What if the danger's in here, and I already know it?</p>
+
+    <figure class="post-figure">
+      <img src="${heroImage}" alt="A father and two children walk from a dark classroom toward an open door, with fear questions written on the walls." loading="lazy" decoding="async" />
+    </figure>
+
     <p>So I made myself answer the two questions I usually skip.</p>
     <p>First one: if I love these kids without conditions and actually do the work, what's the worst that can happen that's inside my control? Horrible things exist in the world, sure — that's not what I mean. I mean the realistic downside, the one I'm actually choosing. With unconditional love, attention, stability, and a point to all of it, and me not being a careless idiot about it, that downside collapses fast once you say it out loud. Love and presence and steady correction kill most of the worst-case scenarios before they're ever real. And when something does go sideways — it always does — it's usually fixable.</p>
     <p>The fear wants to dress leaving up as one irreversible door: stay safe, or fall straight into permanent damage. That's not how any of this works. That's a control story.</p>
