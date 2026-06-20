@@ -39,6 +39,15 @@ function getRouteMetadata(route: Route): RouteMetadata {
     };
   }
 
+  if (route.page === 'contact') {
+    return {
+      title: titleWithSite('Contact'),
+      description: 'Send a note to Our Old Dad without exposing a public email address.',
+      canonicalPath: route.canonicalPath,
+      type: 'website',
+    };
+  }
+
   if (route.page === 'section') {
     return {
       title: titleWithSite(getSectionName(route.sectionKey)),

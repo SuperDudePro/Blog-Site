@@ -1,0 +1,13 @@
+Our Old Dad contact page replacement-file bundle
+
+Files to copy:
+api/contact.js
+src/App.tsx
+src/routes.ts
+src/metadata.ts
+src/data/siteContent.ts
+src/pages/ContactPage.tsx
+scripts/generate-sitemap.mjs
+
+No append files.
+No direct Drive/GitHub updates were made.

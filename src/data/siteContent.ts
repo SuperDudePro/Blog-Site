@@ -109,6 +109,7 @@ export const navigation = [
   { label: 'Slow Travel', href: '/section/slow-travel' },
   { label: 'Advice', href: '/section/advice' },
   { label: 'About', href: '/about' },
+  { label: 'Contact', href: '/contact' },
 ];
 
 export function getSectionName(sectionKey: SectionKey): string {

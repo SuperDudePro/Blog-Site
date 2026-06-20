@@ -36,6 +36,7 @@ const urls = [
     priority: section === 'everything' ? '0.9' : '0.8',
   })),
   { loc: `${siteUrl}/about`, lastmod: latestPostDate, changefreq: 'monthly', priority: '0.5' },
+  { loc: `${siteUrl}/contact`, lastmod: latestPostDate, changefreq: 'monthly', priority: '0.5' },
   ...posts.map((post) => ({
     loc: `${siteUrl}/post/${post.slug}`,
     lastmod: post.publishedAt || today,

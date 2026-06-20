@@ -5,6 +5,7 @@ import { sections, type SectionKey } from './data/siteContent';
 export type Route =
   | { page: 'home'; canonicalPath: string; replacePath?: string }
   | { page: 'about'; canonicalPath: string; replacePath?: string }
+  | { page: 'contact'; canonicalPath: string; replacePath?: string }
   | {
       page: 'section';
       sectionKey: SectionKey;
@@ -17,6 +18,7 @@ export type Route =
 
 export const homePath = '/';
 export const aboutPath = '/about';
+export const contactPath = '/contact';
 
 export function normalizePath(pathname: string): string {
   const cleanPath = pathname.trim().replace(/\/+$/, '');
@@ -62,6 +64,10 @@ export function routeFromPath(pathname: string): Route {
 
   if (cleanPath === aboutPath) {
     return { page: 'about', canonicalPath: aboutPath };
+  }
+
+  if (cleanPath === contactPath) {
+    return { page: 'contact', canonicalPath: contactPath };
   }
 
   const postMatch = cleanPath.match(/^\/post\/([^/]+)$/);
