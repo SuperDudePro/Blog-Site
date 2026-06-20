@@ -55,7 +55,12 @@ const errorStatusStyle: CSSProperties = {
 };
 
 const introStyle: CSSProperties = {
-  maxWidth: 'none',
+  width: '100%',
+  maxWidth: '100%',
+  margin: '0 0 1rem',
+  color: 'var(--text-soft)',
+  fontSize: '1rem',
+  lineHeight: 1.55,
 };
 
 export function ContactPage() {
@@ -102,7 +107,7 @@ export function ContactPage() {
         <div>
           <span className="eyebrow">contact</span>
           <h1>Send a Note</h1>
-          <p className="lead" style={introStyle}>
+          <p style={introStyle}>
             Questions, corrections, useful warnings, and slow-travel reality checks can go here.
           </p>
 
