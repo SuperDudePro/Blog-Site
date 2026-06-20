@@ -54,6 +54,10 @@ const errorStatusStyle: CSSProperties = {
   color: '#8b1a1a',
 };
 
+const introStyle: CSSProperties = {
+  maxWidth: 'none',
+};
+
 export function ContactPage() {
   const [formState, setFormState] = useState<FormState>('idle');
   const [errorMessage, setErrorMessage] = useState('');
@@ -98,7 +102,7 @@ export function ContactPage() {
         <div>
           <span className="eyebrow">contact</span>
           <h1>Send a Note</h1>
-          <p className="lead">
+          <p className="lead" style={introStyle}>
             Questions, corrections, useful warnings, and slow-travel reality checks can go here.
           </p>
 
