@@ -14,12 +14,13 @@ src/pages/ContactPage.tsx
 scripts/generate-sitemap.mjs
 ```
 
-There is no `src/styles.css` replacement because the contact page uses existing site classes plus local inline styles. That avoids the fragile append step entirely.
+There is no `src/styles.css` replacement because the contact page uses existing site classes plus local inline styles. There are no append steps or partial style fragments.
 
 ## What this adds
 
 - `/contact` route
 - `Contact` nav/footer item
+- single-panel contact page
 - basic contact form
 - hidden honeypot field
 - server-side `/api/contact` endpoint

@@ -2,10 +2,11 @@ import { type CSSProperties, type FormEvent, useState } from 'react';
 
 type FormState = 'idle' | 'sending' | 'sent' | 'error';
 
-const formCardStyle: CSSProperties = {
+const formStyle: CSSProperties = {
   display: 'flex',
   flexDirection: 'column',
   gap: '1rem',
+  marginTop: '1.35rem',
 };
 
 const hiddenFieldStyle: CSSProperties = {
@@ -93,72 +94,48 @@ export function ContactPage() {
 
   return (
     <div className="page-wrap about-page">
-      <section className="page-hero about-hero">
+      <section className="page-hero page-hero--no-image">
         <div>
           <span className="eyebrow">contact</span>
-          <h1>Send a note.</h1>
+          <h1>Send a Note</h1>
           <p className="lead">
             Questions, corrections, useful warnings, and slow-travel reality checks can go here.
           </p>
-          <p>
-            This is not a customer-service desk. It is just a way to get a real note to the person writing the site without putting a real inbox on the public page.
-          </p>
+
+          <form style={formStyle} onSubmit={handleSubmit}>
+            <div style={hiddenFieldStyle} aria-hidden="true">
+              <label htmlFor="website">Website</label>
+              <input id="website" name="website" tabIndex={-1} autoComplete="off" />
+            </div>
+
+            <div style={fieldStyle}>
+              <label style={labelStyle} htmlFor="name">Name</label>
+              <input id="name" name="name" type="text" autoComplete="name" required maxLength={120} style={controlStyle} />
+            </div>
+
+            <div style={fieldStyle}>
+              <label style={labelStyle} htmlFor="email">Email</label>
+              <input id="email" name="email" type="email" autoComplete="email" required maxLength={180} style={controlStyle} />
+            </div>
+
+            <div style={fieldStyle}>
+              <label style={labelStyle} htmlFor="subject">Subject</label>
+              <input id="subject" name="subject" type="text" maxLength={160} style={controlStyle} />
+            </div>
+
+            <div style={fieldStyle}>
+              <label style={labelStyle} htmlFor="message">Message</label>
+              <textarea id="message" name="message" required maxLength={4000} rows={8} style={textareaStyle} />
+            </div>
+
+            <button className="button button--primary" type="submit" disabled={isSending}>
+              {isSending ? 'Sending...' : 'Send note'}
+            </button>
+
+            {formState === 'sent' && <p style={statusStyle}>Message sent.</p>}
+            {formState === 'error' && <p style={errorStatusStyle}>{errorMessage}</p>}
+          </form>
         </div>
-
-        <aside className="about-note" aria-label="Contact note">
-          <span className="eyebrow">before you send</span>
-          <h2>Useful beats flattering.</h2>
-          <p>
-            If you see a hole in a plan, a bad assumption, a broken link, or something I should know before I learn it the expensive way, send that.
-          </p>
-        </aside>
-      </section>
-
-      <section className="about-grid about-grid--two" aria-label="Contact form">
-        <form className="about-card" style={formCardStyle} onSubmit={handleSubmit}>
-          <div style={hiddenFieldStyle} aria-hidden="true">
-            <label htmlFor="website">Website</label>
-            <input id="website" name="website" tabIndex={-1} autoComplete="off" />
-          </div>
-
-          <div style={fieldStyle}>
-            <label style={labelStyle} htmlFor="name">Name</label>
-            <input id="name" name="name" type="text" autoComplete="name" required maxLength={120} style={controlStyle} />
-          </div>
-
-          <div style={fieldStyle}>
-            <label style={labelStyle} htmlFor="email">Email</label>
-            <input id="email" name="email" type="email" autoComplete="email" required maxLength={180} style={controlStyle} />
-          </div>
-
-          <div style={fieldStyle}>
-            <label style={labelStyle} htmlFor="subject">Subject</label>
-            <input id="subject" name="subject" type="text" maxLength={160} style={controlStyle} />
-          </div>
-
-          <div style={fieldStyle}>
-            <label style={labelStyle} htmlFor="message">Message</label>
-            <textarea id="message" name="message" required maxLength={4000} rows={8} style={textareaStyle} />
-          </div>
-
-          <button className="button button--primary" type="submit" disabled={isSending}>
-            {isSending ? 'Sending...' : 'Send note'}
-          </button>
-
-          {formState === 'sent' && <p style={statusStyle}>Message sent.</p>}
-          {formState === 'error' && <p style={errorStatusStyle}>{errorMessage}</p>}
-        </form>
-
-        <aside className="about-card" aria-label="Privacy note">
-          <span className="eyebrow">private inbox</span>
-          <h2>The real email stays hidden.</h2>
-          <p>
-            The form sends through a server-side endpoint and reads the destination email from Vercel environment variables.
-          </p>
-          <p>
-            Replies are not guaranteed, but real messages will get through. Spam and bot noise should mostly die in the honeypot field before it reaches the inbox.
-          </p>
-        </aside>
       </section>
     </div>
   );
