@@ -44,7 +44,7 @@ const post: BlogPost = {
     <p>But the foundation is bases, not constant motion. Constant motion is how you turn the world into a checklist and your kids into luggage with opinions.</p>
 
     <figure class="post-figure">
-      <img src="\${bodyImageOne}" alt="Sketch-style illustration of a father and two children walking through a neighborhood street with a bakery, bus stop, and groceries, suggesting daily life in a new place." loading="lazy" decoding="async" />
+      <img src="${bodyImageOne}" alt="Sketch-style illustration of a father and two children walking through a neighborhood street with a bakery, bus stop, and groceries, suggesting daily life in a new place." loading="lazy" decoding="async" />
     </figure>
 
     <h2>Why Do This With Kids?</h2>
@@ -100,7 +100,7 @@ const post: BlogPost = {
     <p>How that system works is the next post.</p>
 
     <figure class="post-figure">
-      <img src="\${bodyImageTwo}" alt="Sketch-style illustration of a father and two children walking from a bright terminal space toward an open landscape with luggage, suggesting the start of a long journey." loading="lazy" decoding="async" />
+      <img src="${bodyImageTwo}" alt="Sketch-style illustration of a father and two children walking from a bright terminal space toward an open landscape with luggage, suggesting the start of a long journey." loading="lazy" decoding="async" />
     </figure>
 
     <h2>What This Blog Is For</h2>
