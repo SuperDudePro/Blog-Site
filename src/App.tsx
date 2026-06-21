@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react';
+import { Analytics } from '@vercel/analytics/react';
 import { SiteShell } from './components/SiteShell';
 import { applyRouteMetadata } from './metadata';
 import { AboutPage } from './pages/AboutPage';
@@ -40,15 +41,18 @@ export default function App() {
   }, [route]);
 
   return (
-    <SiteShell>
-      {route.page === 'home' && <HomePage />}
-      {route.page === 'about' && <AboutPage />}
-      {route.page === 'contact' && <ContactPage />}
-      {route.page === 'section' && (
-        <SectionPage sectionKey={route.sectionKey} oldLinkNotice={route.oldLinkNotice} />
-      )}
-      {route.page === 'post' && <PostPage slug={route.slug} />}
-      {route.page === 'not-found' && <SectionPage sectionKey="everything" oldLinkNotice />}
-    </SiteShell>
+    <>
+      <SiteShell>
+        {route.page === 'home' && <HomePage />}
+        {route.page === 'about' && <AboutPage />}
+        {route.page === 'contact' && <ContactPage />}
+        {route.page === 'section' && (
+          <SectionPage sectionKey={route.sectionKey} oldLinkNotice={route.oldLinkNotice} />
+        )}
+        {route.page === 'post' && <PostPage slug={route.slug} />}
+        {route.page === 'not-found' && <SectionPage sectionKey="everything" oldLinkNotice />}
+      </SiteShell>
+      <Analytics />
+    </>
   );
 }
