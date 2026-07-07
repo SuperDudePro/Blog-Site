@@ -27,8 +27,8 @@ const post: BlogPost = {
     <p>Guess which version we got.</p>
 
     <figure class="post-figure">
-      <img src="https://upload.wikimedia.org/wikipedia/commons/9/9b/Telluride%2C_Colorado_%287235121004%29.jpg" alt="Telluride and the surrounding high country, the terrain around Black Bear Road" loading="lazy" decoding="async" />
-      <figcaption>Telluride and the surrounding high country. Photo by <a href="https://commons.wikimedia.org/wiki/File:Telluride,_Colorado_(7235121004).jpg" target="_blank" rel="noreferrer">Ken Lund</a>, <a href="https://creativecommons.org/licenses/by-sa/2.0/" target="_blank" rel="noreferrer">CC BY-SA 2.0</a>, via Wikimedia Commons.</figcaption>
+      <iframe title="Black Bear Pass switchbacks near Telluride, Colorado" src="https://www.flickr.com/photos/szazszorszapathy/20585358052/player/" width="100%" height="560" frameborder="0" allowfullscreen></iframe>
+      <figcaption>Black Bear Pass switchbacks near Telluride. Photo by <a href="https://www.flickr.com/photos/szazszorszapathy/20585358052/" target="_blank" rel="noreferrer">szazszorszapathy</a>, <a href="https://creativecommons.org/licenses/by-nc-sa/2.0/" target="_blank" rel="noreferrer">CC BY-NC-SA 2.0</a>, via Flickr.</figcaption>
     </figure>
 
     <p>Before Telluride, I'd already called it off in my head. Something about the route didn't feel right. It didn't feel like the sane way into Ouray. I asked Maylin to look it up, and she said it was clear, or clear enough, or gave me the kind of answer that meant I was supposed to stop being dramatic and keep driving.</p>
