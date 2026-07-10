@@ -9,6 +9,8 @@ type Props = {
   children: ReactNode;
 };
 
+const footerNavigation = navigation.filter((item) => item.label !== 'Everything');
+
 function getCurrentPath() {
   return normalizePath(window.location.pathname);
 }
@@ -78,7 +80,7 @@ export function SiteShell({ children }: Props) {
           <SubscribeForm compact />
 
           <nav className="site-footer__nav" aria-label="Footer navigation">
-            {navigation.map((item) => (
+            {footerNavigation.map((item) => (
               <SiteLink
                 key={item.href}
                 href={item.href}
