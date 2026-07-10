@@ -2,6 +2,7 @@ import { FeaturedImage } from '../components/FeaturedImage';
 import { PostCard } from '../components/PostCard';
 import { SectionCard } from '../components/SectionCard';
 import { SiteLink } from '../components/SiteLink';
+import { SubscribeForm } from '../components/SubscribeForm';
 import { getFeaturedPost, posts } from '../content/loadPosts';
 import homeSkullImage from '../assets/home-skull-square.webp';
 import { sections, site } from '../data/siteContent';
@@ -37,6 +38,8 @@ export function HomePage() {
         />
       </section>
 
+      <SubscribeForm />
+
       <section className="content-band content-band--featured">
         <div className="section-heading">
           <span className="eyebrow">latest</span>
@@ -52,9 +55,7 @@ export function HomePage() {
           >
             <span className="post-pill">{featured?.status ?? 'Recent'}</span>
             <h3>{featured?.title ?? 'Latest writing'}</h3>
-            <p>
-              {featured?.excerpt ?? 'The newest post appears here automatically.'}
-            </p>
+            <p>{featured?.excerpt ?? 'The newest post appears here automatically.'}</p>
             <span className="button button--primary button--fake">
               {featured ? 'Read post' : 'Browse all posts'}
             </span>
