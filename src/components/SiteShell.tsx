@@ -79,13 +79,18 @@ export function SiteShell({ children }: Props) {
 
           <SubscribeForm compact />
 
-          <nav className="site-footer__nav" aria-label="Footer navigation">
+          <nav
+            className="site-footer__nav"
+            aria-label="Footer navigation"
+            style={{ flexWrap: 'nowrap', gap: '0.25rem' }}
+          >
             {footerNavigation.map((item) => (
               <SiteLink
                 key={item.href}
                 href={item.href}
                 className={`site-footer__link ${isActive(item.href) ? 'is-active' : ''}`}
                 aria-current={isActive(item.href) ? 'page' : undefined}
+                style={{ paddingInline: '0.7rem' }}
               >
                 {item.label}
               </SiteLink>
