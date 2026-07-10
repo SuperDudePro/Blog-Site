@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 import { SiteShell } from './components/SiteShell';
 import { applyRouteMetadata } from './metadata';
 import { AboutPage } from './pages/AboutPage';
+import { CategoriesPage } from './pages/CategoriesPage';
 import { ContactPage } from './pages/ContactPage';
 import { HomePage } from './pages/HomePage';
 import { PostPage } from './pages/PostPage';
@@ -42,6 +43,7 @@ export default function App() {
   return (
     <SiteShell>
       {route.page === 'home' && <HomePage />}
+      {route.page === 'categories' && <CategoriesPage />}
       {route.page === 'about' && <AboutPage />}
       {route.page === 'contact' && <ContactPage />}
       {route.page === 'section' && (
