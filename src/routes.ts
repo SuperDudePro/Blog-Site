@@ -4,6 +4,7 @@ import { sections, type SectionKey } from './data/siteContent';
 
 export type Route =
   | { page: 'home'; canonicalPath: string; replacePath?: string }
+  | { page: 'categories'; canonicalPath: string; replacePath?: string }
   | { page: 'about'; canonicalPath: string; replacePath?: string }
   | { page: 'contact'; canonicalPath: string; replacePath?: string }
   | {
@@ -17,12 +18,12 @@ export type Route =
   | { page: 'not-found'; canonicalPath: string; replacePath?: string };
 
 export const homePath = '/';
+export const categoriesPath = '/categories';
 export const aboutPath = '/about';
 export const contactPath = '/contact';
 
 export function normalizePath(pathname: string): string {
   const cleanPath = pathname.trim().replace(/\/+$/, '');
-
   return cleanPath || homePath;
 }
 
@@ -62,6 +63,10 @@ export function routeFromPath(pathname: string): Route {
     return { page: 'home', canonicalPath: homePath };
   }
 
+  if (cleanPath === categoriesPath) {
+    return { page: 'categories', canonicalPath: categoriesPath };
+  }
+
   if (cleanPath === aboutPath) {
     return { page: 'about', canonicalPath: aboutPath };
   }
@@ -73,22 +78,18 @@ export function routeFromPath(pathname: string): Route {
   const postMatch = cleanPath.match(/^\/post\/([^/]+)$/);
   if (postMatch?.[1]) {
     const slug = decodeSegment(postMatch[1]);
-
     if (getPostBySlug(slug)) {
       return { page: 'post', slug, canonicalPath: postPath(slug) };
     }
-
     return everythingRoute(true);
   }
 
   const sectionMatch = cleanPath.match(/^\/section\/([^/]+)$/);
   if (sectionMatch?.[1]) {
     const sectionKey = decodeSegment(sectionMatch[1]);
-
     if (isSectionKey(sectionKey)) {
       return { page: 'section', sectionKey, canonicalPath: sectionPath(sectionKey) };
     }
-
     return everythingRoute(true);
   }
 
@@ -102,24 +103,15 @@ export function routeFromPath(pathname: string): Route {
 }
 
 export function routeFromHash(hash: string): Route | null {
-  if (!hash || hash === '#') {
-    return null;
-  }
-
+  if (!hash || hash === '#') return null;
   if (!hash.startsWith('#/')) {
     return { page: 'not-found', canonicalPath: sectionPath('everything') };
   }
-
   const route = routeFromPath(hash.slice(1));
   return { ...route, replacePath: route.canonicalPath };
 }
 
 export function getCurrentRoute(): Route {
   const hashRoute = routeFromHash(window.location.hash);
-
-  if (hashRoute) {
-    return hashRoute;
-  }
-
-  return routeFromPath(window.location.pathname);
+  return hashRoute ?? routeFromPath(window.location.pathname);
 }
