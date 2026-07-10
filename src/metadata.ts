@@ -30,6 +30,15 @@ function getRouteMetadata(route: Route): RouteMetadata {
     };
   }
 
+  if (route.page === 'categories') {
+    return {
+      title: titleWithSite('Categories'),
+      description: 'Browse every Our Old Dad category and find the latest post in each one.',
+      canonicalPath: route.canonicalPath,
+      type: 'website',
+    };
+  }
+
   if (route.page === 'about') {
     return {
       title: titleWithSite('About'),
