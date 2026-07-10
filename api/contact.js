@@ -23,6 +23,55 @@ function json(response, status, body) {
   return response.status(status).json(body);
 }
 
+async function resendRequest(path, apiKey, options = {}) {
+  return fetch(`https://api.resend.com${path}`, {
+    ...options,
+    headers: {
+      Authorization: `Bearer ${apiKey}`,
+      'Content-Type': 'application/json',
+      ...(options.headers || {}),
+    },
+  });
+}
+
+async function subscribeContact(email, name, apiKey, segmentId) {
+  const createResponse = await resendRequest('/contacts', apiKey, {
+    method: 'POST',
+    body: JSON.stringify({
+      email,
+      first_name: name,
+      unsubscribed: false,
+      segments: [{ id: segmentId }],
+    }),
+  });
+
+  if (createResponse.ok) return;
+
+  if (createResponse.status !== 409 && createResponse.status !== 422) {
+    throw new Error(`Resend contact creation failed (${createResponse.status}).`);
+  }
+
+  const encodedEmail = encodeURIComponent(email);
+  const updateResponse = await resendRequest(`/contacts/${encodedEmail}`, apiKey, {
+    method: 'PATCH',
+    body: JSON.stringify({ first_name: name, unsubscribed: false }),
+  });
+
+  if (!updateResponse.ok && updateResponse.status !== 404) {
+    throw new Error(`Could not update existing contact (${updateResponse.status}).`);
+  }
+
+  const segmentResponse = await resendRequest(
+    `/contacts/${encodedEmail}/segments/${encodeURIComponent(segmentId)}`,
+    apiKey,
+    { method: 'POST' },
+  );
+
+  if (!segmentResponse.ok && segmentResponse.status !== 409) {
+    throw new Error(`Could not add contact to segment (${segmentResponse.status}).`);
+  }
+}
+
 export default async function handler(request, response) {
   response.setHeader('Content-Type', 'application/json; charset=utf-8');
 
@@ -39,9 +88,10 @@ export default async function handler(request, response) {
   }
 
   const name = getString(body, 'name');
-  const email = getString(body, 'email');
+  const email = getString(body, 'email').toLowerCase();
   const subject = getString(body, 'subject') || 'New contact message';
   const message = getString(body, 'message');
+  const wantsSubscription = getString(body, 'subscribe') === 'yes';
 
   if (!name || !email || !message) {
     return json(response, 400, { ok: false, error: 'Name, email, and message are required.' });
@@ -55,7 +105,13 @@ export default async function handler(request, response) {
     return json(response, 400, { ok: false, error: 'Message is too long.' });
   }
 
-  const { CONTACT_FROM_EMAIL, CONTACT_SUBJECT_PREFIX = 'Our Old Dad', CONTACT_TO_EMAIL, RESEND_API_KEY } = process.env;
+  const {
+    CONTACT_FROM_EMAIL,
+    CONTACT_SUBJECT_PREFIX = 'Our Old Dad',
+    CONTACT_TO_EMAIL,
+    RESEND_API_KEY,
+    RESEND_OOD_SEGMENT_ID,
+  } = process.env;
 
   if (!RESEND_API_KEY || !CONTACT_TO_EMAIL || !CONTACT_FROM_EMAIL) {
     console.error('Missing contact form environment variables.');
@@ -67,16 +123,13 @@ export default async function handler(request, response) {
     `Name: ${name}`,
     `Email: ${email}`,
     `Subject: ${subject}`,
+    `Requested subscription: ${wantsSubscription ? 'Yes' : 'No'}`,
     '',
     message,
   ].join('\n');
 
-  const resendResponse = await fetch('https://api.resend.com/emails', {
+  const resendResponse = await resendRequest('/emails', RESEND_API_KEY, {
     method: 'POST',
-    headers: {
-      Authorization: `Bearer ${RESEND_API_KEY}`,
-      'Content-Type': 'application/json',
-    },
     body: JSON.stringify({
       from: CONTACT_FROM_EMAIL,
       to: [CONTACT_TO_EMAIL],
@@ -92,5 +145,27 @@ export default async function handler(request, response) {
     return json(response, 502, { ok: false, error: 'Message could not be sent.' });
   }
 
-  return json(response, 200, { ok: true });
+  if (wantsSubscription) {
+    if (!RESEND_OOD_SEGMENT_ID) {
+      console.error('Missing RESEND_OOD_SEGMENT_ID for contact subscription.');
+      return json(response, 200, {
+        ok: true,
+        subscribed: false,
+        warning: 'Message sent, but the email subscription could not be completed.',
+      });
+    }
+
+    try {
+      await subscribeContact(email, name, RESEND_API_KEY, RESEND_OOD_SEGMENT_ID);
+    } catch (error) {
+      console.error('Contact message sent, but subscription failed:', error);
+      return json(response, 200, {
+        ok: true,
+        subscribed: false,
+        warning: 'Message sent, but the email subscription could not be completed.',
+      });
+    }
+  }
+
+  return json(response, 200, { ok: true, subscribed: wantsSubscription });
 }
