@@ -107,9 +107,19 @@ export default async function handler(request, response) {
     RESEND_WEBHOOK_SECRET,
   } = process.env;
 
-  if (!RESEND_API_KEY || !RESEND_WEBHOOK_SECRET || !INBOUND_FORWARD_TO) {
-    console.error('Missing inbound email environment variables.');
-    return json(response, 500, { ok: false, error: 'Inbound email is not configured.' });
+  const missingVariables = [
+    !RESEND_API_KEY && 'RESEND_API_KEY',
+    !RESEND_WEBHOOK_SECRET && 'RESEND_WEBHOOK_SECRET',
+    !INBOUND_FORWARD_TO && 'INBOUND_FORWARD_TO',
+  ].filter(Boolean);
+
+  if (missingVariables.length) {
+    console.error(`Missing inbound email environment variables: ${missingVariables.join(', ')}`);
+    return json(response, 500, {
+      ok: false,
+      error: 'Inbound email is not configured.',
+      missing: missingVariables,
+    });
   }
 
   const rawBody = await readRawBody(request);
