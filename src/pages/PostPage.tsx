@@ -1,5 +1,6 @@
 import { FeaturedImage } from '../components/FeaturedImage';
 import { SiteLink } from '../components/SiteLink';
+import { SubscribeForm } from '../components/SubscribeForm';
 import { getPostBySlug, formatPostDate } from '../content/loadPosts';
 import { getSectionName } from '../data/siteContent';
 import { sectionPath } from '../routes';
@@ -18,9 +19,7 @@ export function PostPage({ slug }: Props) {
           <div>
             <span className="eyebrow">not found</span>
             <h1>That post is not here.</h1>
-            <p className="lead">
-              That link does not point to a post that exists here.
-            </p>
+            <p className="lead">That link does not point to a post that exists here.</p>
             <div className="hero__actions">
               <SiteLink className="button button--primary" href={sectionPath('everything')}>
                 Browse everything
@@ -55,6 +54,7 @@ export function PostPage({ slug }: Props) {
       </section>
 
       <article className="post-article" dangerouslySetInnerHTML={{ __html: post.bodyHtml }} />
+      <SubscribeForm />
     </div>
   );
 }
