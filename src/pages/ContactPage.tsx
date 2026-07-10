@@ -2,6 +2,12 @@ import { type CSSProperties, type FormEvent, useState } from 'react';
 
 type FormState = 'idle' | 'sending' | 'sent' | 'error';
 
+type ContactResult = {
+  error?: string;
+  warning?: string;
+  subscribed?: boolean;
+};
+
 const formStyle: CSSProperties = {
   display: 'flex',
   flexDirection: 'column',
@@ -43,10 +49,38 @@ const textareaStyle: CSSProperties = {
   resize: 'vertical',
 };
 
+const checkboxRowStyle: CSSProperties = {
+  display: 'flex',
+  alignItems: 'flex-start',
+  gap: '0.7rem',
+  padding: '0.9rem 1rem',
+  border: '2px solid var(--border)',
+  borderRadius: '14px',
+  background: 'var(--surface-muted)',
+};
+
+const checkboxStyle: CSSProperties = {
+  width: '1.15rem',
+  height: '1.15rem',
+  marginTop: '0.15rem',
+  flex: '0 0 auto',
+};
+
+const checkboxCopyStyle: CSSProperties = {
+  margin: 0,
+  color: 'var(--text)',
+  fontWeight: 700,
+};
+
 const statusStyle: CSSProperties = {
   color: 'var(--text)',
   fontWeight: 800,
   marginBottom: 0,
+};
+
+const warningStatusStyle: CSSProperties = {
+  ...statusStyle,
+  color: '#7a4b00',
 };
 
 const errorStatusStyle: CSSProperties = {
@@ -65,12 +99,12 @@ const introStyle: CSSProperties = {
 
 export function ContactPage() {
   const [formState, setFormState] = useState<FormState>('idle');
-  const [errorMessage, setErrorMessage] = useState('');
+  const [statusMessage, setStatusMessage] = useState('');
 
   async function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
     setFormState('sending');
-    setErrorMessage('');
+    setStatusMessage('');
 
     const form = event.currentTarget;
     const formData = new FormData(form);
@@ -85,7 +119,7 @@ export function ContactPage() {
         body: JSON.stringify(payload),
       });
 
-      const result = (await response.json().catch(() => null)) as { error?: string } | null;
+      const result = (await response.json().catch(() => null)) as ContactResult | null;
 
       if (!response.ok) {
         throw new Error(result?.error ?? 'The message did not send.');
@@ -93,13 +127,18 @@ export function ContactPage() {
 
       form.reset();
       setFormState('sent');
+      setStatusMessage(
+        result?.warning ??
+          (result?.subscribed ? 'Message sent, and you are subscribed.' : 'Message sent.'),
+      );
     } catch (error) {
       setFormState('error');
-      setErrorMessage(error instanceof Error ? error.message : 'The message did not send.');
+      setStatusMessage(error instanceof Error ? error.message : 'The message did not send.');
     }
   }
 
   const isSending = formState === 'sending';
+  const hasWarning = formState === 'sent' && statusMessage.includes('could not be completed');
 
   return (
     <div className="page-wrap about-page">
@@ -137,12 +176,19 @@ export function ContactPage() {
               <textarea id="message" name="message" required maxLength={4000} rows={8} style={textareaStyle} />
             </div>
 
+            <label style={checkboxRowStyle} htmlFor="subscribe">
+              <input id="subscribe" name="subscribe" type="checkbox" value="yes" style={checkboxStyle} />
+              <span style={checkboxCopyStyle}>Also send me new Our Old Dad posts by email.</span>
+            </label>
+
             <button className="button button--primary" type="submit" disabled={isSending}>
               {isSending ? 'Sending...' : 'Send note'}
             </button>
 
-            {formState === 'sent' && <p style={statusStyle}>Message sent.</p>}
-            {formState === 'error' && <p style={errorStatusStyle}>{errorMessage}</p>}
+            {formState === 'sent' && (
+              <p style={hasWarning ? warningStatusStyle : statusStyle}>{statusMessage}</p>
+            )}
+            {formState === 'error' && <p style={errorStatusStyle}>{statusMessage}</p>}
           </form>
         </div>
       </section>
