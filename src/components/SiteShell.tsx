@@ -3,6 +3,7 @@ import { navigation, site } from '../data/siteContent';
 import { homePath, normalizePath } from '../routes';
 import { SmileyMark } from './SmileyMark';
 import { SiteLink } from './SiteLink';
+import { SubscribeForm } from './SubscribeForm';
 
 type Props = {
   children: ReactNode;
@@ -69,7 +70,12 @@ export function SiteShell({ children }: Props) {
               </span>
             </p>
             <p className="site-footer__copy">{site.footerNote}</p>
+            <p className="site-footer__copy">
+              <a href="/rss.xml">RSS feed</a>
+            </p>
           </div>
+
+          <SubscribeForm compact />
 
           <nav className="site-footer__nav" aria-label="Footer navigation">
             {navigation.map((item) => (
