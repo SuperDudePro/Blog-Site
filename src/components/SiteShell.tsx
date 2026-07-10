@@ -82,7 +82,12 @@ export function SiteShell({ children }: Props) {
           <nav
             className="site-footer__nav"
             aria-label="Footer navigation"
-            style={{ flexWrap: 'nowrap', gap: '0.25rem' }}
+            style={{
+              alignItems: 'flex-start',
+              alignSelf: 'flex-start',
+              flexWrap: 'nowrap',
+              gap: '0.25rem',
+            }}
           >
             {footerNavigation.map((item) => (
               <SiteLink
@@ -90,7 +95,7 @@ export function SiteShell({ children }: Props) {
                 href={item.href}
                 className={`site-footer__link ${isActive(item.href) ? 'is-active' : ''}`}
                 aria-current={isActive(item.href) ? 'page' : undefined}
-                style={{ paddingInline: '0.7rem' }}
+                style={{ alignSelf: 'flex-start', paddingInline: '0.7rem' }}
               >
                 {item.label}
               </SiteLink>
