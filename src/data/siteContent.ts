@@ -103,11 +103,7 @@ export const sections: Section[] = [
 export const navigation = [
   { label: 'Home', href: '/' },
   { label: 'Everything', href: '/section/everything' },
-  { label: 'Diary', href: '/section/diary' },
-  { label: 'Life Education', href: '/section/life-education' },
-  { label: 'Playlists', href: '/section/music-playlists' },
-  { label: 'Slow Travel', href: '/section/slow-travel' },
-  { label: 'Advice', href: '/section/advice' },
+  { label: 'Categories', href: '/categories' },
   { label: 'About', href: '/about' },
   { label: 'Contact', href: '/contact' },
 ];
