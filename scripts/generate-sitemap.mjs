@@ -29,6 +29,7 @@ function escapeXml(value) {
 
 const urls = [
   { loc: `${siteUrl}/`, lastmod: latestPostDate, changefreq: 'weekly', priority: '1.0' },
+  { loc: `${siteUrl}/categories`, lastmod: latestPostDate, changefreq: 'weekly', priority: '0.9' },
   ...sections.map((section) => ({
     loc: `${siteUrl}/section/${section}`,
     lastmod: sectionLastmod(section),
@@ -47,7 +48,7 @@ const urls = [
 
 const xml = `<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n${urls
   .map(
-    (url) => `  <url>\n    <loc>${escapeXml(url.loc)}</loc>\n    <lastmod>${escapeXml(url.lastmod)}</lastmod>\n    <changefreq>${escapeXml(url.changefreq)}</changefreq>\n    <priority>${escapeXml(url.priority)}</priority>\n  </url>`
+    (url) => `  <url>\n    <loc>${escapeXml(url.loc)}</loc>\n    <lastmod>${escapeXml(url.lastmod)}</lastmod>\n    <changefreq>${escapeXml(url.changefreq)}</changefreq>\n    <priority>${escapeXml(url.priority)}</priority>\n  </url>`,
   )
   .join('\n')}\n</urlset>\n`;
 
