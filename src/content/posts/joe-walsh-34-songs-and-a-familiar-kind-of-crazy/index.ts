@@ -15,10 +15,10 @@ const post: BlogPost = {
   status: 'Recent',
   heroImage,
   heroAlt:
-    'Sketch-style collage of Joe Walsh at a radio microphone and the mountains around Caribou Ranch, with restrained purple accents.',
+    'Realistic editorial image of Joe Walsh wearing headphones at a radio microphone in a vintage studio.',
   cardImage,
   cardAlt:
-    'Close sketch-style portrait of Joe Walsh wearing headphones at a radio microphone, with restrained purple accents.',
+    'Close realistic portrait of Joe Walsh wearing headphones beside a radio microphone.',
   bodyHtml: `
     <p>Joe Walsh got into my head long before I knew much about the James Gang, <em>Barnstorm</em>, or most of the records represented on this playlist.</p>
 
@@ -32,12 +32,12 @@ const post: BlogPost = {
 
     <p>We loved him.</p>
 
-    <figure class="post-figure">
-      <img src="${bodyImageOne}" alt="Sketch-style image of Joe Walsh wearing headphones and speaking into a radio microphone." loading="lazy" decoding="async" />
-      <figcaption>The version of Joe Walsh who sounded perfectly suited to taking over a Chicago radio station.</figcaption>
-    </figure>
-
     <p>That was the version of Joe Walsh I carried around for a long time: great guitar player, strange voice, funny songs, Eagles, &ldquo;Life&rsquo;s Been Good,&rdquo; and a general sense that the whole operation could come off the tracks at any moment.</p>
+
+    <figure class="post-figure">
+      <img src="${bodyImageOne}" alt="Realistic concert image of Joe Walsh playing guitar under warm stage lights." loading="lazy" decoding="async" />
+      <figcaption>The guitar playing was always the part nobody could miss.</figcaption>
+    </figure>
 
     <p>Making this playlist pushed me past that version.</p>
 
@@ -52,8 +52,8 @@ const post: BlogPost = {
     <p>Walsh recorded some of his most important early work there in the 1970s. <em>Barnstorm</em> was the first album recorded at the ranch, and parts of <em>The Smoker You Drink, the Player You Get</em> were made there too.</p>
 
     <figure class="post-figure">
-      <img src="${bodyImageTwo}" alt="Sketch-style image combining the Caribou Ranch mountain setting with artwork recalling the Barnstorm era." loading="lazy" decoding="async" />
-      <figcaption>Caribou Ranch: part of Walsh&rsquo;s early recording history, and later part of mine.</figcaption>
+      <img src="${bodyImageTwo}" alt="Realistic mountain landscape at Caribou Ranch with a weathered wooden ranch sign in the foreground." loading="lazy" decoding="async" />
+      <figcaption>Caribou Ranch, where some of Walsh&rsquo;s early records were made and where I later lived.</figcaption>
     </figure>
 
     <p>About twenty years later, I lived there. My girlfriend at the time had grown up on the ranch while the studio was still operating, and she was the reason I got to live there in the first place. One weekend the two of us babysat for Jimmy Guercio&rsquo;s kids, and somewhere in that house I found what I thought were somebody&rsquo;s old bowling trophies &mdash; dusty, labels falling off. They were Grammys.</p>
@@ -61,7 +61,7 @@ const post: BlogPost = {
     <p>That&rsquo;s the only time I&rsquo;ve been near a Grammy.</p>
 
     <figure class="post-figure">
-      <img src="${bodyImageThree}" alt="Sketch-style image of dusty Grammy trophies sitting on a shelf like forgotten bowling trophies." loading="lazy" decoding="async" />
+      <img src="${bodyImageThree}" alt="Two dusty vintage Grammy trophies sitting on a wooden shelf inside a rustic mountain house." loading="lazy" decoding="async" />
       <figcaption>Not bowling trophies.</figcaption>
     </figure>
 
