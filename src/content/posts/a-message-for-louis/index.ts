@@ -109,7 +109,7 @@ const post: BlogPost = {
 
     <p>He wasn't confused about the betrayal, and he understood exactly why the man had frozen when he saw him coming. He was sincerely worried about his friend anyway. The guy had been someone he loved, something had gone terribly wrong in his life, and the hurt hadn't erased the love or his concern for the person underneath it.</p>
 
-    <p>We argued because we couldn't make it fit inside the way we understood people. At the same time, we knew. You knew you were standing in the presence of a better human being than yourself. And if you had been stronger and more true, you might have started crying right there. You might have admitted before God what a terrible person you were, masquerading as a good one because you hadn't usually acted on the worst things you felt.</p>
+    <p>We argued because we couldn't make it fit inside the way we understood people. At the same time, I knew. I knew I was standing in the presence of a better human being than myself. And if I had been stronger and more true, I might have started crying right there at the recognition of how far from good I was.</p>
 
     <p>Louis wasn't claiming to be better than us, which somehow made it worse. He wasn't performing forgiveness or proving a point. He'd simply refused to turn his friend into someone he needed to hate.</p>
 
