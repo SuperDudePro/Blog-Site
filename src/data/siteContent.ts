@@ -27,7 +27,7 @@ export type Section = {
 };
 
 export const site = {
-  url: 'https://www.ourolddad.com',
+  url: 'https://ourolddad.com',
   title: 'Our Old Dad',
   headerTagline: 'Raising Two Generations',
   tagline: 'Flailing, Raging, and Raising Two Generations',
