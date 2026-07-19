@@ -2,7 +2,7 @@ import fs from 'node:fs';
 import path from 'node:path';
 import { readPosts } from './read-posts.mjs';
 
-const siteUrl = (process.env.SITE_URL || 'https://www.ourolddad.com').replace(/\/$/, '');
+const siteUrl = (process.env.SITE_URL || 'https://ourolddad.com').replace(/\/$/, '');
 const today = new Date().toISOString().slice(0, 10);
 const posts = readPosts()
   .filter((post) => !post.missingIndex && post.slug)
