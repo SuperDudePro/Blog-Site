@@ -11,218 +11,74 @@ type RouteMetadata = {
 };
 
 type JsonLd = Record<string, unknown>;
-
-const titleSuffix = site.title;
 const authorId = `${site.url}/#author`;
 const websiteId = `${site.url}/#website`;
-
-function titleWithSite(title: string): string {
-  return title === site.title ? title : `${title} | ${titleSuffix}`;
-}
-
-function getSectionDescription(sectionKey: string): string {
-  return sections.find((section) => section.key === sectionKey)?.description ?? site.description;
-}
+const titleWithSite = (title: string) => title === site.title ? title : `${title} | ${site.title}`;
+const getSectionDescription = (key: string) => sections.find((section) => section.key === key)?.description ?? site.description;
 
 function getRouteMetadata(route: Route): RouteMetadata {
-  if (route.page === 'home') {
-    return {
-      title: site.title,
-      description: site.description,
-      canonicalPath: route.canonicalPath,
-      type: 'website',
-    };
-  }
-
-  if (route.page === 'categories') {
-    return {
-      title: titleWithSite('Categories'),
-      description: 'Browse every Our Old Dad category and find the latest post in each one.',
-      canonicalPath: route.canonicalPath,
-      type: 'website',
-    };
-  }
-
-  if (route.page === 'about') {
-    return {
-      title: titleWithSite('About'),
-      description: site.intro,
-      canonicalPath: route.canonicalPath,
-      type: 'website',
-    };
-  }
-
-  if (route.page === 'contact') {
-    return {
-      title: titleWithSite('Contact'),
-      description: 'Send a note to Our Old Dad without exposing a public email address.',
-      canonicalPath: route.canonicalPath,
-      type: 'website',
-    };
-  }
-
-  if (route.page === 'section') {
-    return {
-      title: titleWithSite(getSectionName(route.sectionKey)),
-      description: getSectionDescription(route.sectionKey),
-      canonicalPath: route.canonicalPath,
-      type: 'website',
-    };
-  }
-
+  if (route.page === 'home') return { title: site.title, description: site.description, canonicalPath: route.canonicalPath, type: 'website' };
+  if (route.page === 'categories') return { title: titleWithSite('Categories'), description: 'Browse every Our Old Dad category and find the latest post in each one.', canonicalPath: route.canonicalPath, type: 'website' };
+  if (route.page === 'archive') return { title: titleWithSite('Archive'), description: 'Search every published Our Old Dad post by words, section, or year.', canonicalPath: route.canonicalPath, type: 'website' };
+  if (route.page === 'about') return { title: titleWithSite('About'), description: site.intro, canonicalPath: route.canonicalPath, type: 'website' };
+  if (route.page === 'contact') return { title: titleWithSite('Contact'), description: 'Send a note to Our Old Dad without exposing a public email address.', canonicalPath: route.canonicalPath, type: 'website' };
+  if (route.page === 'section') return { title: titleWithSite(getSectionName(route.sectionKey)), description: getSectionDescription(route.sectionKey), canonicalPath: route.canonicalPath, type: 'website' };
   if (route.page === 'post') {
     const post = getPostBySlug(route.slug);
-
     if (post) {
       const image = post.cardImage ?? post.heroImage;
-
-      return {
-        title: titleWithSite(post.title),
-        description: post.excerpt,
-        canonicalPath: route.canonicalPath,
-        type: 'article',
-        ...(image ? { image } : {}),
-      };
+      return { title: titleWithSite(post.title), description: post.excerpt, canonicalPath: route.canonicalPath, type: 'article', ...(image ? { image } : {}) };
     }
   }
-
-  return {
-    title: titleWithSite('Page not found'),
-    description: site.description,
-    canonicalPath: route.canonicalPath,
-    type: 'website',
-  };
+  return { title: titleWithSite('Page not found'), description: site.description, canonicalPath: route.canonicalPath, type: 'website' };
 }
 
-function absoluteUrl(pathname: string): string {
-  return new URL(pathname, site.url).href;
-}
-
+const absoluteUrl = (pathname: string) => new URL(pathname, site.url).href;
 function breadcrumb(items: Array<{ name: string; path: string }>): JsonLd {
-  return {
-    '@type': 'BreadcrumbList',
-    itemListElement: items.map((item, index) => ({
-      '@type': 'ListItem',
-      position: index + 1,
-      name: item.name,
-      item: absoluteUrl(item.path),
-    })),
-  };
+  return { '@type': 'BreadcrumbList', itemListElement: items.map((item, index) => ({ '@type': 'ListItem', position: index + 1, name: item.name, item: absoluteUrl(item.path) })) };
 }
 
 function getStructuredData(route: Route, metadata: RouteMetadata): JsonLd {
   const canonicalUrl = absoluteUrl(metadata.canonicalPath);
   const graph: JsonLd[] = [
-    {
-      '@type': 'Person',
-      '@id': authorId,
-      name: 'Will Gayhart',
-      url: `${site.url}/about`,
-    },
-    {
-      '@type': 'WebSite',
-      '@id': websiteId,
-      url: `${site.url}/`,
-      name: site.title,
-      description: site.description,
-      publisher: { '@id': authorId },
-    },
+    { '@type': 'Person', '@id': authorId, name: 'Will Gayhart', url: `${site.url}/about` },
+    { '@type': 'WebSite', '@id': websiteId, url: `${site.url}/`, name: site.title, description: site.description, publisher: { '@id': authorId } },
   ];
-
   if (route.page === 'post') {
     const post = getPostBySlug(route.slug);
     if (post) {
       const image = post.cardImage ?? post.heroImage;
-      graph.push({
-        '@type': 'BlogPosting',
-        '@id': `${canonicalUrl}#article`,
-        headline: post.title,
-        description: post.excerpt,
-        url: canonicalUrl,
-        mainEntityOfPage: canonicalUrl,
-        datePublished: post.publishedAt,
-        ...(post.modifiedAt ? { dateModified: post.modifiedAt } : {}),
-        author: { '@id': authorId },
-        publisher: { '@id': authorId },
-        isPartOf: { '@id': websiteId },
-        articleSection: getSectionName(post.section),
-        ...(image ? { image: absoluteUrl(image) } : {}),
-      });
-      graph.push(
-        breadcrumb([
-          { name: 'Home', path: '/' },
-          { name: getSectionName(post.section), path: `/section/${post.section}` },
-          { name: post.title, path: route.canonicalPath },
-        ]),
-      );
+      graph.push({ '@type': 'BlogPosting', '@id': `${canonicalUrl}#article`, headline: post.title, description: post.excerpt, url: canonicalUrl, mainEntityOfPage: canonicalUrl, datePublished: post.publishedAt, ...(post.modifiedAt ? { dateModified: post.modifiedAt } : {}), author: { '@id': authorId }, publisher: { '@id': authorId }, isPartOf: { '@id': websiteId }, articleSection: getSectionName(post.section), ...(image ? { image: absoluteUrl(image) } : {}) });
+      graph.push(breadcrumb([{ name: 'Home', path: '/' }, { name: getSectionName(post.section), path: `/section/${post.section}` }, { name: post.title, path: route.canonicalPath }]));
     }
   } else if (route.page === 'section') {
-    graph.push(
-      breadcrumb([
-        { name: 'Home', path: '/' },
-        { name: getSectionName(route.sectionKey), path: route.canonicalPath },
-      ]),
-    );
+    graph.push(breadcrumb([{ name: 'Home', path: '/' }, { name: getSectionName(route.sectionKey), path: route.canonicalPath }]));
   } else if (route.page !== 'home' && route.page !== 'not-found') {
-    graph.push(
-      breadcrumb([
-        { name: 'Home', path: '/' },
-        { name: metadata.title.replace(` | ${site.title}`, ''), path: route.canonicalPath },
-      ]),
-    );
+    graph.push(breadcrumb([{ name: 'Home', path: '/' }, { name: metadata.title.replace(` | ${site.title}`, ''), path: route.canonicalPath }]));
   }
-
-  return {
-    '@context': 'https://schema.org',
-    '@graph': graph,
-  };
+  return { '@context': 'https://schema.org', '@graph': graph };
 }
 
 function setMeta(attribute: 'name' | 'property', key: string, content: string) {
   let element = document.head.querySelector<HTMLMetaElement>(`meta[${attribute}="${key}"]`);
-
-  if (!element) {
-    element = document.createElement('meta');
-    element.setAttribute(attribute, key);
-    document.head.appendChild(element);
-  }
-
+  if (!element) { element = document.createElement('meta'); element.setAttribute(attribute, key); document.head.appendChild(element); }
   element.content = content;
 }
-
-function removeMeta(attribute: 'name' | 'property', key: string) {
-  document.head.querySelector<HTMLMetaElement>(`meta[${attribute}="${key}"]`)?.remove();
-}
-
+function removeMeta(attribute: 'name' | 'property', key: string) { document.head.querySelector<HTMLMetaElement>(`meta[${attribute}="${key}"]`)?.remove(); }
 function setCanonical(pathname: string) {
   let element = document.head.querySelector<HTMLLinkElement>('link[rel="canonical"]');
-
-  if (!element) {
-    element = document.createElement('link');
-    element.rel = 'canonical';
-    document.head.appendChild(element);
-  }
-
+  if (!element) { element = document.createElement('link'); element.rel = 'canonical'; document.head.appendChild(element); }
   element.href = absoluteUrl(pathname);
 }
-
 function setStructuredData(data: JsonLd) {
   let element = document.head.querySelector<HTMLScriptElement>('script[data-site-jsonld]');
-
-  if (!element) {
-    element = document.createElement('script');
-    element.type = 'application/ld+json';
-    element.dataset.siteJsonld = 'true';
-    document.head.appendChild(element);
-  }
-
+  if (!element) { element = document.createElement('script'); element.type = 'application/ld+json'; element.dataset.siteJsonld = 'true'; document.head.appendChild(element); }
   element.textContent = JSON.stringify(data);
 }
 
 export function applyRouteMetadata(route: Route) {
   const metadata = getRouteMetadata(route);
   const canonicalUrl = absoluteUrl(metadata.canonicalPath);
-
   document.title = metadata.title;
   setCanonical(metadata.canonicalPath);
   setMeta('name', 'description', metadata.description);
@@ -235,7 +91,6 @@ export function applyRouteMetadata(route: Route) {
   setMeta('name', 'twitter:title', metadata.title);
   setMeta('name', 'twitter:description', metadata.description);
   setStructuredData(getStructuredData(route, metadata));
-
   if (metadata.image) {
     setMeta('property', 'og:image', new URL(metadata.image, window.location.origin).href);
     setMeta('name', 'twitter:image', new URL(metadata.image, window.location.origin).href);
