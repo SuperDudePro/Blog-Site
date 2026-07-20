@@ -5,6 +5,7 @@ import { sections, type SectionKey } from './data/siteContent';
 export type Route =
   | { page: 'home'; canonicalPath: string; replacePath?: string }
   | { page: 'categories'; canonicalPath: string; replacePath?: string }
+  | { page: 'archive'; canonicalPath: string; replacePath?: string }
   | { page: 'about'; canonicalPath: string; replacePath?: string }
   | { page: 'contact'; canonicalPath: string; replacePath?: string }
   | {
@@ -19,6 +20,7 @@ export type Route =
 
 export const homePath = '/';
 export const categoriesPath = '/categories';
+export const archivePath = '/archive';
 export const aboutPath = '/about';
 export const contactPath = '/contact';
 
@@ -40,57 +42,33 @@ export function isSectionKey(value: string): value is SectionKey {
 }
 
 function decodeSegment(value: string): string {
-  try {
-    return decodeURIComponent(value);
-  } catch {
-    return value;
-  }
+  try { return decodeURIComponent(value); } catch { return value; }
 }
 
 function everythingRoute(oldLinkNotice = false): Route {
-  return {
-    page: 'section',
-    sectionKey: 'everything',
-    oldLinkNotice,
-    canonicalPath: sectionPath('everything'),
-  };
+  return { page: 'section', sectionKey: 'everything', oldLinkNotice, canonicalPath: sectionPath('everything') };
 }
 
 export function routeFromPath(pathname: string): Route {
   const cleanPath = normalizePath(pathname);
-
-  if (cleanPath === homePath || cleanPath === '/index.html') {
-    return { page: 'home', canonicalPath: homePath };
-  }
-
-  if (cleanPath === categoriesPath) {
-    return { page: 'categories', canonicalPath: categoriesPath };
-  }
-
-  if (cleanPath === aboutPath) {
-    return { page: 'about', canonicalPath: aboutPath };
-  }
-
-  if (cleanPath === contactPath) {
-    return { page: 'contact', canonicalPath: contactPath };
-  }
+  if (cleanPath === homePath || cleanPath === '/index.html') return { page: 'home', canonicalPath: homePath };
+  if (cleanPath === categoriesPath) return { page: 'categories', canonicalPath: categoriesPath };
+  if (cleanPath === archivePath) return { page: 'archive', canonicalPath: archivePath };
+  if (cleanPath === aboutPath) return { page: 'about', canonicalPath: aboutPath };
+  if (cleanPath === contactPath) return { page: 'contact', canonicalPath: contactPath };
 
   const postMatch = cleanPath.match(/^\/post\/([^/]+)$/);
   if (postMatch?.[1]) {
     const slug = decodeSegment(postMatch[1]);
-    if (getPostBySlug(slug)) {
-      return { page: 'post', slug, canonicalPath: postPath(slug) };
-    }
-    return everythingRoute(true);
+    return getPostBySlug(slug) ? { page: 'post', slug, canonicalPath: postPath(slug) } : everythingRoute(true);
   }
 
   const sectionMatch = cleanPath.match(/^\/section\/([^/]+)$/);
   if (sectionMatch?.[1]) {
     const sectionKey = decodeSegment(sectionMatch[1]);
-    if (isSectionKey(sectionKey)) {
-      return { page: 'section', sectionKey, canonicalPath: sectionPath(sectionKey) };
-    }
-    return everythingRoute(true);
+    return isSectionKey(sectionKey)
+      ? { page: 'section', sectionKey, canonicalPath: sectionPath(sectionKey) }
+      : everythingRoute(true);
   }
 
   const legacySlug = getLegacyPostSlug(cleanPath);
@@ -98,20 +76,16 @@ export function routeFromPath(pathname: string): Route {
     const canonicalPath = postPath(legacySlug);
     return { page: 'post', slug: legacySlug, canonicalPath, replacePath: canonicalPath };
   }
-
   return everythingRoute(true);
 }
 
 export function routeFromHash(hash: string): Route | null {
   if (!hash || hash === '#') return null;
-  if (!hash.startsWith('#/')) {
-    return { page: 'not-found', canonicalPath: sectionPath('everything') };
-  }
+  if (!hash.startsWith('#/')) return { page: 'not-found', canonicalPath: sectionPath('everything') };
   const route = routeFromPath(hash.slice(1));
   return { ...route, replacePath: route.canonicalPath };
 }
 
 export function getCurrentRoute(): Route {
-  const hashRoute = routeFromHash(window.location.hash);
-  return hashRoute ?? routeFromPath(window.location.pathname);
+  return routeFromHash(window.location.hash) ?? routeFromPath(window.location.pathname);
 }
