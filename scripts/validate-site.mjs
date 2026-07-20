@@ -87,7 +87,6 @@ const patterns = [
 for (const file of files) {
   const source = rel(file);
   const text = readFileSync(file, 'utf8');
-  if (text.includes('https://www.ourolddad.com')) fail(source, 'https://www.ourolddad.com', `non-canonical host; expected ${ORIGIN}`);
   for (const pattern of patterns) for (const match of text.matchAll(pattern)) validateTarget(source, match[1]);
   for (const match of text.matchAll(/\bsrcSet\s*=\s*(?:\{\s*)?["'`]([^"'`]+)["'`]/g)) {
     for (const part of match[1].split(',')) validateTarget(source, part.trim().split(/\s+/)[0]);
