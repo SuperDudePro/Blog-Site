@@ -12,8 +12,9 @@
     "generate:sitemap": "node scripts/generate-sitemap.mjs",
     "generate:rss": "node scripts/generate-rss.mjs",
     "generate:routes": "node scripts/generate-route-pages.mjs",
+    "generate:deployment": "node scripts/write-deployment-marker.mjs",
     "validate:content": "node scripts/validate-content.mjs",
-    "build": "npm run generate:sitemap && npm run generate:rss && npm run validate:content && tsc --noEmit -p tsconfig.app.json && tsc --noEmit -p tsconfig.node.json && vite build && npm run generate:routes",
+    "build": "npm run generate:sitemap && npm run generate:rss && npm run generate:deployment && npm run validate:content && tsc --noEmit -p tsconfig.app.json && tsc --noEmit -p tsconfig.node.json && vite build && npm run generate:routes",
     "preview": "vite preview"
   },
   "dependencies": {
