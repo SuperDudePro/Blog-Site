@@ -10,7 +10,11 @@ type RouteMetadata = {
   image?: string;
 };
 
+type JsonLd = Record<string, unknown>;
+
 const titleSuffix = site.title;
+const authorId = `${site.url}/#author`;
+const websiteId = `${site.url}/#website`;
 
 function titleWithSite(title: string): string {
   return title === site.title ? title : `${title} | ${titleSuffix}`;
@@ -90,6 +94,90 @@ function getRouteMetadata(route: Route): RouteMetadata {
   };
 }
 
+function absoluteUrl(pathname: string): string {
+  return new URL(pathname, site.url).href;
+}
+
+function breadcrumb(items: Array<{ name: string; path: string }>): JsonLd {
+  return {
+    '@type': 'BreadcrumbList',
+    itemListElement: items.map((item, index) => ({
+      '@type': 'ListItem',
+      position: index + 1,
+      name: item.name,
+      item: absoluteUrl(item.path),
+    })),
+  };
+}
+
+function getStructuredData(route: Route, metadata: RouteMetadata): JsonLd {
+  const canonicalUrl = absoluteUrl(metadata.canonicalPath);
+  const graph: JsonLd[] = [
+    {
+      '@type': 'Person',
+      '@id': authorId,
+      name: 'Will Gayhart',
+      url: `${site.url}/about`,
+    },
+    {
+      '@type': 'WebSite',
+      '@id': websiteId,
+      url: `${site.url}/`,
+      name: site.title,
+      description: site.description,
+      publisher: { '@id': authorId },
+    },
+  ];
+
+  if (route.page === 'post') {
+    const post = getPostBySlug(route.slug);
+    if (post) {
+      const image = post.cardImage ?? post.heroImage;
+      graph.push({
+        '@type': 'BlogPosting',
+        '@id': `${canonicalUrl}#article`,
+        headline: post.title,
+        description: post.excerpt,
+        url: canonicalUrl,
+        mainEntityOfPage: canonicalUrl,
+        datePublished: post.publishedAt,
+        ...(post.modifiedAt ? { dateModified: post.modifiedAt } : {}),
+        author: { '@id': authorId },
+        publisher: { '@id': authorId },
+        isPartOf: { '@id': websiteId },
+        articleSection: getSectionName(post.section),
+        ...(image ? { image: absoluteUrl(image) } : {}),
+      });
+      graph.push(
+        breadcrumb([
+          { name: 'Home', path: '/' },
+          { name: getSectionName(post.section), path: `/section/${post.section}` },
+          { name: post.title, path: route.canonicalPath },
+        ]),
+      );
+    }
+  } else if (route.page === 'section') {
+    graph.push(
+      breadcrumb([
+        { name: 'Home', path: '/' },
+        { name: getSectionName(route.sectionKey), path: route.canonicalPath },
+      ]),
+    );
+  } else if (route.page !== 'home' && route.page !== 'not-found') {
+    graph.push(
+      breadcrumb([
+        { name: 'Home', path: '/' },
+        { name: metadata.title.replace(` | ${site.title}`, ''), path: route.canonicalPath },
+      ]),
+    );
+  }
+
+  return {
+    '@context': 'https://schema.org',
+    '@graph': graph,
+  };
+}
+
 function setMeta(attribute: 'name' | 'property', key: string, content: string) {
   let element = document.head.querySelector<HTMLMetaElement>(`meta[${attribute}="${key}"]`);
 
@@ -115,12 +203,25 @@ function setCanonical(pathname: string) {
     document.head.appendChild(element);
   }
 
-  element.href = new URL(pathname, site.url).href;
+  element.href = absoluteUrl(pathname);
+}
+
+function setStructuredData(data: JsonLd) {
+  let element = document.head.querySelector<HTMLScriptElement>('script[data-site-jsonld]');
+
+  if (!element) {
+    element = document.createElement('script');
+    element.type = 'application/ld+json';
+    element.dataset.siteJsonld = 'true';
+    document.head.appendChild(element);
+  }
+
+  element.textContent = JSON.stringify(data);
 }
 
 export function applyRouteMetadata(route: Route) {
   const metadata = getRouteMetadata(route);
-  const canonicalUrl = new URL(metadata.canonicalPath, site.url).href;
+  const canonicalUrl = absoluteUrl(metadata.canonicalPath);
 
   document.title = metadata.title;
   setCanonical(metadata.canonicalPath);
@@ -133,6 +234,7 @@ export function applyRouteMetadata(route: Route) {
   setMeta('name', 'twitter:card', metadata.image ? 'summary_large_image' : 'summary');
   setMeta('name', 'twitter:title', metadata.title);
   setMeta('name', 'twitter:description', metadata.description);
+  setStructuredData(getStructuredData(route, metadata));
 
   if (metadata.image) {
     setMeta('property', 'og:image', new URL(metadata.image, window.location.origin).href);

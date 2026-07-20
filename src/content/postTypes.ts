@@ -9,6 +9,7 @@ export type BlogPost = {
   excerpt: string;
   section: PublicSectionKey;
   publishedAt: string;
+  modifiedAt?: string;
   displayDate?: string;
   status?: PostStatus;
   heroImage?: string;
