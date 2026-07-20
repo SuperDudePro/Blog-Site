@@ -1,0 +1,17 @@
+{
+  "canonicalOrigin": "https://ourolddad.com",
+  "redirects": [
+    {
+      "source": "/:path*",
+      "has": [
+        {
+          "type": "host",
+          "value": "www.ourolddad.com"
+        }
+      ],
+      "destination": "https://ourolddad.com/:path*",
+      "permanent": true,
+      "note": "Canonicalize the retired www host."
+    }
+  ]
+}
