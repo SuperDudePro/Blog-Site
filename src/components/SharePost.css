@@ -37,6 +37,10 @@
   margin-top: 1.15rem;
 }
 
+.post-share__actions--secondary {
+  margin-top: 0.85rem;
+}
+
 .post-share__button {
   display: inline-flex;
   align-items: center;
@@ -81,20 +85,46 @@
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  width: 30px;
+  min-width: 30px;
   height: 30px;
-  flex: 0 0 30px;
+  flex: 0 0 auto;
+  padding: 0 0.28rem;
   border: 2px solid rgba(255, 255, 255, 0.9);
   border-radius: 9px 11px 8px 12px;
   background: #0c0c0d;
   color: var(--accent-light);
+  font-family: Georgia, 'Times New Roman', serif;
+  font-size: 0.82rem;
+  font-weight: 900;
+  line-height: 1;
   box-shadow: inset 0 0 0 2px rgba(138, 44, 255, 0.26);
 }
 
-.post-share__brand-icon svg {
-  width: 17px;
-  height: 17px;
-  fill: currentColor;
+.post-share__more-destinations {
+  margin-top: 1.1rem;
+  padding-top: 1rem;
+  border-top: 1px dashed rgba(214, 182, 255, 0.52);
+}
+
+.post-share__more-destinations summary {
+  width: fit-content;
+  color: var(--accent-light);
+  font-weight: 900;
+  cursor: pointer;
+  text-decoration: underline;
+  text-decoration-thickness: 1px;
+  text-underline-offset: 0.18em;
+}
+
+.post-share__more-destinations summary:hover {
+  color: white;
+}
+
+.post-share__more-note {
+  max-width: 62ch;
+  margin: 0.75rem 0 0;
+  color: rgba(255, 255, 255, 0.72);
+  font-size: 0.9rem;
 }
 
 .post-share__status {
