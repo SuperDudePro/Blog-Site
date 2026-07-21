@@ -1,0 +1,102 @@
+.long-post-nav {
+  position: fixed;
+  right: max(1rem, env(safe-area-inset-right));
+  bottom: max(1rem, env(safe-area-inset-bottom));
+  z-index: 1200;
+  display: grid;
+  justify-items: end;
+  gap: 0.65rem;
+  opacity: 0;
+  visibility: hidden;
+  transform: translateY(14px);
+  pointer-events: none;
+  transition: opacity 160ms ease, transform 160ms ease, visibility 160ms ease;
+}
+
+.long-post-nav--visible {
+  opacity: 1;
+  visibility: visible;
+  transform: translateY(0);
+  pointer-events: auto;
+}
+
+.long-post-nav__controls {
+  display: flex;
+  gap: 0.55rem;
+  padding: 0.45rem;
+  border: 3px solid var(--box-border);
+  border-radius: 16px 20px 15px 19px;
+  background: rgba(16, 17, 21, 0.96);
+  box-shadow: 6px 6px 0 rgba(138, 44, 255, 0.28);
+  backdrop-filter: blur(10px);
+}
+
+.long-post-nav__button,
+.long-post-nav__panel a {
+  min-height: 44px;
+  border: 2px solid rgba(214, 182, 255, 0.88);
+  border-radius: 11px 14px 10px 13px;
+  background: rgba(255, 255, 255, 0.07);
+  color: white;
+  font: inherit;
+  font-size: 0.9rem;
+  font-weight: 850;
+  text-decoration: none;
+  cursor: pointer;
+}
+
+.long-post-nav__button {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  padding: 0.55rem 0.8rem;
+}
+
+.long-post-nav__button--top {
+  background: var(--accent);
+}
+
+.long-post-nav__button:hover,
+.long-post-nav__panel a:hover {
+  background: rgba(138, 44, 255, 0.34);
+  border-color: white;
+}
+
+.long-post-nav__panel {
+  display: grid;
+  gap: 0.5rem;
+  min-width: 150px;
+  padding: 0.6rem;
+  border: 3px solid var(--box-border);
+  border-radius: 18px 14px 20px 15px;
+  background: rgba(16, 17, 21, 0.98);
+  box-shadow: 6px 6px 0 rgba(138, 44, 255, 0.28);
+}
+
+.long-post-nav__panel a {
+  display: flex;
+  align-items: center;
+  padding: 0.65rem 0.85rem;
+}
+
+@media (max-width: 520px) {
+  .long-post-nav {
+    right: max(0.65rem, env(safe-area-inset-right));
+    bottom: max(0.65rem, env(safe-area-inset-bottom));
+  }
+
+  .long-post-nav__controls {
+    gap: 0.4rem;
+    padding: 0.38rem;
+  }
+
+  .long-post-nav__button {
+    padding: 0.52rem 0.68rem;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .long-post-nav {
+    transition: none;
+  }
+}
