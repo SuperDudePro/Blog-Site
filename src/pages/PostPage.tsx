@@ -1,9 +1,10 @@
 import { FeaturedImage } from '../components/FeaturedImage';
 import { PostCard } from '../components/PostCard';
+import { SharePost } from '../components/SharePost';
 import { SiteLink } from '../components/SiteLink';
 import { SubscribeForm } from '../components/SubscribeForm';
 import { getPostBySlug, formatPostDate, getRelatedPosts } from '../content/loadPosts';
-import { getSectionName } from '../data/siteContent';
+import { getSectionName, site } from '../data/siteContent';
 import { sectionPath } from '../routes';
 
 type Props = { slug: string };
@@ -28,6 +29,8 @@ export function PostPage({ slug }: Props) {
   }
 
   const related = getRelatedPosts(post);
+  const shareUrl = new URL(`/post/${post.slug}`, site.url).href;
+
   return (
     <div className="page-wrap">
       <section className="page-hero page-hero--post">
@@ -44,7 +47,10 @@ export function PostPage({ slug }: Props) {
         <FeaturedImage src={post.heroImage} alt={post.heroAlt} className="feature-image" />
       </section>
 
-      <article className="post-article" dangerouslySetInnerHTML={{ __html: post.bodyHtml }} />
+      <article className="post-article">
+        <div dangerouslySetInnerHTML={{ __html: post.bodyHtml }} />
+        <SharePost title={post.title} excerpt={post.excerpt} url={shareUrl} />
+      </article>
       {related.length > 0 && (
         <section className="content-band" aria-labelledby="related-posts-title">
           <div className="section-heading"><span className="eyebrow">keep reading</span><h2 id="related-posts-title">Related pieces</h2></div>
