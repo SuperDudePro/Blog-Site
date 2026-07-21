@@ -30,6 +30,8 @@ export function PostPage({ slug }: Props) {
 
   const related = getRelatedPosts(post);
   const shareUrl = new URL(`/post/${post.slug}`, site.url).href;
+  const shareImageSource = post.cardImage ?? post.heroImage;
+  const shareImage = shareImageSource ? new URL(shareImageSource, site.url).href : undefined;
 
   return (
     <div className="page-wrap">
@@ -49,7 +51,7 @@ export function PostPage({ slug }: Props) {
 
       <article className="post-article">
         <div dangerouslySetInnerHTML={{ __html: post.bodyHtml }} />
-        <SharePost title={post.title} excerpt={post.excerpt} url={shareUrl} />
+        <SharePost title={post.title} excerpt={post.excerpt} url={shareUrl} {...(shareImage ? { image: shareImage } : {})} />
       </article>
       {related.length > 0 && (
         <section className="content-band" aria-labelledby="related-posts-title">
