@@ -1,5 +1,4 @@
 import { FeaturedImage } from '../components/FeaturedImage';
-import { LongPostNav } from '../components/LongPostNav';
 import { PostCard } from '../components/PostCard';
 import { SharePost } from '../components/SharePost';
 import { SiteLink } from '../components/SiteLink';
@@ -61,7 +60,6 @@ export function PostPage({ slug }: Props) {
         </section>
       )}
       <SubscribeForm />
-      <LongPostNav homeHref="/" postsHref="/archive" postsLabel="All posts" />
     </div>
   );
 }
