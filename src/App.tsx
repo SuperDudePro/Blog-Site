@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react';
+import { LongPostNav } from './components/LongPostNav';
 import { SiteShell } from './components/SiteShell';
 import { applyRouteMetadata } from './metadata';
 import { AboutPage } from './pages/AboutPage';
@@ -48,6 +49,7 @@ export default function App() {
       {route.page === 'section' && <SectionPage sectionKey={route.sectionKey} oldLinkNotice={route.oldLinkNotice} />}
       {route.page === 'post' && <PostPage slug={route.slug} />}
       {route.page === 'not-found' && <SectionPage sectionKey="everything" oldLinkNotice />}
+      <LongPostNav homeHref="/" postsHref="/archive" postsLabel="All posts" />
     </SiteShell>
   );
 }
