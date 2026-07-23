@@ -16,7 +16,7 @@ const post: BlogPost = {
   heroImage,
   heroAlt: 'An older father drives while two young children wave excitedly toward a phone during a call with Grandma.',
   cardImage,
-  cardAlt: 'An older father looks awkward in a children’s library while a baby points at him and his two young children play nearby.',
+  cardAlt: 'A toddler crashes toy trucks with an older boy while his father watches and a mother carrying a baby leaves the library.',
   bodyHtml: `
     <p>There comes a point in every old dad’s life when he smells shit and can no longer automatically blame the toddler. Today was that day.</p>
 
@@ -50,6 +50,10 @@ const post: BlogPost = {
 
     <p>Then she came in. Tall, beautiful, maybe thirty-five, with a mixed baby who looked about a year old. The baby noticed me immediately, pointed at me, and tried to get his mother to look. She seemed to understand why he was doing it, like maybe I reminded him of somebody. Maybe his dad. Possibly another old white one.</p>
 
+    <figure class="post-figure">
+      <img src="${bodyImageThree}" alt="An older father looks awkward in a children’s library while a baby points at him and his two young children play nearby." loading="lazy" decoding="async" />
+    </figure>
+
     <p>I’m sixty-one, but in my head I’m still about thirty-one. So when I see an attractive woman who’s thirty-five, part of my brain thinks she’s approximately my age. In my head, I should have a pretty good shot.</p>
 
     <p>In reality, I’m twenty-six years older than she is, dressed like I was interrupted while cleaning the garage, sitting with two toddlers, and quietly trying to determine whether I’ve shit myself.</p>
@@ -67,10 +71,6 @@ const post: BlogPost = {
     <p>The beautiful mother eventually started gathering her child’s toys. She bent over to pick some up, and I thought, <em>This is outstanding.</em></p>
 
     <p>Then Xander got my attention. He’d found an older boy willing to humor him through a truck battle. They crashed the trucks together, made engine noises, and the older kid let Xander feel like he’d found a real opponent without taking over or getting rough. It was fun to watch.</p>
-
-    <figure class="post-figure">
-      <img src="${bodyImageThree}" alt="A toddler crashes toy trucks with an older boy while his father watches and a mother carrying a baby leaves the library." loading="lazy" decoding="async" />
-    </figure>
 
     <p>When I turned back, the mother and baby were gone. I waited a few minutes before looking around because I didn’t want it to seem like I was looking around. Then I looked around. They were completely gone. I hadn’t seen which way they left, and by then I couldn’t smell it anymore.</p>
 
