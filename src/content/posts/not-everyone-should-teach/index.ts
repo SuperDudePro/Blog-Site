@@ -7,7 +7,7 @@ import bodyImageTwo from './body-image-2.webp';
 const post: BlogPost = {
   slug: 'not-everyone-should-teach',
   title: 'Not Everyone Should Teach',
-  excerpt: "You can't coach a kid past your own ceiling. Grad school showed me the uncomfortable part: the profession knows it, and it's built to never say so.",
+  excerpt: "You can't coach a kid past your own ceiling. Grad school showed me the uncomfortable part: the profession will defend people who can't clear its own basic tests.",
   section: 'life-education',
   publishedAt: '2026-07-19',
   status: 'Recent',
@@ -16,22 +16,27 @@ const post: BlogPost = {
   cardImage,
   cardAlt: 'A student studying beside advanced math books under the words you cannot coach a kid past your own ceiling.',
   bodyHtml: `
-    <p>There's a truth nobody in education says out loud, so I'll go first: you can't coach a kid past your own ceiling. If a teacher couldn't break 18 on the ACT, what exactly do we think happens when we hand them a kid who needs a 30? And I don't mean somebody who took the test sick, or blew it off at seventeen and grew into their brain later. I mean the person who couldn't score higher. If they'd known the way up, they would've taken it.</p>
+    <p>There's a truth nobody in education says out loud, so I'll go first: you can't coach a kid past your own ceiling. I don't mean an old SAT or ACT score from when somebody was seventeen. In grad school, I watched adults preparing to teach repeatedly fail the basic proficiency tests required for the profession. Some prospective math teachers could not pass the mathematics test. If you cannot clear the basic test for the job you are asking to do, you are not the person who can coach a capable but dependent student toward a 30 on the ACT. You may hand that kid a book, software, or somebody better. But you cannot diagnose, explain, and extend thinking you do not possess.</p>
 
-    <p>Test scores aren't everything. But they aren't nothing. They tell you whether somebody can read hard material, hold an abstract idea steady, and see the pattern before it's explained. Those aren't test tricks — they're the thinking skills the job is supposedly about. If you don't have them yourself, you're not going to grow them in a fifteen-year-old, and no laminated lesson plan changes that.</p>
+    <p>Licensure tests aren't everything. But they aren't nothing. They are supposed to establish a floor: can this person read hard material, write clearly, do the mathematics, hold an abstract idea steady, and see the pattern before it is explained? Those aren't test tricks. They are the thinking skills the job is supposedly about. If you cannot demonstrate them yourself, you are not going to build them at a high level in a fifteen-year-old, and no laminated lesson plan changes that.</p>
 
     <p>We don't say this because saying it collapses a comfortable myth: that every teacher is equally capable of teaching every student. Most kids will survive either way. But some kids — the sharp ones, the deeply curious ones, the ones already thinking past the pacing guide — need a teacher who can meet them up there. You can't fake that with classroom management.</p>
 
     <p>I found all this out the honest way: I went to grad school to become a teacher.</p>
 
-    <p>Within a few weeks it was obvious. The program was full of genuinely warm, sweet, cooperative people who could not pass a basic licensure test. The bar wasn't high. It was barely off the ground. And they kept tripping over it — retakes, waivers, a fog of excuses. The official explanation was always the same: they're just bad test-takers. As if reading, writing, and doing math under mild pressure were somehow unrelated to a job that consists of helping kids read, write, and do math under mild pressure.</p>
+    <p>Within a few weeks it was obvious. The program was full of genuinely warm, sweet, cooperative people who could not pass the basic general proficiency test. Some people seeking mathematics credentials could not pass the mathematics licensure exam. The bars were not high. They were barely off the ground. And people kept tripping over them — retakes, waivers, a fog of excuses. The official explanation was always the same: they're just bad test-takers. As if reading, writing, and doing math under mild pressure were somehow unrelated to a job that consists of helping kids read, write, and do math under mild pressure.</p>
 
     <p>I said this out loud in class once. It went over like a fart in a mindfulness circle.</p>
 
-
     <p>Here's the detail that stuck with me: the only people willing to admit the obvious were the ones who'd passed easily. Not one of the people who kept failing ever said, "Maybe this isn't for me." In that world, intentions were sacred and competence was optional.</p>
 
-    <p>Montana took it further. The doctrine in the education programs at the time was that anyone could do anything, given the right supports. It sounded kind. And here's the strange part: everybody accepts limits on bodies. Tell a room that a four-foot-six kid isn't playing center in the NBA no matter how much we believe in him, and nobody blinks. Say the same thing about minds and the temperature drops. So I'd ask the question nobody wanted: are you telling me a person with a significant intellectual disability — the kind you recognize a minute into a conversation — could complete a bachelor's, then medical school, then a residency, and you'd be comfortable with them as your doctor? And they had to say yes. Not because they believed it. Because saying no meant the whole doctrine came down. That's what membership cost. You said something you knew wasn't true, with a straight face, or you got labeled cruel for noticing reality.</p>
+    <p>Montana took it further. The doctrine in the education programs at the time was that anyone could do anything, given the right supports. It sounded kind, but nobody would admit that cognitive ability might place real limits on some outcomes. Everybody accepts limits on bodies. Tell a room that a four-foot-six kid isn't playing center in the NBA no matter how much we believe in him, and nobody blinks. Say the same thing about minds and the temperature drops.</p>
+
+    <p>So I pushed the claim to its endpoint in class. I asked whether a person with a significant intellectual disability — the kind you recognize a minute into a conversation — could complete a bachelor's degree, medical school, and a residency, and whether they would then be comfortable with that person as their doctor.</p>
+
+    <p>They said yes.</p>
+
+    <p>Not after qualifications or careful distinctions. Yes. The point was not to mock disability. The point was to see whether they would admit any cognitive limit at all. They would not. Because saying no meant admitting that the doctrine had limits. That's what membership cost. You said something you knew wasn't true, with a straight face, or you got labeled cruel for noticing reality.</p>
 
     <p>It's an obvious point. It should be boring. The fact that it's dangerous to say is the whole diagnosis.</p>
 
@@ -83,10 +88,9 @@ const post: BlogPost = {
 
     <p>Still not convinced? Run the experiment yourself. Unlimited money, two schools. One staffed entirely with teachers from the top 20 percent of their graduating classes, the other from the bottom 20. Would the top school have some lousy teachers — lazy, arrogant, terrible with kids? Absolutely. Would the bottom school have some warm, hardworking, genuinely useful ones? Also yes. Now: which school gets your kid?</p>
 
-
     <p>You didn't hesitate. Nobody does. The ideology only survives while nothing's at stake.</p>
 
-    <p>And that answers the objection I can already hear — test scores don't make a good teacher. Of course they don't. Passing the medical boards doesn't make a doctor kind, either. But failing them still disqualifies you. Cognitive ability isn't the whole job. It's a necessary ingredient — and education is the one profession that decided that because it isn't sufficient, it must not be necessary.</p>
+    <p>And that answers the objection I can already hear — passing a test doesn't make a good teacher. Of course it doesn't. Passing the medical boards doesn't make a doctor kind, either. But failing them still disqualifies you. Cognitive ability and subject knowledge aren't the whole job. They are necessary ingredients — and education is the one profession that decided that because they aren't sufficient, they must not be necessary.</p>
 
     <p>The other standard defense — every teacher is doing their best — might even be true. But sometimes your best isn't good enough. Not because you don't care. Because you can't guide someone farther than you've gone.</p>
 
