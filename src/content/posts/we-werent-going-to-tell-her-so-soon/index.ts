@@ -14,7 +14,7 @@ const post: BlogPost = {
   cardImage,
   cardAlt: 'A close pencil-sketch portrait of a younger teacher with his arm around a Korean teenage boy.',
   bodyHtml: `
-    <p>I've been decorating my classroom, including a section with pictures of me teaching through the years, old students, family photos, my Nicha Y section, and all the other evidence that I've apparently been doing this for a very long time. Raven and Xander were helping me put everything together when Raven spotted a picture from around 2010. "Dad, is that you?"</p>
+    <p>I've been decorating my classroom. One section is built around a Nietzsche poster—the one that starts, "He who has a why..."—with family photos, old student pictures, and photos of me teaching through the years arranged around it. Raven and Xander were helping me put everything together when Raven spotted a picture from around 2010. "Dad, is that you?"</p>
 
     <figure class="post-figure">
       <img src="${bodyImageOne}" alt="A four-year-old girl points to an old classroom photo of her father and asks if it is him." loading="lazy" decoding="async" />
