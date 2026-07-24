@@ -1,5 +1,9 @@
 import type { BlogPost } from '../../postTypes';
-import { bodyImageOne, bodyImageThree, bodyImageTwo, cardImage, heroImage } from './images';
+import heroImage from './hero-image.webp';
+import cardImage from './card-image.webp';
+import bodyImageOne from './body-image-1.webp';
+import bodyImageTwo from './body-image-2.webp';
+import bodyImageThree from './body-image-3.webp';
 
 const post: BlogPost = {
   slug: 'we-werent-going-to-tell-her-so-soon',
