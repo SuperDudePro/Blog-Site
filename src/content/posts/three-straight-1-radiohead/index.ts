@@ -1,8 +1,9 @@
 import type { BlogPost } from '../../postTypes';
-import cardImage from './card-image.svg';
-import bodyImageOne from './body-image-1.svg';
-import bodyImageTwo from './body-image-2.svg';
-import bodyImageThree from './body-image-3.svg';
+import heroImage from './hero-image.webp';
+import cardImage from './card-image.webp';
+import bodyImageOne from './body-image-1.webp';
+import bodyImageTwo from './body-image-2.webp';
+import bodyImageThree from './body-image-3.webp';
 
 const post: BlogPost = {
   slug: 'three-straight-1-radiohead',
@@ -12,6 +13,9 @@ const post: BlogPost = {
   section: 'music-playlists',
   publishedAt: '2026-07-23',
   status: 'Recent',
+  heroImage,
+  heroAlt:
+    "Original charcoal-and-purple triptych representing Radiohead's run from The Bends through OK Computer and Kid A.",
   cardImage,
   cardAlt:
     'Our Old Dad purple-and-charcoal series card for Three Straight No. 1: Radiohead, featuring three original illustrated panels inspired by The Bends, OK Computer, and Kid A.',
