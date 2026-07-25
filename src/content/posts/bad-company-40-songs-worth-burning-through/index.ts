@@ -1,6 +1,6 @@
 import type { BlogPost } from '../../postTypes';
 import topSquare from './top-square.jpg';
-import bandInline from './band-inline.jpg';
+import bandInline from './band-inline.webp';
 
 const post: BlogPost = {
   slug: 'bad-company-40-songs-worth-burning-through',
