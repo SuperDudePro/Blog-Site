@@ -20,10 +20,11 @@ export default async function handler(request, response) {
     const { repository, prNumber, commit, canonicalUrl } = await readJson(request);
     validateRepository(repository);
     if (!prNumber || !commit || !canonicalUrl) throw new Error('Pull request, commit, and canonical URL are required.');
-    const [checkRuns, combinedStatus, comments] = await Promise.all([
+    const [checkRuns, combinedStatus, comments, pullRequest] = await Promise.all([
       repoRequest(repository, `/commits/${commit}/check-runs?per_page=100`, { headers: { accept: 'application/vnd.github+json' } }),
       repoRequest(repository, `/commits/${commit}/status`),
       repoRequest(repository, `/issues/${prNumber}/comments?per_page=100`),
+      repoRequest(repository, `/pulls/${prNumber}`),
     ]);
     const items = [
       ...(checkRuns.check_runs || []).map((item) => ({ name: item.name, source: item.app?.name || 'GitHub', status: item.status, conclusion: item.conclusion, url: item.html_url })),
@@ -47,7 +48,17 @@ export default async function handler(request, response) {
         smoke = { state: checks.state === 'success' ? 'failed' : 'pending', ok: false, smokeUrl, error: error.message };
       }
     }
-    return json(response, 200, { ok: true, checks, deploymentUrl, smoke, readyToMerge: checks.state === 'success' && Boolean(deploymentUrl) && smoke.state === 'success' });
+    const merged = Boolean(pullRequest.merged || pullRequest.merged_at);
+    return json(response, 200, {
+      ok: true,
+      checks,
+      deploymentUrl,
+      smoke,
+      readyToMerge: !merged && checks.state === 'success' && Boolean(deploymentUrl) && smoke.state === 'success',
+      merged,
+      mergedAt: pullRequest.merged_at || null,
+      prState: pullRequest.state || null,
+    });
   } catch (error) {
     return json(response, error.status || 400, { error: error.message, code: error.code, details: error.details });
   }
