@@ -1,176 +1,142 @@
-import { ChangeEvent, DragEvent, useMemo, useState } from 'react';
+import { ChangeEvent, DragEvent, FormEvent, useEffect, useMemo, useState } from 'react';
 import JSZip, { JSZipObject } from 'jszip';
 
 type ImageSpec = { file: string; role: string; alt: string; caption: string | null };
-type PlaylistLinks = { youtube: string; youtubeMusic: string; playlistId: string };
-type PackageManifest = { targetSite: string; repository: string; title: string; slug: string; publishedAt: string; status: string; section: string; excerpt: string; canonicalUrl: string; destinationPath: string; buildCommand: string; images: ImageSpec[]; playlistLinks?: PlaylistLinks };
-type ValidationItem = { group: string; label: string; ok: boolean; detail: string };
-type InspectedImage = ImageSpec & { path: string; url: string; referencedInIndex: boolean; altFoundInIndex: boolean; captionFoundInIndex: boolean };
-type Inspection = { archiveName: string; root: string; manifest: PackageManifest; files: string[]; sourceFiles: string[]; productionFiles: string[]; images: InspectedImage[]; validation: ValidationItem[] };
-type Diagnosis = { code: string; problem: string; fix: string };
-type PreviewResult = { ok: boolean; stage: string; logs?: string; error?: string; diagnosis?: Diagnosis; preview?: { id: string; url: string; canonicalUrl?: string } };
-type PublishResult = { ok: boolean; stage: string; logs?: string; error?: string; diagnosis?: Diagnosis; branch?: string; commit?: string; prUrl?: string; repository?: string };
-type JobStep = { label: string; status: 'complete' | 'active' | 'failed' | 'pending' };
-type Job<T> = { id: string; kind?: string; status: 'running' | 'complete' | 'failed'; stage: string; steps: JobStep[]; result?: T | null };
+type Manifest = { targetSite: string; repository: string; title: string; slug: string; publishedAt: string; status: string; section: string; excerpt: string; canonicalUrl: string; destinationPath: string; buildCommand: string; images: ImageSpec[]; playlistLinks?: { youtube: string; youtubeMusic: string; playlistId: string } };
+type Check = { group: string; label: string; ok: boolean; detail: string };
+type ImageView = ImageSpec & { url: string; present: boolean; imported: boolean; altMatches: boolean; captionMatches: boolean };
+type Inspection = { root: string; dropPrefix: string; manifest: Manifest; files: string[]; productionFiles: string[]; checks: Check[]; images: ImageView[] };
+type Session = { repository: string; slug: string; title: string; destinationPath: string; canonicalUrl: string; baseBranch: string; baseCommitSha: string; baseTreeSha: string; branch: string };
+type Handoff = { repository: string; branch: string; commit: string; prNumber: number; prUrl: string; baseBranch: string };
+type Status = { checks: { state: 'pending' | 'success' | 'failed'; items: Array<{name:string; status:string; conclusion:string|null}> }; deploymentUrl: string | null; smoke: { state:'pending'|'success'|'failed'; status?:number; smokeUrl?:string; error?:string }; readyToMerge: boolean };
+type StepState = 'pending'|'active'|'complete'|'failed';
+type Step = { label: string; state: StepState; detail?: string };
 
-const requiredSourceNames = ['post.md', 'image-notes.md', 'package-manifest.json', 'proposed-tracker-entry.md'];
-const normalise = (value: string) => value.replace(/\\/g, '/').replace(/^\.\//, '');
-const findEntry = (zip: JSZip, predicate: (name: string) => boolean): JSZipObject | undefined => Object.values(zip.files).find((entry) => !entry.dir && predicate(normalise(entry.name)));
-const escapeRegExp = (value: string) => value.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
-const extractField = (source: string, field: string) => source.match(new RegExp(`${field}:\\s*(?:\\n\\s*)?(["'])([\\s\\S]*?)\\1,`))?.[2]?.trim() ?? '';
-const validHttpUrl = (value?: string) => { try { const url = new URL(value ?? ''); return url.protocol === 'https:' || url.protocol === 'http:'; } catch { return false; } };
-const playlistIdFromUrl = (value?: string) => { try { return new URL(value ?? '').searchParams.get('list') ?? ''; } catch { return ''; } };
-const usefulLogs = (logs = '') => logs.split('\n').filter(Boolean).slice(-18).join('\n');
-const pause = (milliseconds: number) => new Promise((resolve) => window.setTimeout(resolve, milliseconds));
+const KEY = 'wilbert-publisher-access-key';
+const labels = ['Approval confirmed','GitHub base loaded','Production files uploaded','Atomic commit created','Draft PR opened','GitHub checks passed','Vercel preview discovered','Published page smoke tested','Ready to merge'];
+const steps = (): Step[] => labels.map(label => ({ label, state:'pending' }));
+const normalize = (value:string) => value.replace(/\\/g,'/').replace(/^\.\//,'');
+const escapeRx = (value:string) => value.replace(/[.*+?^${}()|[\]\\]/g,'\\$&');
+const find = (zip:JSZip, test:(name:string)=>boolean):JSZipObject|undefined => Object.values(zip.files).find(entry => !entry.dir && test(normalize(entry.name)));
+const extract = (source:string, field:string) => source.match(new RegExp(`${field}:\\s*(?:\\n\\s*)?(["'])([\\s\\S]*?)\\1,`))?.[2]?.trim() ?? '';
+const delay = (ms:number) => new Promise(resolve => window.setTimeout(resolve,ms));
 
-async function inspectArchive(file: File): Promise<Inspection> {
-  const zip = await JSZip.loadAsync(file);
-  const files = Object.values(zip.files).filter((entry) => !entry.dir).map((entry) => normalise(entry.name)).sort();
-  const manifestEntry = findEntry(zip, (name) => name.endsWith('/source/package-manifest.json'));
-  if (!manifestEntry) throw new Error('No source/package-manifest.json was found.');
-  const manifest = JSON.parse(await manifestEntry.async('text')) as PackageManifest;
-  const root = normalise(manifestEntry.name).replace(/\/source\/package-manifest\.json$/, '');
-  const sourcePrefix = `${root}/source/`;
-  const dropInPrefix = `${root}/drop-in/${manifest.slug}/`;
-  const indexPath = `${dropInPrefix}index.ts`;
-  const indexEntry = zip.file(indexPath);
-  const indexSource = indexEntry ? await indexEntry.async('text') : '';
-  const images = await Promise.all(manifest.images.map(async (image): Promise<InspectedImage> => {
-    const path = `${dropInPrefix}${image.file}`;
-    const entry = zip.file(path);
-    const blob = entry ? await entry.async('blob') : null;
-    return { ...image, path, url: blob ? URL.createObjectURL(blob) : '', referencedInIndex: Boolean(indexSource.match(new RegExp(`['"]\\./${escapeRegExp(image.file)}['"]`))), altFoundInIndex: Boolean(image.alt && indexSource.includes(image.alt)), captionFoundInIndex: image.caption ? indexSource.includes(image.caption) : true };
-  }));
-  const validation: ValidationItem[] = [];
-  const add = (group: string, label: string, ok: boolean, detail: string) => validation.push({ group, label, ok, detail });
-  const readmePath = `${root}/README-HANDOFF.md`;
-  add('Core package', 'Handoff instructions', files.includes(readmePath), files.includes(readmePath) ? 'README-HANDOFF.md found.' : 'README-HANDOFF.md is missing.');
-  add('Core package', 'Production entry point', Boolean(indexEntry), indexEntry ? indexPath : `Missing ${indexPath}`);
-  add('Core package', 'Destination contract', manifest.destinationPath.endsWith(`/${manifest.slug}/`), manifest.destinationPath);
-  requiredSourceNames.forEach((name) => add('Core package', `Source: ${name}`, files.includes(`${sourcePrefix}${name}`), files.includes(`${sourcePrefix}${name}`) ? 'Found.' : 'Missing.'));
-  const metadataChecks: Array<[keyof PackageManifest, string]> = [['title', 'Title'], ['slug', 'Slug'], ['excerpt', 'Excerpt'], ['section', 'Section'], ['publishedAt', 'Publication date'], ['status', 'Status']];
-  metadataChecks.forEach(([field, label]) => { const expected = String(manifest[field] ?? ''); const actual = extractField(indexSource, field); add('Metadata', `${label} matches index.ts`, Boolean(indexSource) && actual === expected, actual === expected ? expected : `Manifest: ${expected || '—'} | index.ts: ${actual || 'not found'}`); });
-  images.forEach((image) => {
-    add('Images', `${image.file} exists`, Boolean(image.url), image.path);
-    add('Images', `${image.file} imported`, image.referencedInIndex, image.referencedInIndex ? 'Referenced by index.ts.' : 'Not referenced by index.ts.');
-    add('Images', `${image.file} alt text`, image.altFoundInIndex, image.altFoundInIndex ? 'Manifest alt text matches index.ts.' : 'Manifest alt text not found in index.ts.');
-    if (image.caption) add('Images', `${image.file} caption`, image.captionFoundInIndex, image.captionFoundInIndex ? 'Manifest caption matches index.ts.' : 'Manifest caption not found in index.ts.');
-  });
-  if (manifest.section === 'music-playlists' || manifest.playlistLinks) {
-    const links = manifest.playlistLinks; const youtubeId = playlistIdFromUrl(links?.youtube); const musicId = playlistIdFromUrl(links?.youtubeMusic);
-    add('Playlist', 'Playlist contract exists', Boolean(links), links ? 'playlistLinks found in manifest.' : 'Playlist posts require playlistLinks in the manifest.');
-    add('Playlist', 'YouTube playlist URL is valid', Boolean(validHttpUrl(links?.youtube) && links?.youtube.includes('youtube.com/playlist')), links?.youtube ?? 'Missing YouTube playlist URL.');
-    add('Playlist', 'YouTube Music URL is valid', Boolean(validHttpUrl(links?.youtubeMusic) && links?.youtubeMusic.includes('music.youtube.com/playlist')), links?.youtubeMusic ?? 'Missing YouTube Music URL.');
-    add('Playlist', 'Playlist ID is declared', Boolean(links?.playlistId), links?.playlistId ?? 'Missing playlistId.');
-    add('Playlist', 'YouTube URL uses declared playlist ID', Boolean(links?.playlistId) && youtubeId === links?.playlistId, `Declared: ${links?.playlistId || 'missing'} | URL: ${youtubeId || 'missing'}`);
-    add('Playlist', 'YouTube Music URL uses declared playlist ID', Boolean(links?.playlistId) && musicId === links?.playlistId, `Declared: ${links?.playlistId || 'missing'} | URL: ${musicId || 'missing'}`);
-    add('Playlist', 'YouTube link rendered in index.ts', Boolean(links?.youtube && indexSource.includes(links.youtube)), links?.youtube ?? 'Missing from manifest.');
-    add('Playlist', 'YouTube Music link rendered in index.ts', Boolean(links?.youtubeMusic && indexSource.includes(links.youtubeMusic)), links?.youtubeMusic ?? 'Missing from manifest.');
-  }
-  return { archiveName: file.name, root, manifest, files, sourceFiles: files.filter((name) => name.startsWith(sourcePrefix)), productionFiles: files.filter((name) => name.startsWith(dropInPrefix)), images, validation };
+function toBase64(bytes:Uint8Array) {
+  let binary='';
+  for(let i=0;i<bytes.length;i+=32768) binary += String.fromCharCode(...bytes.subarray(i,i+32768));
+  return btoa(binary);
 }
 
-function App() {
-  const [inspection, setInspection] = useState<Inspection | null>(null);
-  const [packageFile, setPackageFile] = useState<File | null>(null);
-  const [selectedImage, setSelectedImage] = useState<InspectedImage | null>(null);
-  const [loading, setLoading] = useState(false);
-  const [building, setBuilding] = useState(false);
-  const [publishing, setPublishing] = useState(false);
-  const [approvalOpen, setApprovalOpen] = useState(false);
-  const [error, setError] = useState('');
-  const [previewJob, setPreviewJob] = useState<Job<PreviewResult> | null>(null);
-  const [preview, setPreview] = useState<PreviewResult | null>(null);
-  const [publishJob, setPublishJob] = useState<Job<PublishResult> | null>(null);
-  const [publish, setPublish] = useState<PublishResult | null>(null);
-  const [dragActive, setDragActive] = useState(false);
-  const summary = useMemo(() => { if (!inspection) return null; const passed = inspection.validation.filter((item) => item.ok).length; return { passed, total: inspection.validation.length, ready: passed === inspection.validation.length }; }, [inspection]);
-  const groups = useMemo(() => inspection ? [...new Set(inspection.validation.map((item) => item.group))] : [], [inspection]);
+async function api<T>(path:string,key:string,body?:unknown):Promise<T>{
+  const response=await fetch(path,{method:'POST',headers:{'content-type':'application/json','x-publisher-key':key},body:body===undefined?undefined:JSON.stringify(body),cache:'no-store'});
+  const payload=await response.json().catch(()=>({error:`HTTP ${response.status}`}));
+  if(!response.ok) throw new Error(payload.error || 'Publisher request failed.');
+  return payload as T;
+}
 
-  const pollJob = async <T,>(job: Job<T>): Promise<Job<T>> => {
-    let current = job;
-    while (current.status === 'running') {
-      await pause(400);
-      const poll = await fetch(`/api/jobs/${current.id}`, { cache: 'no-store' });
-      if (!poll.ok) throw new Error('The job could not be found.');
-      current = await poll.json() as Job<T>;
-      current.kind === 'publish' ? setPublishJob(current as Job<PublishResult>) : setPreviewJob(current as Job<PreviewResult>);
+async function inspect(file:File):Promise<Inspection>{
+  const zip=await JSZip.loadAsync(file);
+  const files=Object.values(zip.files).filter(e=>!e.dir).map(e=>normalize(e.name)).sort();
+  const manifestEntry=find(zip,n=>n.endsWith('/source/package-manifest.json'));
+  if(!manifestEntry) throw new Error('No source/package-manifest.json was found.');
+  const manifest=JSON.parse(await manifestEntry.async('text')) as Manifest;
+  const root=normalize(manifestEntry.name).replace(/\/source\/package-manifest\.json$/,'');
+  const dropPrefix=`${root}/drop-in/${manifest.slug}/`;
+  const indexEntry=zip.file(`${dropPrefix}index.ts`);
+  const source=indexEntry?await indexEntry.async('text'):'';
+  const checks:Check[]=[];
+  const add=(group:string,label:string,ok:boolean,detail:string)=>checks.push({group,label,ok,detail});
+  add('Package','Repository',manifest.repository==='SuperDudePro/Blog-Site',manifest.repository||'Missing');
+  add('Package','Destination',manifest.destinationPath===`src/content/posts/${manifest.slug}/`,manifest.destinationPath||'Missing');
+  add('Package','Canonical URL',manifest.canonicalUrl===`https://ourolddad.com/post/${manifest.slug}`,manifest.canonicalUrl||'Missing');
+  add('Package','Build command',manifest.buildCommand==='npm run build',manifest.buildCommand||'Missing');
+  add('Package','Production index',Boolean(indexEntry),indexEntry?'Found':'Missing index.ts');
+  for(const name of ['README-HANDOFF.md','source/post.md','source/image-notes.md','source/proposed-tracker-entry.md']) add('Package',name,files.includes(`${root}/${name}`),files.includes(`${root}/${name}`)?'Found':'Missing');
+  for(const field of ['title','slug','excerpt','section','publishedAt','status'] as const){ const actual=extract(source,field); const expected=String(manifest[field]??''); add('Metadata',field,actual===expected,actual===expected?expected:`Manifest: ${expected}; index.ts: ${actual||'missing'}`); }
+  const images=await Promise.all((manifest.images||[]).map(async image=>{
+    const entry=zip.file(`${dropPrefix}${image.file}`); const blob=entry?await entry.async('blob'):null;
+    const view:ImageView={...image,url:blob?URL.createObjectURL(blob):'',present:Boolean(blob),imported:new RegExp(`["']\\./${escapeRx(image.file)}["']`).test(source),altMatches:Boolean(image.alt&&source.includes(image.alt)),captionMatches:image.caption?source.includes(image.caption):true};
+    add('Images',`${image.file}: file`,view.present,view.present?'Found':'Missing');
+    add('Images',`${image.file}: import`,view.imported,view.imported?'Referenced':'Not referenced');
+    add('Images',`${image.file}: alt`,view.altMatches,view.altMatches?'Matches':'Does not match');
+    if(image.caption) add('Images',`${image.file}: caption`,view.captionMatches,view.captionMatches?'Matches':'Does not match');
+    return view;
+  }));
+  if(manifest.playlistLinks){
+    const p=manifest.playlistLinks;
+    add('Playlist','YouTube URL',p.youtube.includes(`list=${p.playlistId}`),p.youtube);
+    add('Playlist','YouTube Music URL',p.youtubeMusic.includes(`list=${p.playlistId}`),p.youtubeMusic);
+    add('Playlist','Links rendered',source.includes(p.youtube)&&source.includes(p.youtubeMusic),p.playlistId);
+  }
+  return {root,dropPrefix,manifest,files,productionFiles:files.filter(n=>n.startsWith(dropPrefix)),checks,images};
+}
+
+export default function App(){
+  const [key,setKey]=useState(sessionStorage.getItem(KEY)||'');
+  const [keyInput,setKeyInput]=useState(key);
+  const [authenticated,setAuthenticated]=useState(false);
+  const [authError,setAuthError]=useState('');
+  const [file,setFile]=useState<File|null>(null);
+  const [inspection,setInspection]=useState<Inspection|null>(null);
+  const [selected,setSelected]=useState<ImageView|null>(null);
+  const [error,setError]=useState('');
+  const [busy,setBusy]=useState(false);
+  const [drag,setDrag]=useState(false);
+  const [approval,setApproval]=useState(false);
+  const [pipeline,setPipeline]=useState<Step[]>(steps());
+  const [handoff,setHandoff]=useState<Handoff|null>(null);
+  const [status,setStatus]=useState<Status|null>(null);
+  const passed=inspection?.checks.filter(c=>c.ok).length||0;
+  const total=inspection?.checks.length||0;
+  const ready=Boolean(inspection&&passed===total);
+  const groups=useMemo(()=>inspection?[...new Set(inspection.checks.map(c=>c.group))]:[],[inspection]);
+  const update=(i:number,state:StepState,detail?:string)=>setPipeline(current=>current.map((s,n)=>n===i?{...s,state,detail}:s));
+
+  async function login(candidate:string){ setAuthError(''); try{await api('/api/session',candidate);sessionStorage.setItem(KEY,candidate);setKey(candidate);setAuthenticated(true);}catch(e){setAuthenticated(false);setAuthError(e instanceof Error?e.message:'Access failed.');} }
+  useEffect(()=>{if(key)void login(key);},[]);
+  async function load(chosen?:File){ if(!chosen)return; if(!chosen.name.toLowerCase().endsWith('.zip')){setError('Choose a ZIP package.');return;} inspection?.images.forEach(i=>i.url&&URL.revokeObjectURL(i.url));setBusy(true);setError('');setFile(chosen);setInspection(null);setSelected(null);setHandoff(null);setStatus(null);setPipeline(steps());try{const result=await inspect(chosen);setInspection(result);setSelected(result.images[0]||null);}catch(e){setError(e instanceof Error?e.message:'Inspection failed.');}finally{setBusy(false);} }
+
+  async function poll(h:Handoff,m:Manifest){
+    for(let attempt=0;attempt<180;attempt++){
+      const current=await api<Status>('/api/publish/status',key,{repository:h.repository,prNumber:h.prNumber,commit:h.commit,canonicalUrl:m.canonicalUrl});setStatus(current);
+      if(current.checks.state==='failed'){update(5,'failed','A required check failed.');throw new Error('A pull-request check failed. Open the draft PR for details.');}
+      update(5,current.checks.state==='success'?'complete':'active',current.checks.state==='success'?`${current.checks.items.length} checks passed`:'Waiting for checks');
+      update(6,current.deploymentUrl?'complete':'pending',current.deploymentUrl||'Waiting for Vercel');
+      if(current.smoke.state==='failed'){update(7,'failed',current.smoke.error);throw new Error(current.smoke.error||'Smoke test failed.');}
+      update(7,current.smoke.state==='success'?'complete':current.deploymentUrl?'active':'pending',current.smoke.state==='success'?`HTTP ${current.smoke.status}`:'Waiting for deployable route');
+      if(current.readyToMerge){update(8,'complete','Final human review and merge remain manual.');return;}
+      await delay(5000);
     }
-    return current;
-  };
+    throw new Error('The checks are still running. Use Check status again.');
+  }
 
-  const loadFile = async (file?: File) => {
-    if (!file) return;
-    if (!file.name.toLowerCase().endsWith('.zip')) { setError('Please choose a ZIP package.'); return; }
-    inspection?.images.forEach((image) => image.url && URL.revokeObjectURL(image.url));
-    setLoading(true); setError(''); setPreview(null); setPreviewJob(null); setPublish(null); setPublishJob(null); setApprovalOpen(false); setInspection(null); setSelectedImage(null); setPackageFile(file);
-    try { const result = await inspectArchive(file); setInspection(result); setSelectedImage(result.images[0] ?? null); }
-    catch (reason) { setPackageFile(null); setError(reason instanceof Error ? reason.message : 'The package could not be inspected.'); }
-    finally { setLoading(false); }
-  };
+  async function publish(){
+    if(!file||!inspection||!ready)return;setApproval(false);setBusy(true);setError('');setPipeline(steps());setHandoff(null);setStatus(null);update(0,'complete','Explicit approval received.');
+    try{
+      update(1,'active','Reading main from GitHub');
+      const start=await api<{session:Session}>('/api/publish/start',key,{manifest:inspection.manifest});update(1,'complete',`${start.session.baseBranch} @ ${start.session.baseCommitSha.slice(0,7)}`);
+      const zip=await JSZip.loadAsync(file);const entries=Object.values(zip.files).filter(e=>!e.dir&&normalize(e.name).startsWith(inspection.dropPrefix));const blobs:Array<{path:string;sha:string;size:number}>=[];
+      update(2,'active',`0/${entries.length} files`);
+      for(let i=0;i<entries.length;i++){const entry=entries[i];const path=normalize(entry.name).slice(inspection.dropPrefix.length);const bytes=await entry.async('uint8array');const result=await api<{sha:string;size:number}>('/api/publish/blob',key,{repository:inspection.manifest.repository,encoding:'base64',content:toBase64(bytes)});blobs.push({path,sha:result.sha,size:bytes.length});update(2,'active',`${i+1}/${entries.length}: ${path}`);}
+      update(2,'complete',`${entries.length} files uploaded`);update(3,'active','Creating one tree and commit');
+      const finish=await api<{result:Handoff}>('/api/publish/finish',key,{manifest:inspection.manifest,session:start.session,blobs});setHandoff(finish.result);update(3,'complete',finish.result.commit.slice(0,7));update(4,'complete',`PR #${finish.result.prNumber}`);update(5,'active','Waiting for checks');await poll(finish.result,inspection.manifest);
+    }catch(e){setError(e instanceof Error?e.message:'Publishing failed.');setPipeline(current=>{const i=current.findIndex(s=>s.state==='active');return i<0?current:current.map((s,n)=>n===i?{...s,state:'failed',detail:e instanceof Error?e.message:'Failed'}:s);});}finally{setBusy(false);}
+  }
 
-  const buildPreview = async () => {
-    if (!packageFile || !summary?.ready) return;
-    setBuilding(true); setPreview(null); setPreviewJob(null); setPublish(null); setPublishJob(null); setError('');
-    try {
-      const response = await fetch('/api/preview', { method: 'POST', headers: { 'content-type': 'application/zip' }, body: packageFile });
-      if (!response.ok) throw new Error((await response.json() as { error?: string }).error ?? 'The preview service rejected the package.');
-      const initial = await response.json() as Job<PreviewResult>;
-      setPreviewJob(initial);
-      const job = await pollJob(initial);
-      if (job.result) setPreview(job.result);
-      if (job.status === 'failed' && !job.result) setError('The preview build failed without diagnostic output.');
-    } catch (reason) { setError(reason instanceof Error ? reason.message : 'The preview service could not be reached.'); }
-    finally { setBuilding(false); }
-  };
-
-  const publishApprovedPreview = async () => {
-    if (!preview?.ok || !preview.preview) return;
-    setApprovalOpen(false); setPublishing(true); setPublish(null); setPublishJob(null); setError('');
-    try {
-      const response = await fetch(`/api/publish/${preview.preview.id}`, { method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify({ approval: 'APPROVE' }) });
-      if (!response.ok) throw new Error((await response.json() as { error?: string }).error ?? 'The publish service rejected the approval.');
-      const initial = await response.json() as Job<PublishResult>;
-      setPublishJob(initial);
-      const job = await pollJob(initial);
-      if (job.result) setPublish(job.result);
-      if (job.status === 'failed' && !job.result) setError('Publishing failed without diagnostic output.');
-    } catch (reason) { setError(reason instanceof Error ? reason.message : 'The publish service could not be reached.'); }
-    finally { setPublishing(false); }
-  };
-
-  const onInput = (event: ChangeEvent<HTMLInputElement>) => loadFile(event.target.files?.[0]);
-  const onDrop = (event: DragEvent<HTMLLabelElement>) => { event.preventDefault(); setDragActive(false); loadFile(event.dataTransfer.files?.[0]); };
+  if(!authenticated)return <main className="auth-shell"><form className="auth-card" onSubmit={(e:FormEvent)=>{e.preventDefault();void login(keyInput.trim());}}><p className="eyebrow">Wilbert Publisher</p><h1>Private publishing control.</h1><p>Enter the publisher access key. The GitHub token stays on the server.</p><input type="password" value={keyInput} onChange={e=>setKeyInput(e.target.value)} placeholder="Publisher access key" />{authError&&<div className="error-banner">{authError}</div>}<button disabled={!keyInput.trim()}>Open publisher</button></form></main>;
 
   return <main className="app-shell">
-    <header className="masthead"><div><p className="eyebrow">Wilbert Publisher</p><h1>Inspect, preview, and publish with one controlled pipeline.</h1><p className="intro">The manifest is the contract. Nothing reaches GitHub until the package passes inspection, builds successfully, and receives explicit approval.</p></div><div className="phase-pill">Phase 2 · Publisher</div></header>
-    <label className={`drop-zone ${dragActive ? 'drop-zone--active' : ''}`} onDragOver={(event) => { event.preventDefault(); setDragActive(true); }} onDragLeave={() => setDragActive(false)} onDrop={onDrop}>
-      <input type="file" accept=".zip,application/zip" onChange={onInput} /><strong>{loading ? 'Reading package…' : 'Drop a finished post ZIP here'}</strong><span>or click to choose one</span>
-    </label>
-    {error && <div className="error-banner">{error}</div>}
-    {approvalOpen && inspection && <section className="panel preview-panel preview-panel--failed"><p className="eyebrow">Approval required</p><h3>Publish this approved package to GitHub?</h3><p>This will create a new branch, commit only <code>{inspection.manifest.destinationPath}</code>, push it, and open a draft pull request. It will not merge or deploy production.</p><div className="mini-checks"><Check ok label="Package contract passed"/><Check ok label="Production preview build passed"/><Check ok label="Draft PR only"/></div><div className="action-bar"><button onClick={() => setApprovalOpen(false)}>Cancel</button><button onClick={publishApprovedPreview}>Approve and create draft PR</button></div></section>}
-    {inspection && summary && <>
-      <section className="package-hero"><div><p className="eyebrow">{inspection.manifest.targetSite}</p><h2>{inspection.manifest.title}</h2><p>{inspection.manifest.excerpt}</p></div><div className={`status-card ${summary.ready ? 'status-card--ready' : ''}`}><span>{publish?.ok ? 'Draft PR created' : preview?.ok ? 'Preview approved' : summary.ready ? 'Ready for preview' : 'Needs attention'}</span><strong>{summary.passed}/{summary.total}</strong><small>checks passed</small></div></section>
-      <section className="metadata-grid"><Metadata label="Slug" value={inspection.manifest.slug}/><Metadata label="Section" value={inspection.manifest.section}/><Metadata label="Status" value={inspection.manifest.status}/><Metadata label="Published" value={inspection.manifest.publishedAt}/><Metadata label="Repository" value={inspection.manifest.repository}/><Metadata label="Destination" value={inspection.manifest.destinationPath}/></section>
-      {previewJob && <PipelinePanel eyebrow="Preview pipeline" title={previewJob.status === 'running' ? 'Building site preview' : previewJob.status === 'complete' ? 'Preview ready' : `Failed during ${previewJob.stage}`} job={previewJob} result={preview}/>} 
-      {publishJob && <PipelinePanel eyebrow="Publish pipeline" title={publishJob.status === 'running' ? 'Creating draft pull request' : publishJob.status === 'complete' ? 'Draft PR ready' : `Failed during ${publishJob.stage}`} job={publishJob} result={publish}/>} 
-      {preview?.ok && preview.preview && !publishJob && <section className="panel preview-panel preview-panel--ready"><p className="eyebrow">Approval gate</p><h3>The package is ready to publish</h3><p>The isolated production build passed. Review the generated page before approving the GitHub operation.</p><a className="preview-link" href={preview.preview.url} target="_blank" rel="noreferrer">Open generated preview</a></section>}
-      {publish?.ok && <section className="panel preview-panel preview-panel--ready"><p className="eyebrow">GitHub handoff</p><h3>Draft pull request created</h3><Definition label="Branch" value={publish.branch ?? 'Created'}/><Definition label="Commit" value={publish.commit ?? 'Created'}/>{publish.prUrl && <a className="preview-link" href={publish.prUrl} target="_blank" rel="noreferrer">Open draft pull request</a>}</section>}
-      {inspection.manifest.playlistLinks && <section className="panel playlist-panel"><p className="eyebrow">Playlist module</p><h3>{inspection.manifest.playlistLinks.playlistId}</h3><Definition label="YouTube" value={inspection.manifest.playlistLinks.youtube}/><Definition label="YouTube Music" value={inspection.manifest.playlistLinks.youtubeMusic}/></section>}
-      <section className="workspace-grid"><div className="panel image-panel"><p className="eyebrow">Image roles</p><h3>{inspection.images.length} production images</h3><div className="image-grid">{inspection.images.map((image) => <button className={`image-card ${selectedImage?.file === image.file ? 'image-card--selected' : ''}`} key={image.file} onClick={() => setSelectedImage(image)}>{image.url ? <img src={image.url} alt={image.alt}/> : <div className="missing-image">Missing</div>}<span>{image.file}</span><small>{image.role}</small></button>)}</div></div>
-        <aside className="panel inspector-panel"><p className="eyebrow">Inspector</p>{selectedImage ? <>{selectedImage.url && <img className="inspector-preview" src={selectedImage.url} alt={selectedImage.alt}/>}<h3>{selectedImage.file}</h3><Definition label="Role" value={selectedImage.role}/><Definition label="Alt text" value={selectedImage.alt}/><Definition label="Caption" value={selectedImage.caption ?? 'No caption required'}/><div className="mini-checks"><Check ok={Boolean(selectedImage.url)} label="File present"/><Check ok={selectedImage.referencedInIndex} label="Imported in index.ts"/><Check ok={selectedImage.altFoundInIndex} label="Alt matches"/>{selectedImage.caption && <Check ok={selectedImage.captionFoundInIndex} label="Caption matches"/>}</div></> : <p>Select an image to inspect it.</p>}</aside>
-      </section>
-      <section className="workspace-grid lower-grid"><div className="panel"><p className="eyebrow">Validation</p><h3>Package contract</h3>{groups.map((group) => <div className="validation-group" key={group}><h4>{group}</h4><div className="validation-list">{inspection.validation.filter((item) => item.group === group).map((item) => <div className="validation-row" key={`${item.label}-${item.detail}`}><Check ok={item.ok} label={item.label}/><span>{item.detail}</span></div>)}</div></div>)}</div><div className="panel file-panel"><p className="eyebrow">Archive contents</p><h3>{inspection.files.length} files found</h3><FileGroup title="Source package" files={inspection.sourceFiles} root={inspection.root}/><FileGroup title="Production drop-in" files={inspection.productionFiles} root={inspection.root}/></div></section>
-      <footer className="action-bar"><div><strong>{inspection.archiveName}</strong><span>{publishing ? `Publish pipeline: ${publishJob?.stage ?? 'starting'}…` : building ? `Preview pipeline: ${previewJob?.stage ?? 'starting'}…` : publish?.ok ? 'The draft PR is ready for review.' : preview?.ok ? 'Preview passed. Explicit approval is required before GitHub changes.' : summary.ready ? 'The package is ready for the site-preview step.' : 'Resolve failed checks before previewing.'}</span></div>{publish?.ok && publish.prUrl ? <a className="preview-link" href={publish.prUrl} target="_blank" rel="noreferrer">Open draft PR</a> : preview?.ok && preview.preview ? <><a className="preview-link" href={preview.preview.url} target="_blank" rel="noreferrer">Review preview</a><button disabled={publishing} onClick={() => setApprovalOpen(true)}>{publishing ? 'Publishing…' : 'Approve publish'}</button></> : <button disabled={!summary.ready || building} onClick={buildPreview}>{building ? 'Building preview…' : 'Build site preview'}</button>}</footer>
+    <header className="masthead"><div><p className="eyebrow">Wilbert Publisher</p><h1>Package in. Draft preview out.</h1><p className="intro">Inspect the ZIP, create one controlled commit, wait for GitHub and Vercel, smoke-test the real route, and stop before merge.</p></div><button className="ghost" onClick={()=>{sessionStorage.removeItem(KEY);setAuthenticated(false);}}>Lock</button></header>
+    <label className={`drop-zone ${drag?'active':''}`} onDragOver={e=>{e.preventDefault();setDrag(true)}} onDragLeave={()=>setDrag(false)} onDrop={(e:DragEvent)=>{e.preventDefault();setDrag(false);void load(e.dataTransfer.files?.[0])}}><input type="file" accept=".zip" onChange={(e:ChangeEvent<HTMLInputElement>)=>void load(e.target.files?.[0])}/><strong>{busy&&!inspection?'Reading package…':'Drop a finished post ZIP here'}</strong><span>or click to choose one</span></label>
+    {error&&<div className="error-banner">{error}</div>}
+    {approval&&inspection&&<section className="panel approval"><p className="eyebrow">Approval required</p><h2>Create the draft preview?</h2><p>This writes only <code>{inspection.manifest.destinationPath}</code>, opens a draft PR, and does not merge production.</p><div className="actions"><button className="ghost" onClick={()=>setApproval(false)}>Cancel</button><button onClick={()=>void publish()}>Approve and start</button></div></section>}
+    {inspection&&<>
+      <section className="hero"><div><p className="eyebrow">{inspection.manifest.targetSite}</p><h2>{inspection.manifest.title}</h2><p>{inspection.manifest.excerpt}</p></div><div className={`score ${ready?'good':''}`}><span>{status?.readyToMerge?'Ready to merge':ready?'Ready for approval':'Needs attention'}</span><strong>{passed}/{total}</strong><small>checks passed</small></div></section>
+      <section className="meta">{[['Slug',inspection.manifest.slug],['Section',inspection.manifest.section],['Published',inspection.manifest.publishedAt],['Repository',inspection.manifest.repository],['Destination',inspection.manifest.destinationPath]].map(([a,b])=><div key={a}><span>{a}</span><strong>{b}</strong></div>)}</section>
+      {(busy||handoff)&&<section className="panel pipeline"><div className="panel-head"><div><p className="eyebrow">Draft preview pipeline</p><h2>{status?.readyToMerge?'Ready for final review':busy?'Working through the pipeline':'Current pipeline status'}</h2></div>{handoff&&<button className="ghost" disabled={busy} onClick={()=>{setBusy(true);void poll(handoff,inspection.manifest).catch(e=>setError(e.message)).finally(()=>setBusy(false));}}>Check status</button>}</div><div className="pipeline-grid"><div>{pipeline.map(s=><div className="step" key={s.label}><i className={s.state}>{s.state==='complete'?'✓':s.state==='failed'?'!':s.state==='active'?'…':'○'}</i><div><strong>{s.label}</strong><span>{s.detail||s.state}</span></div></div>)}</div>{handoff&&<aside><p><b>Branch</b><br/>{handoff.branch}</p><p><b>Commit</b><br/>{handoff.commit}</p><a href={handoff.prUrl} target="_blank" rel="noreferrer">Open draft PR</a>{status?.deploymentUrl&&<a href={status.deploymentUrl} target="_blank" rel="noreferrer">Open Vercel preview</a>}{status?.smoke.smokeUrl&&<a href={status.smoke.smokeUrl} target="_blank" rel="noreferrer">Open tested post</a>}</aside>}</div></section>}
+      <section className="workspace"><div className="panel"><p className="eyebrow">Images</p><div className="image-grid">{inspection.images.map(img=><button className={selected?.file===img.file?'selected':''} key={img.file} onClick={()=>setSelected(img)}>{img.url?<img src={img.url} alt={img.alt}/>:<span>Missing</span>}<b>{img.file}</b><small>{img.role}</small></button>)}</div></div><aside className="panel inspector">{selected&&<><img src={selected.url} alt={selected.alt}/><h3>{selected.file}</h3><p><b>Alt:</b> {selected.alt}</p><p><b>Caption:</b> {selected.caption||'None'}</p></>}</aside></section>
+      <section className="workspace lower"><div className="panel"><p className="eyebrow">Validation</p>{groups.map(g=><div key={g}><h3>{g}</h3>{inspection.checks.filter(c=>c.group===g).map(c=><div className="check" key={c.label}><i className={c.ok?'complete':'failed'}>{c.ok?'✓':'!'}</i><div><strong>{c.label}</strong><span>{c.detail}</span></div></div>)}</div>)}</div><div className="panel"><p className="eyebrow">Production files</p>{inspection.productionFiles.map(f=><code key={f}>{f.replace(`${inspection.root}/`,'')}</code>)}</div></section>
+      <footer><div><strong>{file?.name}</strong><span>{status?.readyToMerge?'Open the PR for final review and manual merge.':handoff?'The draft preview exists.':'Package is ready for approval.'}</span></div>{status?.readyToMerge&&handoff?<a href={handoff.prUrl} target="_blank" rel="noreferrer">Open PR to finish</a>:handoff?<button disabled={busy} onClick={()=>{setBusy(true);void poll(handoff,inspection.manifest).catch(e=>setError(e.message)).finally(()=>setBusy(false));}}>Check status</button>:<button disabled={!ready||busy} onClick={()=>setApproval(true)}>Create draft preview</button>}</footer>
     </>}
   </main>;
 }
-
-function PipelinePanel<T extends PreviewResult | PublishResult>({ eyebrow, title, job, result }: { eyebrow: string; title: string; job: Job<T>; result: T | null }) {
-  return <section className={`panel preview-panel ${job.status === 'complete' ? 'preview-panel--ready' : job.status === 'failed' ? 'preview-panel--failed' : ''}`}><p className="eyebrow">{eyebrow}</p><h3>{title}</h3><div className="validation-list">{job.steps.map((step) => <div className="validation-row" key={step.label}><div className={`check ${step.status === 'complete' ? 'check--ok' : step.status === 'failed' ? 'check--bad' : ''}`}><span>{step.status === 'complete' ? '✓' : step.status === 'failed' ? '!' : step.status === 'active' ? '…' : '○'}</span><strong>{step.label}</strong></div><span>{step.status === 'active' ? 'In progress' : step.status}</span></div>)}</div>{result && !result.ok && <><p>{result.diagnosis?.problem ?? result.error ?? 'The operation returned an error.'}</p>{result.diagnosis?.fix && <div className="definition"><span>Likely fix</span><p>{result.diagnosis.fix}</p></div>}{result.logs && <pre>{usefulLogs(result.logs)}</pre>}</>}</section>;
-}
-function Metadata({ label, value }: { label: string; value: string }) { return <div className="metadata-item"><span>{label}</span><strong>{value}</strong></div>; }
-function Definition({ label, value }: { label: string; value: string }) { return <div className="definition"><span>{label}</span><p>{value}</p></div>; }
-function Check({ ok, label }: { ok: boolean; label: string }) { return <div className={`check ${ok ? 'check--ok' : 'check--bad'}`}><span>{ok ? '✓' : '!'}</span><strong>{label}</strong></div>; }
-function FileGroup({ title, files, root }: { title: string; files: string[]; root: string }) { return <div className="file-group"><h4>{title}</h4>{files.map((file) => <code key={file}>{file.replace(`${root}/`, '')}</code>)}</div>; }
-export default App;
