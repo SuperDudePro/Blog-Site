@@ -27,6 +27,7 @@ export default async function handler(request, response) {
       if (!blob.sha || !blob.path) throw new Error('An uploaded file is missing its path or blob SHA.');
       return { path: safeRelative(blob.path), sha: blob.sha, size: blob.size || 0 };
     });
+    if (new Set(uploadedFiles.map((file) => file.path)).size !== uploadedFiles.length) throw new Error('The package contains duplicate production paths.');
 
     const comparison = compareDestination(existingFiles, uploadedFiles);
     const operation = existingFiles.length ? 'replace' : 'create';
@@ -39,8 +40,6 @@ export default async function handler(request, response) {
       })),
       ...comparison.deleted.map((path) => ({
         path: `${manifest.destinationPath}${path}`,
-        mode: '100644',
-        type: 'blob',
         sha: null,
       })),
     ];
