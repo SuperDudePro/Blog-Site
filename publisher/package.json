@@ -5,7 +5,8 @@
   "type": "module",
   "scripts": {
     "dev": "vite",
-    "build": "tsc --noEmit && vite build",
+    "test": "node --test",
+    "build": "npm test && tsc --noEmit && vite build",
     "preview": "vite preview"
   },
   "dependencies": {
