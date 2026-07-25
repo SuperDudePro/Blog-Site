@@ -9,8 +9,9 @@ type InspectedImage = ImageSpec & { path: string; url: string; referencedInIndex
 type Inspection = { archiveName: string; root: string; manifest: PackageManifest; files: string[]; sourceFiles: string[]; productionFiles: string[]; images: InspectedImage[]; validation: ValidationItem[] };
 type Diagnosis = { code: string; problem: string; fix: string };
 type PreviewResult = { ok: boolean; stage: string; logs?: string; error?: string; diagnosis?: Diagnosis; preview?: { id: string; url: string; canonicalUrl?: string } };
-type PreviewStep = { label: string; status: 'complete' | 'active' | 'failed' | 'pending' };
-type PreviewJob = { id: string; status: 'running' | 'complete' | 'failed'; stage: string; steps: PreviewStep[]; result?: PreviewResult | null };
+type PublishResult = { ok: boolean; stage: string; logs?: string; error?: string; diagnosis?: Diagnosis; branch?: string; commit?: string; prUrl?: string; repository?: string };
+type JobStep = { label: string; status: 'complete' | 'active' | 'failed' | 'pending' };
+type Job<T> = { id: string; kind?: string; status: 'running' | 'complete' | 'failed'; stage: string; steps: JobStep[]; result?: T | null };
 
 const requiredSourceNames = ['post.md', 'image-notes.md', 'package-manifest.json', 'proposed-tracker-entry.md'];
 const normalise = (value: string) => value.replace(/\\/g, '/').replace(/^\.\//, '');
@@ -75,18 +76,34 @@ function App() {
   const [selectedImage, setSelectedImage] = useState<InspectedImage | null>(null);
   const [loading, setLoading] = useState(false);
   const [building, setBuilding] = useState(false);
+  const [publishing, setPublishing] = useState(false);
+  const [approvalOpen, setApprovalOpen] = useState(false);
   const [error, setError] = useState('');
-  const [previewJob, setPreviewJob] = useState<PreviewJob | null>(null);
+  const [previewJob, setPreviewJob] = useState<Job<PreviewResult> | null>(null);
   const [preview, setPreview] = useState<PreviewResult | null>(null);
+  const [publishJob, setPublishJob] = useState<Job<PublishResult> | null>(null);
+  const [publish, setPublish] = useState<PublishResult | null>(null);
   const [dragActive, setDragActive] = useState(false);
   const summary = useMemo(() => { if (!inspection) return null; const passed = inspection.validation.filter((item) => item.ok).length; return { passed, total: inspection.validation.length, ready: passed === inspection.validation.length }; }, [inspection]);
   const groups = useMemo(() => inspection ? [...new Set(inspection.validation.map((item) => item.group))] : [], [inspection]);
+
+  const pollJob = async <T,>(job: Job<T>): Promise<Job<T>> => {
+    let current = job;
+    while (current.status === 'running') {
+      await pause(400);
+      const poll = await fetch(`/api/jobs/${current.id}`, { cache: 'no-store' });
+      if (!poll.ok) throw new Error('The job could not be found.');
+      current = await poll.json() as Job<T>;
+      current.kind === 'publish' ? setPublishJob(current as Job<PublishResult>) : setPreviewJob(current as Job<PreviewResult>);
+    }
+    return current;
+  };
 
   const loadFile = async (file?: File) => {
     if (!file) return;
     if (!file.name.toLowerCase().endsWith('.zip')) { setError('Please choose a ZIP package.'); return; }
     inspection?.images.forEach((image) => image.url && URL.revokeObjectURL(image.url));
-    setLoading(true); setError(''); setPreview(null); setPreviewJob(null); setInspection(null); setSelectedImage(null); setPackageFile(file);
+    setLoading(true); setError(''); setPreview(null); setPreviewJob(null); setPublish(null); setPublishJob(null); setApprovalOpen(false); setInspection(null); setSelectedImage(null); setPackageFile(file);
     try { const result = await inspectArchive(file); setInspection(result); setSelectedImage(result.images[0] ?? null); }
     catch (reason) { setPackageFile(null); setError(reason instanceof Error ? reason.message : 'The package could not be inspected.'); }
     finally { setLoading(false); }
@@ -94,48 +111,64 @@ function App() {
 
   const buildPreview = async () => {
     if (!packageFile || !summary?.ready) return;
-    setBuilding(true); setPreview(null); setPreviewJob(null); setError('');
+    setBuilding(true); setPreview(null); setPreviewJob(null); setPublish(null); setPublishJob(null); setError('');
     try {
       const response = await fetch('/api/preview', { method: 'POST', headers: { 'content-type': 'application/zip' }, body: packageFile });
       if (!response.ok) throw new Error((await response.json() as { error?: string }).error ?? 'The preview service rejected the package.');
-      let job = await response.json() as PreviewJob;
-      setPreviewJob(job);
-      while (job.status === 'running') {
-        await pause(400);
-        const poll = await fetch(`/api/preview/${job.id}`, { cache: 'no-store' });
-        if (!poll.ok) throw new Error('The preview job could not be found.');
-        job = await poll.json() as PreviewJob;
-        setPreviewJob(job);
-      }
+      const initial = await response.json() as Job<PreviewResult>;
+      setPreviewJob(initial);
+      const job = await pollJob(initial);
       if (job.result) setPreview(job.result);
       if (job.status === 'failed' && !job.result) setError('The preview build failed without diagnostic output.');
     } catch (reason) { setError(reason instanceof Error ? reason.message : 'The preview service could not be reached.'); }
     finally { setBuilding(false); }
   };
 
+  const publishApprovedPreview = async () => {
+    if (!preview?.ok || !preview.preview) return;
+    setApprovalOpen(false); setPublishing(true); setPublish(null); setPublishJob(null); setError('');
+    try {
+      const response = await fetch(`/api/publish/${preview.preview.id}`, { method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify({ approval: 'APPROVE' }) });
+      if (!response.ok) throw new Error((await response.json() as { error?: string }).error ?? 'The publish service rejected the approval.');
+      const initial = await response.json() as Job<PublishResult>;
+      setPublishJob(initial);
+      const job = await pollJob(initial);
+      if (job.result) setPublish(job.result);
+      if (job.status === 'failed' && !job.result) setError('Publishing failed without diagnostic output.');
+    } catch (reason) { setError(reason instanceof Error ? reason.message : 'The publish service could not be reached.'); }
+    finally { setPublishing(false); }
+  };
+
   const onInput = (event: ChangeEvent<HTMLInputElement>) => loadFile(event.target.files?.[0]);
   const onDrop = (event: DragEvent<HTMLLabelElement>) => { event.preventDefault(); setDragActive(false); loadFile(event.dataTransfer.files?.[0]); };
 
   return <main className="app-shell">
-    <header className="masthead"><div><p className="eyebrow">Wilbert Publisher</p><h1>Inspect the package before it touches the site.</h1><p className="intro">The manifest is the contract. The production files have to prove they match it.</p></div><div className="phase-pill">Phase 2 · Inspector</div></header>
+    <header className="masthead"><div><p className="eyebrow">Wilbert Publisher</p><h1>Inspect, preview, and publish with one controlled pipeline.</h1><p className="intro">The manifest is the contract. Nothing reaches GitHub until the package passes inspection, builds successfully, and receives explicit approval.</p></div><div className="phase-pill">Phase 2 · Publisher</div></header>
     <label className={`drop-zone ${dragActive ? 'drop-zone--active' : ''}`} onDragOver={(event) => { event.preventDefault(); setDragActive(true); }} onDragLeave={() => setDragActive(false)} onDrop={onDrop}>
       <input type="file" accept=".zip,application/zip" onChange={onInput} /><strong>{loading ? 'Reading package…' : 'Drop a finished post ZIP here'}</strong><span>or click to choose one</span>
     </label>
     {error && <div className="error-banner">{error}</div>}
+    {approvalOpen && inspection && <section className="panel preview-panel preview-panel--failed"><p className="eyebrow">Approval required</p><h3>Publish this approved package to GitHub?</h3><p>This will create a new branch, commit only <code>{inspection.manifest.destinationPath}</code>, push it, and open a draft pull request. It will not merge or deploy production.</p><div className="mini-checks"><Check ok label="Package contract passed"/><Check ok label="Production preview build passed"/><Check ok label="Draft PR only"/></div><div className="action-bar"><button onClick={() => setApprovalOpen(false)}>Cancel</button><button onClick={publishApprovedPreview}>Approve and create draft PR</button></div></section>}
     {inspection && summary && <>
-      <section className="package-hero"><div><p className="eyebrow">{inspection.manifest.targetSite}</p><h2>{inspection.manifest.title}</h2><p>{inspection.manifest.excerpt}</p></div><div className={`status-card ${summary.ready ? 'status-card--ready' : ''}`}><span>{summary.ready ? 'Ready for preview' : 'Needs attention'}</span><strong>{summary.passed}/{summary.total}</strong><small>checks passed</small></div></section>
+      <section className="package-hero"><div><p className="eyebrow">{inspection.manifest.targetSite}</p><h2>{inspection.manifest.title}</h2><p>{inspection.manifest.excerpt}</p></div><div className={`status-card ${summary.ready ? 'status-card--ready' : ''}`}><span>{publish?.ok ? 'Draft PR created' : preview?.ok ? 'Preview approved' : summary.ready ? 'Ready for preview' : 'Needs attention'}</span><strong>{summary.passed}/{summary.total}</strong><small>checks passed</small></div></section>
       <section className="metadata-grid"><Metadata label="Slug" value={inspection.manifest.slug}/><Metadata label="Section" value={inspection.manifest.section}/><Metadata label="Status" value={inspection.manifest.status}/><Metadata label="Published" value={inspection.manifest.publishedAt}/><Metadata label="Repository" value={inspection.manifest.repository}/><Metadata label="Destination" value={inspection.manifest.destinationPath}/></section>
-      {previewJob && <section className={`panel preview-panel ${previewJob.status === 'complete' ? 'preview-panel--ready' : previewJob.status === 'failed' ? 'preview-panel--failed' : ''}`}><p className="eyebrow">Preview pipeline</p><h3>{previewJob.status === 'running' ? 'Building site preview' : previewJob.status === 'complete' ? 'Preview ready' : `Failed during ${previewJob.stage}`}</h3><div className="validation-list">{previewJob.steps.map((step) => <div className="validation-row" key={step.label}><div className={`check ${step.status === 'complete' ? 'check--ok' : step.status === 'failed' ? 'check--bad' : ''}`}><span>{step.status === 'complete' ? '✓' : step.status === 'failed' ? '!' : step.status === 'active' ? '…' : '○'}</span><strong>{step.label}</strong></div><span>{step.status === 'active' ? 'In progress' : step.status}</span></div>)}</div>{preview?.ok && preview.preview && <><p>The real site build completed in an isolated workspace.</p><a className="preview-link" href={preview.preview.url} target="_blank" rel="noreferrer">Open generated preview</a></>}{preview && !preview.ok && <><p>{preview.diagnosis?.problem ?? preview.error ?? 'The site build returned an error.'}</p>{preview.diagnosis?.fix && <div className="definition"><span>Likely fix</span><p>{preview.diagnosis.fix}</p></div>}{preview.logs && <pre>{usefulLogs(preview.logs)}</pre>}</>}</section>}
+      {previewJob && <PipelinePanel eyebrow="Preview pipeline" title={previewJob.status === 'running' ? 'Building site preview' : previewJob.status === 'complete' ? 'Preview ready' : `Failed during ${previewJob.stage}`} job={previewJob} result={preview}/>} 
+      {publishJob && <PipelinePanel eyebrow="Publish pipeline" title={publishJob.status === 'running' ? 'Creating draft pull request' : publishJob.status === 'complete' ? 'Draft PR ready' : `Failed during ${publishJob.stage}`} job={publishJob} result={publish}/>} 
+      {preview?.ok && preview.preview && !publishJob && <section className="panel preview-panel preview-panel--ready"><p className="eyebrow">Approval gate</p><h3>The package is ready to publish</h3><p>The isolated production build passed. Review the generated page before approving the GitHub operation.</p><a className="preview-link" href={preview.preview.url} target="_blank" rel="noreferrer">Open generated preview</a></section>}
+      {publish?.ok && <section className="panel preview-panel preview-panel--ready"><p className="eyebrow">GitHub handoff</p><h3>Draft pull request created</h3><Definition label="Branch" value={publish.branch ?? 'Created'}/><Definition label="Commit" value={publish.commit ?? 'Created'}/>{publish.prUrl && <a className="preview-link" href={publish.prUrl} target="_blank" rel="noreferrer">Open draft pull request</a>}</section>}
       {inspection.manifest.playlistLinks && <section className="panel playlist-panel"><p className="eyebrow">Playlist module</p><h3>{inspection.manifest.playlistLinks.playlistId}</h3><Definition label="YouTube" value={inspection.manifest.playlistLinks.youtube}/><Definition label="YouTube Music" value={inspection.manifest.playlistLinks.youtubeMusic}/></section>}
       <section className="workspace-grid"><div className="panel image-panel"><p className="eyebrow">Image roles</p><h3>{inspection.images.length} production images</h3><div className="image-grid">{inspection.images.map((image) => <button className={`image-card ${selectedImage?.file === image.file ? 'image-card--selected' : ''}`} key={image.file} onClick={() => setSelectedImage(image)}>{image.url ? <img src={image.url} alt={image.alt}/> : <div className="missing-image">Missing</div>}<span>{image.file}</span><small>{image.role}</small></button>)}</div></div>
         <aside className="panel inspector-panel"><p className="eyebrow">Inspector</p>{selectedImage ? <>{selectedImage.url && <img className="inspector-preview" src={selectedImage.url} alt={selectedImage.alt}/>}<h3>{selectedImage.file}</h3><Definition label="Role" value={selectedImage.role}/><Definition label="Alt text" value={selectedImage.alt}/><Definition label="Caption" value={selectedImage.caption ?? 'No caption required'}/><div className="mini-checks"><Check ok={Boolean(selectedImage.url)} label="File present"/><Check ok={selectedImage.referencedInIndex} label="Imported in index.ts"/><Check ok={selectedImage.altFoundInIndex} label="Alt matches"/>{selectedImage.caption && <Check ok={selectedImage.captionFoundInIndex} label="Caption matches"/>}</div></> : <p>Select an image to inspect it.</p>}</aside>
       </section>
       <section className="workspace-grid lower-grid"><div className="panel"><p className="eyebrow">Validation</p><h3>Package contract</h3>{groups.map((group) => <div className="validation-group" key={group}><h4>{group}</h4><div className="validation-list">{inspection.validation.filter((item) => item.group === group).map((item) => <div className="validation-row" key={`${item.label}-${item.detail}`}><Check ok={item.ok} label={item.label}/><span>{item.detail}</span></div>)}</div></div>)}</div><div className="panel file-panel"><p className="eyebrow">Archive contents</p><h3>{inspection.files.length} files found</h3><FileGroup title="Source package" files={inspection.sourceFiles} root={inspection.root}/><FileGroup title="Production drop-in" files={inspection.productionFiles} root={inspection.root}/></div></section>
-      <footer className="action-bar"><div><strong>{inspection.archiveName}</strong><span>{building ? `Preview pipeline: ${previewJob?.stage ?? 'starting'}…` : summary.ready ? 'The package is ready for the site-preview step.' : 'Resolve failed checks before previewing.'}</span></div>{preview?.ok && preview.preview ? <a className="preview-link" href={preview.preview.url} target="_blank" rel="noreferrer">Open preview</a> : <button disabled={!summary.ready || building} onClick={buildPreview}>{building ? 'Building preview…' : 'Build site preview'}</button>}</footer>
+      <footer className="action-bar"><div><strong>{inspection.archiveName}</strong><span>{publishing ? `Publish pipeline: ${publishJob?.stage ?? 'starting'}…` : building ? `Preview pipeline: ${previewJob?.stage ?? 'starting'}…` : publish?.ok ? 'The draft PR is ready for review.' : preview?.ok ? 'Preview passed. Explicit approval is required before GitHub changes.' : summary.ready ? 'The package is ready for the site-preview step.' : 'Resolve failed checks before previewing.'}</span></div>{publish?.ok && publish.prUrl ? <a className="preview-link" href={publish.prUrl} target="_blank" rel="noreferrer">Open draft PR</a> : preview?.ok && preview.preview ? <><a className="preview-link" href={preview.preview.url} target="_blank" rel="noreferrer">Review preview</a><button disabled={publishing} onClick={() => setApprovalOpen(true)}>{publishing ? 'Publishing…' : 'Approve publish'}</button></> : <button disabled={!summary.ready || building} onClick={buildPreview}>{building ? 'Building preview…' : 'Build site preview'}</button>}</footer>
     </>}
   </main>;
 }
 
+function PipelinePanel<T extends PreviewResult | PublishResult>({ eyebrow, title, job, result }: { eyebrow: string; title: string; job: Job<T>; result: T | null }) {
+  return <section className={`panel preview-panel ${job.status === 'complete' ? 'preview-panel--ready' : job.status === 'failed' ? 'preview-panel--failed' : ''}`}><p className="eyebrow">{eyebrow}</p><h3>{title}</h3><div className="validation-list">{job.steps.map((step) => <div className="validation-row" key={step.label}><div className={`check ${step.status === 'complete' ? 'check--ok' : step.status === 'failed' ? 'check--bad' : ''}`}><span>{step.status === 'complete' ? '✓' : step.status === 'failed' ? '!' : step.status === 'active' ? '…' : '○'}</span><strong>{step.label}</strong></div><span>{step.status === 'active' ? 'In progress' : step.status}</span></div>)}</div>{result && !result.ok && <><p>{result.diagnosis?.problem ?? result.error ?? 'The operation returned an error.'}</p>{result.diagnosis?.fix && <div className="definition"><span>Likely fix</span><p>{result.diagnosis.fix}</p></div>}{result.logs && <pre>{usefulLogs(result.logs)}</pre>}</>}</section>;
+}
 function Metadata({ label, value }: { label: string; value: string }) { return <div className="metadata-item"><span>{label}</span><strong>{value}</strong></div>; }
 function Definition({ label, value }: { label: string; value: string }) { return <div className="definition"><span>{label}</span><p>{value}</p></div>; }
 function Check({ ok, label }: { ok: boolean; label: string }) { return <div className={`check ${ok ? 'check--ok' : 'check--bad'}`}><span>{ok ? '✓' : '!'}</span><strong>{label}</strong></div>; }
