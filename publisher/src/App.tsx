@@ -1,12 +1,13 @@
 import { ChangeEvent, DragEvent, FormEvent, useEffect, useMemo, useState } from 'react';
 import JSZip, { JSZipObject } from 'jszip';
+import { captionMatchesSource } from './inspectionText.js';
 
 type ImageSpec = { file: string; role: string; alt: string; caption: string | null };
 type Manifest = { targetSite: string; repository: string; title: string; slug: string; publishedAt: string; status: string; section: string; excerpt: string; canonicalUrl: string; destinationPath: string; buildCommand: string; images: ImageSpec[]; playlistLinks?: { youtube: string; youtubeMusic: string; playlistId: string } };
 type Check = { group: string; label: string; ok: boolean; detail: string };
 type ImageView = ImageSpec & { url: string; present: boolean; imported: boolean; altMatches: boolean; captionMatches: boolean };
 type Inspection = { root: string; dropPrefix: string; manifest: Manifest; files: string[]; productionFiles: string[]; checks: Check[]; images: ImageView[] };
-type Session = { repository: string; slug: string; title: string; destinationPath: string; canonicalUrl: string; baseBranch: string; baseCommitSha: string; baseTreeSha: string; branch: string };
+type Session = { repository: string; slug: string; title: string; destinationPath: string; canonicalUrl: string; baseBranch: string; baseCommitSha: string; baseTreeSha: string; branch?: string; operation?: 'create'|'replace'; existingFiles?: Array<{path:string;sha:string;size?:number}> };
 type Handoff = { repository: string; branch: string; commit: string; prNumber: number; prUrl: string; baseBranch: string };
 type Status = { checks: { state: 'pending' | 'success' | 'failed'; items: Array<{name:string; status:string; conclusion:string|null}> }; deploymentUrl: string | null; smoke: { state:'pending'|'success'|'failed'; status?:number; smokeUrl?:string; error?:string }; readyToMerge: boolean };
 type StepState = 'pending'|'active'|'complete'|'failed';
@@ -51,11 +52,11 @@ async function inspect(file:File):Promise<Inspection>{
   add('Package','Canonical URL',manifest.canonicalUrl===`https://ourolddad.com/post/${manifest.slug}`,manifest.canonicalUrl||'Missing');
   add('Package','Build command',manifest.buildCommand==='npm run build',manifest.buildCommand||'Missing');
   add('Package','Production index',Boolean(indexEntry),indexEntry?'Found':'Missing index.ts');
-  for(const name of ['README-HANDOFF.md','source/post.md','source/image-notes.md','source/proposed-tracker-entry.md']) add('Package',name,files.includes(`${root}/${name}`),files.includes(`${root}/${name}`)?'Found':'Missing');
+  for(const name of ['README-HANDOFF.md','source/post.md','source/image-notes.md']) add('Package',name,files.includes(`${root}/${name}`),files.includes(`${root}/${name}`)?'Found':'Missing');
   for(const field of ['title','slug','excerpt','section','publishedAt','status'] as const){ const actual=extract(source,field); const expected=String(manifest[field]??''); add('Metadata',field,actual===expected,actual===expected?expected:`Manifest: ${expected}; index.ts: ${actual||'missing'}`); }
   const images=await Promise.all((manifest.images||[]).map(async image=>{
     const entry=zip.file(`${dropPrefix}${image.file}`); const blob=entry?await entry.async('blob'):null;
-    const view:ImageView={...image,url:blob?URL.createObjectURL(blob):'',present:Boolean(blob),imported:new RegExp(`["']\\./${escapeRx(image.file)}["']`).test(source),altMatches:Boolean(image.alt&&source.includes(image.alt)),captionMatches:image.caption?source.includes(image.caption):true};
+    const view:ImageView={...image,url:blob?URL.createObjectURL(blob):'',present:Boolean(blob),imported:new RegExp(`["']\\./${escapeRx(image.file)}["']`).test(source),altMatches:Boolean(image.alt&&source.includes(image.alt)),captionMatches:captionMatchesSource(source,image.caption)};
     add('Images',`${image.file}: file`,view.present,view.present?'Found':'Missing');
     add('Images',`${image.file}: import`,view.imported,view.imported?'Referenced':'Not referenced');
     add('Images',`${image.file}: alt`,view.altMatches,view.altMatches?'Matches':'Does not match');
