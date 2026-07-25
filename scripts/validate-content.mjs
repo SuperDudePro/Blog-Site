@@ -30,6 +30,16 @@ function isRealIsoDate(value) {
   return Number.isFinite(date.getTime()) && date.toISOString().slice(0, 10) === value;
 }
 
+function isExternalImage(value) {
+  if (typeof value !== 'string' || !value.startsWith('https://')) return false;
+  try {
+    const url = new URL(value);
+    return /\.(?:png|jpe?g|webp)$/i.test(url.pathname);
+  } catch {
+    return false;
+  }
+}
+
 function inspectAsset(folder, fileName, fullPath) {
   try {
     const metadata = inspectImage(fullPath);
@@ -117,8 +127,12 @@ if (!fs.existsSync(postsDir)) {
     for (const field of ['heroImage', 'cardImage']) {
       if (!parsed.fields.has(field)) continue;
       const identifier = parsed.identifiers.get(field);
-      if (!identifier || !parsed.imageImports.has(identifier)) fail(folder, `${field} must reference an imported local image`);
-      else usedIdentifiers.add(identifier);
+      const fieldValue = value(field);
+      if (identifier && parsed.imageImports.has(identifier)) {
+        usedIdentifiers.add(identifier);
+      } else if (!isExternalImage(fieldValue)) {
+        fail(folder, `${field} must reference an imported local image or an HTTPS image URL`);
+      }
       const altField = field === 'heroImage' ? 'heroAlt' : 'cardAlt';
       if (!value(altField)?.trim()) fail(folder, `${field} is set but ${altField} is missing`);
     }
@@ -139,8 +153,11 @@ if (!fs.existsSync(postsDir)) {
     for (const tag of htmlResult.tags.filter((item) => item.tag === 'img')) {
       const src = tag.attributes.get('src') || '';
       const match = src.match(/^\$\{([A-Za-z_$][\w$]*)\}$/);
-      if (!match) fail(folder, `body image src must reference an imported image, found '${src}'`);
-      else if (!parsed.imageImports.has(match[1])) fail(folder, `body image references unknown import '${match[1]}'`);
+      if (match) {
+        if (!parsed.imageImports.has(match[1])) fail(folder, `body image references unknown import '${match[1]}'`);
+      } else if (!isExternalImage(src)) {
+        fail(folder, `body image src must reference an imported image or an HTTPS image URL, found '${src}'`);
+      }
     }
 
     posts.push({ folder, slug });
