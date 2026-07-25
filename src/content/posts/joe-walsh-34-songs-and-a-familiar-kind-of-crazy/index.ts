@@ -4,6 +4,7 @@ import cardImage from './card-image.webp';
 import bodyImageOne from './body-image-1.webp';
 import bodyImageTwo from './body-image-2.webp';
 import bodyImageThree from './body-image-3.webp';
+import bodyImageFour from './body-image-4.webp';
 
 const post: BlogPost = {
   slug: 'joe-walsh-34-songs-and-a-familiar-kind-of-crazy',
@@ -15,10 +16,10 @@ const post: BlogPost = {
   status: 'Recent',
   heroImage,
   heroAlt:
-    'Realistic editorial image of Joe Walsh wearing headphones at a radio microphone in a vintage studio.',
+    'Wide charcoal illustration of Joe Walsh in a vintage Chicago radio studio connected by musical lines to a recording ranch in the Colorado mountains.',
   cardImage,
   cardAlt:
-    'Close realistic portrait of Joe Walsh wearing headphones beside a radio microphone.',
+    'Charcoal sketch of Joe Walsh wearing headphones and leaning toward a vintage radio microphone with a guitar beside him.',
   bodyHtml: `
     <p>Joe Walsh got into my head long before I knew much about the James Gang, <em>Barnstorm</em>, or most of the records represented on this playlist.</p>
 
@@ -35,7 +36,7 @@ const post: BlogPost = {
     <p>That was the version of Joe Walsh I carried around for a long time: great guitar player, strange voice, funny songs, Eagles, &ldquo;Life&rsquo;s Been Good,&rdquo; and a general sense that the whole operation could come off the tracks at any moment.</p>
 
     <figure class="post-figure">
-      <img src="${bodyImageOne}" alt="Realistic concert image of Joe Walsh playing guitar under warm stage lights." loading="lazy" decoding="async" />
+      <img src="${bodyImageOne}" alt="Energetic charcoal sketch of a long-haired guitarist bending into a riff as loose lines vibrate around the instrument." loading="lazy" decoding="async" />
       <figcaption>The guitar playing was always the part nobody could miss.</figcaption>
     </figure>
 
@@ -47,12 +48,16 @@ const post: BlogPost = {
 
     <p>The guitar playing is obvious. It announces itself. What took longer for me to notice was everything happening underneath it: the layered parts, the little sounds moving through the background, the changes in rhythm, and the way songs keep opening up after you think you already understand them.</p>
 
+    <figure class="post-figure">
+      <img src="${bodyImageFour}" alt="Overhead charcoal illustration of a turntable surrounded by guitar fragments, studio controls, and layered musical marks opening outward." loading="lazy" decoding="async" />
+    </figure>
+
     <p>Listening through the early records also brought me back to Caribou Ranch.</p>
 
     <p>Walsh recorded some of his most important early work there in the 1970s. <em>Barnstorm</em> was the first album recorded at the ranch, and parts of <em>The Smoker You Drink, the Player You Get</em> were made there too.</p>
 
     <figure class="post-figure">
-      <img src="${bodyImageTwo}" alt="Realistic mountain landscape at Caribou Ranch with a weathered wooden ranch sign in the foreground." loading="lazy" decoding="async" />
+      <img src="${bodyImageTwo}" alt="Charcoal landscape of rustic ranch buildings and a recording studio beneath the Colorado mountains." loading="lazy" decoding="async" />
       <figcaption>Caribou Ranch, where some of Walsh&rsquo;s early records were made and where I later lived.</figcaption>
     </figure>
 
@@ -61,7 +66,7 @@ const post: BlogPost = {
     <p>That&rsquo;s the only time I&rsquo;ve been near a Grammy.</p>
 
     <figure class="post-figure">
-      <img src="${bodyImageThree}" alt="Two dusty vintage Grammy trophies sitting on a wooden shelf inside a rustic mountain house." loading="lazy" decoding="async" />
+      <img src="${bodyImageThree}" alt="Charcoal sketch of two dusty music trophies on tall pedestals, neglected on a rustic wooden shelf." loading="lazy" decoding="async" />
       <figcaption>Not bowling trophies.</figcaption>
     </figure>
 
