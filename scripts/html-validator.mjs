@@ -1,10 +1,11 @@
 const ALLOWED_TAGS = new Set(['a','blockquote','br','div','em','figcaption','figure','h2','h3','hr','iframe','img','li','ol','p','span','strong','table','tbody','td','th','thead','tr','ul']);
 const VOID_TAGS = new Set(['br','hr','img']);
-const GLOBAL_ATTRS = new Set(['class','title']);
+const GLOBAL_ATTRS = new Set(['class','title','style']);
 const ATTRS = {
   a: new Set(['href','rel','target']),
   iframe: new Set(['allow','allowfullscreen','frameborder','height','loading','referrerpolicy','src','title','width']),
   img: new Set(['alt','decoding','height','loading','src','width']),
+  ol: new Set(['start']),
   td: new Set(['colspan','rowspan']),
   th: new Set(['colspan','rowspan','scope']),
 };
@@ -22,6 +23,11 @@ function attrs(source) {
 function safeUrl(value) {
   const normalized = value.trim().toLowerCase();
   return normalized.startsWith('${') || normalized.startsWith('/') || normalized.startsWith('#') || normalized.startsWith('http://') || normalized.startsWith('https://') || normalized.startsWith('mailto:');
+}
+
+function safeStyle(value) {
+  const normalized = value.toLowerCase();
+  return !normalized.includes('url(') && !normalized.includes('expression(') && !normalized.includes('javascript:') && !normalized.includes('@import');
 }
 
 export function validateBodyHtml(html) {
@@ -59,6 +65,7 @@ export function validateBodyHtml(html) {
       if (attribute.name.startsWith('on')) errors.push(`bodyHtml uses inline event handler '${attribute.name}'`);
       const allowed = GLOBAL_ATTRS.has(attribute.name) || ATTRS[tag]?.has(attribute.name);
       if (!allowed) errors.push(`bodyHtml uses unsupported '${attribute.name}' attribute on <${tag}>`);
+      if (attribute.name === 'style' && !safeStyle(attribute.value)) errors.push(`bodyHtml uses unsafe inline style on <${tag}>`);
     }
 
     for (const name of ['href','src']) {
