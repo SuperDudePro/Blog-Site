@@ -12,13 +12,14 @@ const maxBytes = 100 * 1024 * 1024;
 const previews = new Map();
 const jobs = new Map();
 const previewSteps = ['ZIP received', 'Manifest validated', 'Workspace created', 'Blog-Site copied', 'Production files injected', 'Dependencies installed', 'Site built', 'Preview generated'];
-const publishSteps = ['Approval confirmed', 'Repository cloned', 'Publish branch created', 'Production files staged', 'Commit created', 'Branch pushed', 'Draft PR opened'];
+const publishSteps = ['Approval confirmed', 'Repository cloned', 'Publish branch created', 'Production files staged', 'Commit created', 'Branch pushed', 'Draft PR opened', 'GitHub checks passed', 'Vercel preview discovered', 'Published page smoke tested'];
 const mime = { '.html': 'text/html; charset=utf-8', '.js': 'text/javascript; charset=utf-8', '.css': 'text/css; charset=utf-8', '.json': 'application/json; charset=utf-8', '.svg': 'image/svg+xml', '.png': 'image/png', '.jpg': 'image/jpeg', '.jpeg': 'image/jpeg', '.webp': 'image/webp', '.ico': 'image/x-icon', '.xml': 'application/xml; charset=utf-8' };
 
 const json = (response, status, body) => { response.writeHead(status, { 'content-type': 'application/json; charset=utf-8', 'cache-control': 'no-store' }); response.end(JSON.stringify(body)); };
 const collectBody = async (request) => { const chunks = []; let size = 0; for await (const chunk of request) { size += chunk.length; if (size > maxBytes) throw new Error('Request exceeds the 100 MB limit.'); chunks.push(chunk); } return Buffer.concat(chunks); };
 const collectJson = async (request) => JSON.parse((await collectBody(request)).toString('utf8') || '{}');
-const run = (command, args, cwd) => new Promise((done) => { const child = spawn(command, args, { cwd, shell: process.platform === 'win32' }); let stdout = ''; let stderr = ''; child.stdout.on('data', (chunk) => { stdout += chunk.toString(); }); child.stderr.on('data', (chunk) => { stderr += chunk.toString(); }); child.on('close', (code) => done({ code: code ?? 1, stdout, stderr }); });
+const pause = (milliseconds) => new Promise((resolvePause) => setTimeout(resolvePause, milliseconds));
+const run = (command, args, cwd) => new Promise((done) => { const child = spawn(command, args, { cwd, shell: process.platform === 'win32' }); let stdout = ''; let stderr = ''; child.stdout.on('data', (chunk) => { stdout += chunk.toString(); }); child.stderr.on('data', (chunk) => { stderr += chunk.toString(); }); child.on('close', (code) => done({ code: code ?? 1, stdout, stderr })); });
 const runOrThrow = async (command, args, cwd, stage) => { const result = await run(command, args, cwd); if (result.code !== 0) throw Object.assign(new Error(`${command} ${args[0] ?? ''} failed.`), { stage, logs: `${result.stdout}\n${result.stderr}`.trim() }); return result.stdout.trim(); };
 const safeRelative = (path) => { const normalized = path.replaceAll('\\', '/').replace(/^\/+/, ''); if (!normalized || normalized.includes('../') || normalized.startsWith('..')) throw new Error(`Unsafe archive path: ${path}`); return normalized; };
 const publicJob = (job) => ({ id: job.id, kind: job.kind, status: job.status, stage: job.stage, steps: job.labels.map((label, index) => ({ label, status: index < job.step ? 'complete' : index === job.step && job.status === 'running' ? 'active' : job.status === 'failed' && index === job.step ? 'failed' : 'pending' })), result: job.result });
@@ -31,13 +32,12 @@ function diagnose(stage, logs) {
   if (missingImport) return { code: 'missing-file-or-import', problem: `The build cannot find ${missingImport[1]}.`, fix: 'Confirm the referenced file is included in the ZIP and that index.ts uses the exact filename, extension, capitalization, and relative path.' };
   const tsError = text.match(/error TS\d+:\s*([^\n]+)/i);
   if (tsError) return { code: 'typescript-error', problem: tsError[1].trim(), fix: 'Open the referenced production file and correct the TypeScript error before rebuilding the preview.' };
-  const syntax = text.match(/(?:SyntaxError|Parse error|Unexpected token)[:\s]+([^\n]+)/i);
-  if (syntax) return { code: 'syntax-error', problem: syntax[1].trim(), fix: 'Check the production index.ts near the reported line for a missing bracket, quote, comma, or malformed JSX.' };
-  if (/npm ci can only install packages when your package\.json and package-lock\.json/i.test(text) || /EUSAGE/i.test(text)) return { code: 'lockfile-mismatch', problem: 'The site package.json and package-lock.json are out of sync.', fix: 'Regenerate and commit the lockfile in the Blog-Site repository, then run the preview again.' };
-  if (/ENOSPC/i.test(text)) return { code: 'disk-space', problem: 'The workspace ran out of disk space.', fix: 'Remove old temporary files or free local disk space, then retry.' };
-  if (/not logged into any github hosts|authentication failed|could not read username/i.test(text)) return { code: 'github-auth', problem: 'GitHub authentication is not available to the publisher.', fix: 'Run gh auth login and confirm git push works for SuperDudePro/Blog-Site, then retry.' };
-  if (/already exists/i.test(text) && stage === 'branch') return { code: 'branch-exists', problem: 'The generated publish branch already exists.', fix: 'Retry the publish action to generate a new unique branch.' };
-  if (/EAI_AGAIN|ENETUNREACH|ETIMEDOUT|network/i.test(text)) return { code: 'network', problem: 'The operation could not reach npm or GitHub.', fix: 'Check the internet connection and retry.' };
+  if (/npm ci can only install packages|EUSAGE/i.test(text)) return { code: 'lockfile-mismatch', problem: 'The site package.json and package-lock.json are out of sync.', fix: 'Regenerate and commit the lockfile, then run the preview again.' };
+  if (/not logged into any github hosts|authentication failed|could not read username/i.test(text)) return { code: 'github-auth', problem: 'GitHub authentication is not available to the publisher.', fix: 'Run gh auth login and confirm git push works for SuperDudePro/Blog-Site.' };
+  if (stage === 'checks') return { code: 'checks-failed', problem: 'One or more pull-request checks failed.', fix: 'Open the draft pull request, inspect the failing check, correct the package or site code, and run the publisher again.' };
+  if (stage === 'deployment') return { code: 'deployment-not-found', problem: 'The publisher could not discover a Vercel preview URL.', fix: 'Confirm the Vercel GitHub integration posts a preview URL or deployment check on the pull request.' };
+  if (stage === 'smoke-test') return { code: 'smoke-test-failed', problem: 'The deployed post did not pass the HTTP smoke test.', fix: 'Open the Vercel preview and verify the post route, redirect behavior, and deployment output.' };
+  if (/EAI_AGAIN|ENETUNREACH|ETIMEDOUT|network/i.test(text)) return { code: 'network', problem: 'The operation could not reach npm, GitHub, or Vercel.', fix: 'Check the internet connection and retry.' };
   return { code: `${stage || 'unknown'}-error`, problem: stage === 'install' ? 'The dependency installation failed.' : stage === 'build' ? 'The site build failed.' : 'The publishing operation failed.', fix: 'Review the condensed output below. The final error line usually identifies the required correction.' };
 }
 
@@ -101,11 +101,29 @@ async function buildPreview(job, zipBuffer) {
     job.result = { ok: true, stage: 'complete', manifest: packageData.manifest, logs, preview: { id: previewId, url: `/preview/${previewId}/${packageData.manifest.slug}/`, canonicalUrl: packageData.manifest.canonicalUrl } };
   } catch (error) {
     if (workspace) await rm(workspace, { recursive: true, force: true });
-    job.status = 'failed';
-    job.stage = error.stage || job.stage || 'package';
+    job.status = 'failed'; job.stage = error.stage || job.stage || 'package';
     job.result = { ok: false, stage: job.stage, error: error instanceof Error ? error.message : 'Preview failed.', logs: error.logs, diagnosis: error.diagnosis || diagnose(job.stage, error.logs) };
   }
   job.updatedAt = Date.now();
+}
+
+async function discoverVercelUrl(repository, prUrl, cwd) {
+  for (let attempt = 0; attempt < 60; attempt += 1) {
+    const comments = await run('gh', ['pr', 'view', prUrl, '--repo', repository, '--json', 'comments', '--jq', '.comments[].body'], cwd);
+    const match = comments.stdout.match(/https:\/\/[a-z0-9.-]+\.vercel\.app(?:\/[a-zA-Z0-9_./?=&%-]*)?/i);
+    if (match) return match[0].replace(/[)>.,]+$/, '');
+    await pause(5000);
+  }
+  throw Object.assign(new Error('Timed out waiting for a Vercel preview URL.'), { stage: 'deployment', logs: 'No vercel.app URL appeared in pull-request comments.' });
+}
+
+async function smokeTest(deploymentUrl, manifest) {
+  const canonicalPath = (() => { try { return new URL(manifest.canonicalUrl).pathname; } catch { return `/${manifest.slug}/`; } })();
+  const smokeUrl = new URL(canonicalPath, deploymentUrl).toString();
+  const response = await fetch(smokeUrl, { redirect: 'follow', signal: AbortSignal.timeout(30000) });
+  const body = await response.text();
+  if (!response.ok || !body.toLowerCase().includes('<html')) throw Object.assign(new Error(`Smoke test returned HTTP ${response.status}.`), { stage: 'smoke-test', logs: `${smokeUrl}\nHTTP ${response.status}` });
+  return { smokeUrl, status: response.status };
 }
 
 async function publishPreview(job, preview) {
@@ -137,15 +155,20 @@ async function publishPreview(job, preview) {
     advance(job, 5, 'push');
     const bodyPath = join(workspace, 'pr-body.md');
     await writeFile(bodyPath, `## What changed\n\nPublishes **${preview.manifest.title}** from the approved Wilbert Publisher package.\n\n- Slug: \`${preview.manifest.slug}\`\n- Destination: \`${preview.manifest.destinationPath}\`\n- Canonical URL: ${preview.manifest.canonicalUrl || 'Not supplied'}\n\n## Validation\n\n- Package contract passed\n- Production site build passed in an isolated preview workspace\n- Publisher approval was explicitly confirmed\n`);
-    const prUrl = await runOrThrow('gh', ['pr', 'create', '--draft', '--repo', preview.manifest.repository, '--base', defaultBranch, '--head', branch, '--title', commitMessage, '--body-file', bodyPath], siteRoot, 'pr');
+    const prUrl = (await runOrThrow('gh', ['pr', 'create', '--draft', '--repo', preview.manifest.repository, '--base', defaultBranch, '--head', branch, '--title', commitMessage, '--body-file', bodyPath], siteRoot, 'pr')).trim();
+    advance(job, 6, 'checks');
+    await runOrThrow('gh', ['pr', 'checks', prUrl, '--repo', preview.manifest.repository, '--watch', '--interval', '5'], siteRoot, 'checks');
+    advance(job, 7, 'deployment');
+    const deploymentUrl = await discoverVercelUrl(preview.manifest.repository, prUrl, siteRoot);
+    advance(job, 8, 'smoke-test');
+    const smoke = await smokeTest(deploymentUrl, preview.manifest);
     advance(job, publishSteps.length, 'complete');
     preview.published = true;
     job.status = 'complete';
-    job.result = { ok: true, stage: 'complete', branch, commit, prUrl: prUrl.trim(), repository: preview.manifest.repository };
+    job.result = { ok: true, stage: 'complete', branch, commit, prUrl, repository: preview.manifest.repository, deploymentUrl, smokeUrl: smoke.smokeUrl, smokeStatus: smoke.status };
   } catch (error) {
-    job.status = 'failed';
-    job.stage = error.stage || job.stage || 'publish';
-    job.result = { ok: false, stage: job.stage, error: error instanceof Error ? error.message : 'Publish failed.', logs: error.logs, diagnosis: diagnose(job.stage, error.logs) };
+    job.status = 'failed'; job.stage = error.stage || job.stage || 'publish';
+    job.result = { ok: false, stage: job.stage, error: error instanceof Error ? error.message : 'Publish failed.', logs: error.logs, diagnosis: error.diagnosis || diagnose(job.stage, error.logs) };
   } finally {
     if (workspace) await rm(workspace, { recursive: true, force: true });
     job.updatedAt = Date.now();
