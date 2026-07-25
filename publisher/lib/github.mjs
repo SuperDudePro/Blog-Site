@@ -3,11 +3,16 @@ import { githubToken } from './auth.mjs';
 const API = 'https://api.github.com';
 
 export async function github(path, options = {}) {
+  const body = options.body && typeof options.body === 'object' && !(options.body instanceof Uint8Array)
+    ? JSON.stringify(options.body)
+    : options.body;
   const response = await fetch(`${API}${path}`, {
     ...options,
+    body,
     headers: {
       accept: 'application/vnd.github+json',
       authorization: `Bearer ${githubToken()}`,
+      'content-type': 'application/json',
       'x-github-api-version': '2022-11-28',
       'user-agent': 'wilbert-publisher',
       ...(options.headers || {}),
