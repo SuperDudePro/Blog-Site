@@ -17,6 +17,20 @@ const collectBody = async (request) => { const chunks = []; let size = 0; for aw
 const run = (command, args, cwd) => new Promise((done) => { const child = spawn(command, args, { cwd, shell: process.platform === 'win32' }); let stdout = ''; let stderr = ''; child.stdout.on('data', (chunk) => { stdout += chunk.toString(); }); child.stderr.on('data', (chunk) => { stderr += chunk.toString(); }); child.on('close', (code) => done({ code: code ?? 1, stdout, stderr })); });
 const safeRelative = (path) => { const normalized = path.replaceAll('\\', '/').replace(/^\/+/, ''); if (!normalized || normalized.includes('../') || normalized.startsWith('..')) throw new Error(`Unsafe archive path: ${path}`); return normalized; };
 
+function diagnose(stage, logs) {
+  const text = logs || '';
+  const missingImport = text.match(/Could not resolve ["']([^"']+)["']/i) || text.match(/Cannot find module ["']([^"']+)["']/i);
+  if (missingImport) return { code: 'missing-file-or-import', problem: `The build cannot find ${missingImport[1]}.`, fix: 'Confirm the referenced file is included in the ZIP and that index.ts uses the exact filename, extension, capitalization, and relative path.' };
+  const tsError = text.match(/error TS\d+:\s*([^\n]+)/i);
+  if (tsError) return { code: 'typescript-error', problem: tsError[1].trim(), fix: 'Open the referenced production file and correct the TypeScript error before rebuilding the preview.' };
+  const syntax = text.match(/(?:SyntaxError|Parse error|Unexpected token)[:\s]+([^\n]+)/i);
+  if (syntax) return { code: 'syntax-error', problem: syntax[1].trim(), fix: 'Check the production index.ts near the reported line for a missing bracket, quote, comma, or malformed JSX.' };
+  if (/npm ci can only install packages when your package\.json and package-lock\.json/i.test(text) || /EUSAGE/i.test(text)) return { code: 'lockfile-mismatch', problem: 'The site package.json and package-lock.json are out of sync.', fix: 'Regenerate and commit the lockfile in the Blog-Site repository, then run the preview again.' };
+  if (/ENOSPC/i.test(text)) return { code: 'disk-space', problem: 'The preview workspace ran out of disk space.', fix: 'Remove old temporary files or free local disk space, then rebuild.' };
+  if (/EAI_AGAIN|ENETUNREACH|ETIMEDOUT|network/i.test(text) && stage === 'install') return { code: 'network-install', problem: 'Dependencies could not be downloaded.', fix: 'Check the internet connection and npm availability, then retry the preview build.' };
+  return { code: 'unknown-build-error', problem: stage === 'install' ? 'The dependency installation failed.' : 'The site build failed.', fix: 'Review the condensed build output below. The first file path or error line usually identifies the production file that needs correction.' };
+}
+
 async function buildPreview(zipBuffer) {
   const zip = await JSZip.loadAsync(zipBuffer);
   const entries = Object.values(zip.files).filter((entry) => !entry.dir);
@@ -49,10 +63,10 @@ async function buildPreview(zipBuffer) {
     }
 
     const install = await run('npm', ['ci'], siteRoot);
-    if (install.code !== 0) { await rm(workspace, { recursive: true, force: true }); return { ok: false, stage: 'install', manifest, logs: `${install.stdout}\n${install.stderr}`.trim() }; }
+    if (install.code !== 0) { const logs = `${install.stdout}\n${install.stderr}`.trim(); await rm(workspace, { recursive: true, force: true }); return { ok: false, stage: 'install', manifest, logs, diagnosis: diagnose('install', logs) }; }
     const build = await run('npm', ['run', 'build'], siteRoot);
     const logs = `${build.stdout}\n${build.stderr}`.trim();
-    if (build.code !== 0) { await rm(workspace, { recursive: true, force: true }); return { ok: false, stage: 'build', manifest, logs }; }
+    if (build.code !== 0) { await rm(workspace, { recursive: true, force: true }); return { ok: false, stage: 'build', manifest, logs, diagnosis: diagnose('build', logs) }; }
 
     const distPath = join(siteRoot, 'dist');
     await readFile(join(distPath, 'index.html'), 'utf8');
@@ -91,7 +105,7 @@ const server = http.createServer(async (request, response) => {
   if (request.method !== 'POST' || request.url !== '/api/preview') return json(response, 404, { error: 'Not found.' });
   if (!request.headers['content-type']?.includes('application/zip')) return json(response, 415, { error: 'Expected application/zip.' });
   try { const result = await buildPreview(await collectBody(request)); json(response, result.ok ? 200 : 422, result); }
-  catch (error) { json(response, 400, { ok: false, stage: 'package', error: error instanceof Error ? error.message : 'Preview failed.' }); }
+  catch (error) { json(response, 400, { ok: false, stage: 'package', error: error instanceof Error ? error.message : 'Preview failed.', diagnosis: { code: 'package-error', problem: error instanceof Error ? error.message : 'The package could not be prepared.', fix: 'Correct the package structure or manifest, then upload the ZIP again.' } }); }
 });
 
 server.listen(PORT, '127.0.0.1', () => console.log(`Publisher preview API listening on http://127.0.0.1:${PORT}`));
