@@ -7,7 +7,10 @@ type PackageManifest = { targetSite: string; repository: string; title: string; 
 type ValidationItem = { group: string; label: string; ok: boolean; detail: string };
 type InspectedImage = ImageSpec & { path: string; url: string; referencedInIndex: boolean; altFoundInIndex: boolean; captionFoundInIndex: boolean };
 type Inspection = { archiveName: string; root: string; manifest: PackageManifest; files: string[]; sourceFiles: string[]; productionFiles: string[]; images: InspectedImage[]; validation: ValidationItem[] };
-type PreviewResult = { ok: boolean; stage: string; logs?: string; error?: string; preview?: { id: string; url: string; canonicalUrl?: string } };
+type Diagnosis = { code: string; problem: string; fix: string };
+type PreviewResult = { ok: boolean; stage: string; logs?: string; error?: string; diagnosis?: Diagnosis; preview?: { id: string; url: string; canonicalUrl?: string } };
+type PreviewStep = { label: string; status: 'complete' | 'active' | 'failed' | 'pending' };
+type PreviewJob = { id: string; status: 'running' | 'complete' | 'failed'; stage: string; steps: PreviewStep[]; result?: PreviewResult | null };
 
 const requiredSourceNames = ['post.md', 'image-notes.md', 'package-manifest.json', 'proposed-tracker-entry.md'];
 const normalise = (value: string) => value.replace(/\\/g, '/').replace(/^\.\//, '');
@@ -17,6 +20,7 @@ const extractField = (source: string, field: string) => source.match(new RegExp(
 const validHttpUrl = (value?: string) => { try { const url = new URL(value ?? ''); return url.protocol === 'https:' || url.protocol === 'http:'; } catch { return false; } };
 const playlistIdFromUrl = (value?: string) => { try { return new URL(value ?? '').searchParams.get('list') ?? ''; } catch { return ''; } };
 const usefulLogs = (logs = '') => logs.split('\n').filter(Boolean).slice(-18).join('\n');
+const pause = (milliseconds: number) => new Promise((resolve) => window.setTimeout(resolve, milliseconds));
 
 async function inspectArchive(file: File): Promise<Inspection> {
   const zip = await JSZip.loadAsync(file);
@@ -72,6 +76,7 @@ function App() {
   const [loading, setLoading] = useState(false);
   const [building, setBuilding] = useState(false);
   const [error, setError] = useState('');
+  const [previewJob, setPreviewJob] = useState<PreviewJob | null>(null);
   const [preview, setPreview] = useState<PreviewResult | null>(null);
   const [dragActive, setDragActive] = useState(false);
   const summary = useMemo(() => { if (!inspection) return null; const passed = inspection.validation.filter((item) => item.ok).length; return { passed, total: inspection.validation.length, ready: passed === inspection.validation.length }; }, [inspection]);
@@ -81,7 +86,7 @@ function App() {
     if (!file) return;
     if (!file.name.toLowerCase().endsWith('.zip')) { setError('Please choose a ZIP package.'); return; }
     inspection?.images.forEach((image) => image.url && URL.revokeObjectURL(image.url));
-    setLoading(true); setError(''); setPreview(null); setInspection(null); setSelectedImage(null); setPackageFile(file);
+    setLoading(true); setError(''); setPreview(null); setPreviewJob(null); setInspection(null); setSelectedImage(null); setPackageFile(file);
     try { const result = await inspectArchive(file); setInspection(result); setSelectedImage(result.images[0] ?? null); }
     catch (reason) { setPackageFile(null); setError(reason instanceof Error ? reason.message : 'The package could not be inspected.'); }
     finally { setLoading(false); }
@@ -89,12 +94,21 @@ function App() {
 
   const buildPreview = async () => {
     if (!packageFile || !summary?.ready) return;
-    setBuilding(true); setPreview(null); setError('');
+    setBuilding(true); setPreview(null); setPreviewJob(null); setError('');
     try {
       const response = await fetch('/api/preview', { method: 'POST', headers: { 'content-type': 'application/zip' }, body: packageFile });
-      const result = await response.json() as PreviewResult;
-      setPreview(result);
-      if (!result.ok && !result.error && !result.logs) setError('The preview build failed without diagnostic output.');
+      if (!response.ok) throw new Error((await response.json() as { error?: string }).error ?? 'The preview service rejected the package.');
+      let job = await response.json() as PreviewJob;
+      setPreviewJob(job);
+      while (job.status === 'running') {
+        await pause(400);
+        const poll = await fetch(`/api/preview/${job.id}`, { cache: 'no-store' });
+        if (!poll.ok) throw new Error('The preview job could not be found.');
+        job = await poll.json() as PreviewJob;
+        setPreviewJob(job);
+      }
+      if (job.result) setPreview(job.result);
+      if (job.status === 'failed' && !job.result) setError('The preview build failed without diagnostic output.');
     } catch (reason) { setError(reason instanceof Error ? reason.message : 'The preview service could not be reached.'); }
     finally { setBuilding(false); }
   };
@@ -111,13 +125,13 @@ function App() {
     {inspection && summary && <>
       <section className="package-hero"><div><p className="eyebrow">{inspection.manifest.targetSite}</p><h2>{inspection.manifest.title}</h2><p>{inspection.manifest.excerpt}</p></div><div className={`status-card ${summary.ready ? 'status-card--ready' : ''}`}><span>{summary.ready ? 'Ready for preview' : 'Needs attention'}</span><strong>{summary.passed}/{summary.total}</strong><small>checks passed</small></div></section>
       <section className="metadata-grid"><Metadata label="Slug" value={inspection.manifest.slug}/><Metadata label="Section" value={inspection.manifest.section}/><Metadata label="Status" value={inspection.manifest.status}/><Metadata label="Published" value={inspection.manifest.publishedAt}/><Metadata label="Repository" value={inspection.manifest.repository}/><Metadata label="Destination" value={inspection.manifest.destinationPath}/></section>
-      {preview && <section className={`panel preview-panel ${preview.ok ? 'preview-panel--ready' : 'preview-panel--failed'}`}><p className="eyebrow">Preview build</p><h3>{preview.ok ? 'Preview ready' : `Failed during ${preview.stage}`}</h3>{preview.ok && preview.preview ? <><p>The real site build completed in an isolated workspace.</p><a className="preview-link" href={preview.preview.url} target="_blank" rel="noreferrer">Open generated preview</a></> : <><p>{preview.error ?? 'The site build returned an error.'}</p>{preview.logs && <pre>{usefulLogs(preview.logs)}</pre>}</>}</section>}
+      {previewJob && <section className={`panel preview-panel ${previewJob.status === 'complete' ? 'preview-panel--ready' : previewJob.status === 'failed' ? 'preview-panel--failed' : ''}`}><p className="eyebrow">Preview pipeline</p><h3>{previewJob.status === 'running' ? 'Building site preview' : previewJob.status === 'complete' ? 'Preview ready' : `Failed during ${previewJob.stage}`}</h3><div className="validation-list">{previewJob.steps.map((step) => <div className="validation-row" key={step.label}><div className={`check ${step.status === 'complete' ? 'check--ok' : step.status === 'failed' ? 'check--bad' : ''}`}><span>{step.status === 'complete' ? '✓' : step.status === 'failed' ? '!' : step.status === 'active' ? '…' : '○'}</span><strong>{step.label}</strong></div><span>{step.status === 'active' ? 'In progress' : step.status}</span></div>)}</div>{preview?.ok && preview.preview && <><p>The real site build completed in an isolated workspace.</p><a className="preview-link" href={preview.preview.url} target="_blank" rel="noreferrer">Open generated preview</a></>}{preview && !preview.ok && <><p>{preview.diagnosis?.problem ?? preview.error ?? 'The site build returned an error.'}</p>{preview.diagnosis?.fix && <div className="definition"><span>Likely fix</span><p>{preview.diagnosis.fix}</p></div>}{preview.logs && <pre>{usefulLogs(preview.logs)}</pre>}</>}</section>}
       {inspection.manifest.playlistLinks && <section className="panel playlist-panel"><p className="eyebrow">Playlist module</p><h3>{inspection.manifest.playlistLinks.playlistId}</h3><Definition label="YouTube" value={inspection.manifest.playlistLinks.youtube}/><Definition label="YouTube Music" value={inspection.manifest.playlistLinks.youtubeMusic}/></section>}
       <section className="workspace-grid"><div className="panel image-panel"><p className="eyebrow">Image roles</p><h3>{inspection.images.length} production images</h3><div className="image-grid">{inspection.images.map((image) => <button className={`image-card ${selectedImage?.file === image.file ? 'image-card--selected' : ''}`} key={image.file} onClick={() => setSelectedImage(image)}>{image.url ? <img src={image.url} alt={image.alt}/> : <div className="missing-image">Missing</div>}<span>{image.file}</span><small>{image.role}</small></button>)}</div></div>
         <aside className="panel inspector-panel"><p className="eyebrow">Inspector</p>{selectedImage ? <>{selectedImage.url && <img className="inspector-preview" src={selectedImage.url} alt={selectedImage.alt}/>}<h3>{selectedImage.file}</h3><Definition label="Role" value={selectedImage.role}/><Definition label="Alt text" value={selectedImage.alt}/><Definition label="Caption" value={selectedImage.caption ?? 'No caption required'}/><div className="mini-checks"><Check ok={Boolean(selectedImage.url)} label="File present"/><Check ok={selectedImage.referencedInIndex} label="Imported in index.ts"/><Check ok={selectedImage.altFoundInIndex} label="Alt matches"/>{selectedImage.caption && <Check ok={selectedImage.captionFoundInIndex} label="Caption matches"/>}</div></> : <p>Select an image to inspect it.</p>}</aside>
       </section>
       <section className="workspace-grid lower-grid"><div className="panel"><p className="eyebrow">Validation</p><h3>Package contract</h3>{groups.map((group) => <div className="validation-group" key={group}><h4>{group}</h4><div className="validation-list">{inspection.validation.filter((item) => item.group === group).map((item) => <div className="validation-row" key={`${item.label}-${item.detail}`}><Check ok={item.ok} label={item.label}/><span>{item.detail}</span></div>)}</div></div>)}</div><div className="panel file-panel"><p className="eyebrow">Archive contents</p><h3>{inspection.files.length} files found</h3><FileGroup title="Source package" files={inspection.sourceFiles} root={inspection.root}/><FileGroup title="Production drop-in" files={inspection.productionFiles} root={inspection.root}/></div></section>
-      <footer className="action-bar"><div><strong>{inspection.archiveName}</strong><span>{building ? 'Building the real site in an isolated workspace…' : summary.ready ? 'The package is ready for the site-preview step.' : 'Resolve failed checks before previewing.'}</span></div><button disabled={!summary.ready || building} onClick={buildPreview}>{building ? 'Building preview…' : preview?.ok ? 'Rebuild preview' : 'Build site preview'}</button></footer>
+      <footer className="action-bar"><div><strong>{inspection.archiveName}</strong><span>{building ? `Preview pipeline: ${previewJob?.stage ?? 'starting'}…` : summary.ready ? 'The package is ready for the site-preview step.' : 'Resolve failed checks before previewing.'}</span></div>{preview?.ok && preview.preview ? <a className="preview-link" href={preview.preview.url} target="_blank" rel="noreferrer">Open preview</a> : <button disabled={!summary.ready || building} onClick={buildPreview}>{building ? 'Building preview…' : 'Build site preview'}</button>}</footer>
     </>}
   </main>;
 }
