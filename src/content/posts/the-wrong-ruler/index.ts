@@ -1,6 +1,10 @@
 import type { BlogPost } from '../../postTypes';
-import heroImage from './wrong-ruler-hero.webp';
-import contrastImage from './wrong-ruler-contrast.webp';
+import cardImage from './card-image.webp';
+import heroImage from './hero-image.webp';
+import bodyImageOne from './body-image-1.webp';
+import bodyImageTwo from './body-image-2.webp';
+import bodyImageThree from './body-image-3.webp';
+import bodyImageFour from './body-image-4.webp';
 
 const post: BlogPost = {
   slug: 'the-wrong-ruler',
@@ -12,10 +16,10 @@ const post: BlogPost = {
   status: 'Recent',
   heroImage,
   heroAlt:
-    'Hand-drawn editorial illustration of an older dad at a table with a giant ruler labeled enough stretching toward distant billionaire symbols.',
-  cardImage: heroImage,
+    'An older dad doing napkin math as a giant ruler stretches between billionaire ambition and a family life of travel and time together.',
+  cardImage,
   cardAlt:
-    'Hand-drawn editorial illustration of an older dad measuring life with a giant ruler labeled enough.',
+    'An oversized ruler measuring a full family table and making the abundant scene appear deceptively small.',
   bodyHtml: `
     <p>Ross Perot had enough money to stop forever. The fact that he kept going didn’t prove anything about me exactly, except this: I had already decided what <em>I</em> would do with that much money, and his choice exposed the gap between his wiring and mine.</p>
     <p>I remember the ’92 election mostly as a pile of commas.</p>
@@ -27,6 +31,9 @@ const post: BlogPost = {
     <p>About $411,000 a day.</p>
     <p>Around $17,000 an hour.</p>
     <p>Without touching the principal.</p>
+    <figure class="post-figure">
+      <img src="${bodyImageOne}" alt="A calculator, coffee, and scribbled napkin surrounded by multiplying stacks of money during an astonished calculation." loading="lazy" decoding="async" />
+    </figure>
     <p>That number broke something in my understanding of people. Not because I couldn’t imagine having the money. I could imagine that part just fine. What I couldn’t imagine was still wanting to work.</p>
     <p>If I had that kind of money, I thought, I’d be gone.</p>
     <p>Beach. Plane. Margaritas. Following the Dead. New cities. Dumb grins. No boss. No meetings. No “next phase.” No “bigger vision.” No need to prove anything to anyone ever again.</p>
@@ -39,6 +46,9 @@ const post: BlogPost = {
     <p>Not better. Not worse. Just different wiring.</p>
     <p>My default question has always been: <strong>How do I get free enough to enjoy this?</strong></p>
     <p>The builder’s question is different: <strong>What can I build next?</strong></p>
+    <figure class="post-figure">
+      <img src="${bodyImageTwo}" alt="Two contrasting internal systems channel energy toward relentless building on one side and freedom, music, and travel on the other." loading="lazy" decoding="async" />
+    </figure>
     <p>That gap explains a lot of my life.</p>
     <p>I like the man’s money. I do not like working for the man.</p>
     <p>That’s not exactly a business plan.</p>
@@ -56,7 +66,7 @@ const post: BlogPost = {
     <p>And on paper?</p>
     <p>Not much to show for it.</p>
     <figure class="post-figure">
-      <img src="${heroImage}" alt="Hand-drawn editorial illustration of an older dad at a table with a giant ruler labeled enough stretching toward distant billionaire symbols." loading="lazy" decoding="async" />
+      <img src="${bodyImageThree}" alt="An older dad observes a full family life beyond an oversized ruler mounted on two wooden stands." loading="lazy" decoding="async" />
       <figcaption>The wrong ruler makes a decent life look smaller than it is.</figcaption>
     </figure>
     <p>That’s where the wrong ruler comes out.</p>
@@ -77,10 +87,6 @@ const post: BlogPost = {
     <p>In a classroom, the costume drops for a few hours. Kids cut through things. They may be ridiculous, distracted, loud, and allergic to instructions, but they are usually not pretending to be polished adults in a meeting about deliverables.</p>
     <p>That’s why teaching beats the other suits.</p>
     <p>Not because it’s easy. Not because I’m noble. Because at least some part of it feels real.</p>
-    <figure class="post-figure">
-      <img src="${contrastImage}" alt="Split-screen image contrasting family time on a beach with a corporate boardroom, separated by rulers labeled with different measures of success." loading="lazy" decoding="async" />
-      <figcaption>A cleaner split-screen version of the same argument: family and presence on one side, corporate scale and net worth on the other.</figcaption>
-    </figure>
     <p>Back to Perot.</p>
     <p>In 1992, my fantasy was simple: give me that interest stream and I’ll coast forever.</p>
     <p>Today the fantasy is older, but the skeleton is the same. I still don’t want titles. I don’t want a corner office. I don’t want to win LinkedIn. I don’t want to be important in a room full of people pretending the room matters.</p>
@@ -91,6 +97,10 @@ const post: BlogPost = {
     <p>I want money as oxygen, not identity.</p>
     <p>That’s the actual game.</p>
     <p>The problem is that I keep borrowing scoreboards from people playing a different one.</p>
+    <figure class="post-figure">
+      <img src="${bodyImageFour}" alt="Contrasting scoreboards measure a corporate boardroom and a family campsite by entirely different ideas of success." loading="lazy" decoding="async" />
+      <figcaption>A cleaner split-screen version of the same argument: family and presence on one side, corporate scale and net worth on the other.</figcaption>
+    </figure>
     <p>If your real game is money, status, scale, conquest, fine. Pay the price. Plenty of people do. Some even seem built for it.</p>
     <p>But if your real game is presence, autonomy, pleasure, family, time, and enough room to breathe, then stop acting shocked when you don’t win at someone else’s game.</p>
     <p>That’s the part I have to keep relearning.</p>
