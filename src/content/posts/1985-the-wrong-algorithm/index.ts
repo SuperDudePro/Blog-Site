@@ -4,6 +4,7 @@ import cardImage from './card-image.webp';
 import bodyImageOne from './body-image-1.webp';
 import bodyImageTwo from './body-image-2.webp';
 import bodyImageThree from './body-image-3.webp';
+import bodyImageFour from './body-image-4.webp';
 
 const post: BlogPost = {
   slug: '1985-the-wrong-algorithm',
@@ -13,9 +14,9 @@ const post: BlogPost = {
   publishedAt: '2026-06-12',
   status: 'Recent',
   heroImage,
-  heroAlt: 'Students walking and biking under a Purdue University gateway on a bright spring day.',
+  heroAlt: 'A college student walks across a 1985 campus between a house party, career ambitions, and live music.',
   cardImage,
-  cardAlt: 'A Sony Walkman, cassette tapes, and a handwritten 1985 road mix on a wooden desk.',
+  cardAlt: 'A cassette’s loose tape traces a confused route across a campus map beside a Walkman and loosened business tie.',
   bodyHtml: `
     <p>I was at Purdue in 1985, coming out of sophomore year and heading into junior year, which is a dangerous age if you are just smart enough to figure things out and nowhere near smart enough to know what they mean.</p>
 
@@ -33,13 +34,13 @@ const post: BlogPost = {
     <p>Here is one, so you know I am not inventing the fun. We had a bong named Rootin Tootin, and one week we decided he deserved a birthday party. Not a joke. A real one — a full keg, a rented party bus, and a pickup route, because the only way to assemble fifty people in 1985 was to go physically collect them, one porch at a time. No group text. No shared location. Just a list and a lot of faith. Over fifty showed up. For a bong. On a Tuesday. And by ten o'clock every last one of them had folded — face-down, lights out, done — except me, my roommate, and the driver, who neither drank nor smoked and had obviously made better life decisions than the crowd he had just chauffeured into oblivion.</p>
 
     <figure class="post-figure">
-      <img src="${bodyImageOne}" alt="A crowded 1980s college house party with students cheering around Rootin Tootin." loading="lazy" decoding="async" />
+      <img src="${bodyImageOne}" alt="Students crowd around a bong wearing a birthday hat at an elaborate 1980s college-house party." loading="lazy" decoding="async" />
     </figure>
 
     <p>It did not end there. The next week a couple of renegade sorority girls kidnapped Rootin Tootin and ran a full ransom operation. Notes. Demands. Calls placed to pay phones at appointed times, because that was the available technology for a hostage negotiation in 1985. Whether we paid, whether he ever came home, I genuinely could not tell you. I was, at the relevant moments, too high to retain the information. Somewhere back there is a ransom drop I will never recover.</p>
 
     <figure class="post-figure">
-      <img src="${bodyImageTwo}" alt="A handwritten Rootin Tootin ransom note taped beside a pay phone." loading="lazy" decoding="async" />
+      <img src="${bodyImageTwo}" alt="A ransom note, dangling receiver, and scattered coins surround a campus pay phone in 1985." loading="lazy" decoding="async" />
     </figure>
 
     <p>That world had electricity in it. Things came easily to me then. I could get myself into a room, into a night, into a situation, almost without trying, and some of those nights turned on a single lean across a table and went somewhere none of us had planned. I am not going to lie about that part to make the rest of the story cleaner.</p>
@@ -70,6 +71,10 @@ const post: BlogPost = {
 
     <p>I was not lost in the obvious way. I was lost efficiently.</p>
 
+    <figure class="post-figure">
+      <img src="${bodyImageThree}" alt="A confident young man strides toward professional success while his shadow reaches back toward people he has left behind." loading="lazy" decoding="async" />
+    </figure>
+
     <p>That is worse.</p>
 
     <p>We talked about the split back then as party versus professional. You could waste a night, then put on the other face and become the responsible future business guy, and somehow that was supposed to add up to a life. I could see enough to sneer at the path and never enough to leave it. Maybe I wanted the title and the room and the recognition, but not the obedience required to actually live that life.</p>
@@ -82,11 +87,11 @@ const post: BlogPost = {
 
     <p>This was prime concert-going time for me, and music still required effort then. You did not summon the entire recorded history of the world from a rectangle in your hand while standing in line for coffee. You heard things from people. You borrowed records. You made tapes. You bought something blind because the cover looked promising, or because some guy in a record store acted like you were an idiot for not already knowing it. There was no algorithm politely sanding the corners off your taste. You had to wander into things.</p>
 
-    <figure class="post-figure">
-      <img src="${bodyImageThree}" alt="A bright 1980s rock concert with a singer, band, stage lights, and a packed crowd." loading="lazy" decoding="async" />
-    </figure>
-
     <p>That is probably why the year sounds so scattered to me now. It refuses to sort. The Cult next to Whitney Houston. R.E.M. near Ratt. Prince and Megadeth living in the same twelve months and neither one asking the decade for permission. Tears for Fears making pop that sounded like world conquest with better production. The Replacements sounding like the truth had been drinking. Dire Straits taking six minutes to make adulthood sound expensive and lonely. Run-D.M.C. and LL Cool J making it very clear the future was not going to wait politely outside.</p>
+
+    <figure class="post-figure">
+      <img src="${bodyImageFour}" alt="Hands search through records beside concert stubs, headphones, and a cassette deck in a crowded 1985 music collection." loading="lazy" decoding="async" />
+    </figure>
 
     <p>And then there was Mellencamp, who did not let me off the hook. I did not need to be from a small town to understand "Small Town." I was in Indiana, in the middle of the Midwest, surrounded by exactly the kind of places that song was talking about whether they liked it or not. He still had enough rock in him to keep the songs from turning into postcards, and enough ache in him to know the postcards were lying. "Rain on the Scarecrow" was not mall nostalgia. It had dirt under its nails.</p>
 
