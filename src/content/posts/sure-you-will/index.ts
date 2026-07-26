@@ -3,19 +3,21 @@ import heroImage from './hero-image.webp';
 import cardImage from './card-image.webp';
 import bodyImageOne from './body-image-1.webp';
 import bodyImageTwo from './body-image-2.webp';
+import bodyImageThree from './body-image-3.webp';
+import bodyImageFour from './body-image-4.webp';
 
 const post: BlogPost = {
   slug: 'sure-you-will',
   title: 'Sure You Will',
   excerpt:
-    'A 1989 sidewalk promise, a friend calling bullshit, and the useful trap of saying the thing out loud before I\'m ready to back it up.',
+    "A 1989 sidewalk promise, a friend calling bullshit, and the useful trap of saying the thing out loud before I'm ready to back it up.",
   section: 'diary',
   publishedAt: '2026-06-16',
   status: 'Recent',
   heroImage,
-  heroAlt: 'Young adults on a nighttime Chicago sidewalk as motorcycles pass under streetlights.',
+  heroAlt: 'A group of young adults on a 1989 Chicago sidewalk as motorcycles pass and one friend reacts skeptically to another’s declaration.',
   cardImage,
-  cardAlt: 'Two young men face each other on a nighttime city sidewalk with motorcycle headlights blurred behind them.',
+  cardAlt: 'Two young men on a Chicago sidewalk, one pointing after a motorcycle while the other gives him a skeptical sideways look.',
   bodyHtml: `
     <p>I dream out loud constantly. I&#x27;ll see something I want and announce it to whoever&#x27;s standing there — not because saying it makes it real, but because once it&#x27;s out, I&#x27;m stuck with it. Somebody heard me. Now there&#x27;s a witness.</p>
 
@@ -29,7 +31,7 @@ const post: BlogPost = {
 
 
     <figure class="post-figure">
-      <img src="${bodyImageOne}" alt="A young man stands at a gritty nighttime city corner while motorcycles streak past under purple neon." loading="lazy" decoding="async" />
+      <img src="${bodyImageOne}" alt="Two motorcycles stand in a cramped garage, including an older Sportster with its unusual foot controls visible." loading="lazy" decoding="async" />
     </figure>
 
     <p>I&#x27;ve done this my whole life. It isn&#x27;t vision-boarding and it isn&#x27;t manifesting. I&#x27;m not disciplined and I&#x27;m not patient. What I can&#x27;t stand is being the guy who said the thing and didn&#x27;t do it — so I say it on purpose, in front of people who&#x27;ll remember, and then I&#x27;ve got no choice but to go become the guy who can back it up.</p>
@@ -38,16 +40,24 @@ const post: BlogPost = {
 
 
     <figure class="post-figure">
-      <img src="${bodyImageTwo}" alt="An older man looks back over a layered memory of young men, motorcycles, and a nighttime city street." loading="lazy" decoding="async" />
+      <img src="${bodyImageTwo}" alt="A sketched figure follows the path created by his own words out of a corner he made for himself." loading="lazy" decoding="async" />
     </figure>
 
     <p>But here&#x27;s the part that actually mattered, and it took me years to see it: none of it works without Kell calling it. He didn&#x27;t nod along and tell me that was awesome. He took what I&#x27;d said and held it up against what he knew about my actual life — no money, nothing behind it — and the math didn&#x27;t work, so he said so. Without that, there&#x27;s no corner to fight out of. Just a guy talking on a sidewalk while everybody nods.</p>
+
+    <figure class="post-figure">
+      <img src="${bodyImageThree}" alt="People nod politely around a table while an empty chair casts the shadow of someone giving a challenging sideways look." loading="lazy" decoding="async" />
+    </figure>
 
     <p>That&#x27;s what I miss. People who&#x27;d test what you said against what you actually did. It wasn&#x27;t pretty, it was unfair as hell half the time, and nobody was managing your feelings while they did it. But it kept you honest. You couldn&#x27;t float around on your own talk, because somebody in the room would put your feet back on the ground before you got too high off the sound of your own voice.</p>
 
     <p>Nobody does that to me anymore. We all got older. The guys I came up with would&#x27;ve called it the second it left my mouth — that&#x27;s just what young guys did to each other, and it kept everybody honest without anybody calling it that. Now the rooms are polite. Everybody&#x27;s supportive, everybody&#x27;s proud, and when I say I&#x27;m going to do something the whole table just nods. &quot;You got this&quot; is free. Calling bullshit costs something, sometimes a friendship, and somewhere along the way everybody quietly stopped being willing to spend it. I miss it more than I expected to.</p>
 
     <p>So I&#x27;ll spend it on myself, out loud, in front of you. I&#x27;m building a course. I&#x27;m going to slow-travel the world with my two youngest kids. I&#x27;m putting Life Education out where people can read it and tell me it&#x27;s garbage. All of it announced before I&#x27;m anywhere near ready — because I know my own mouth. I know exactly how good I am at sounding like a man who&#x27;s about to do something.</p>
+
+    <figure class="post-figure">
+      <img src="${bodyImageFour}" alt="An older man works among course plans, a world map, two small travel backpacks, and an unfinished website draft." loading="lazy" decoding="async" />
+    </figure>
 
     <p>So look at me sideways and tell me &quot;sure you will.&quot; Tell me I&#x27;m full of shit. You&#x27;d be doing me a favor.</p>
   `,
