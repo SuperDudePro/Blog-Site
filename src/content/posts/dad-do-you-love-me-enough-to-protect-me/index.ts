@@ -1,7 +1,10 @@
 import type { BlogPost } from '../../postTypes';
-import topImage from './top-billboard-crop.png';
-import acmeBillboardImage from './inline-acme-billboard.png';
-import crosswalkImage from './inline-school-crosswalk.webp';
+import cardImage from './card-image.webp';
+import heroImage from './hero-image.webp';
+import bodyImageOne from './body-image-1.webp';
+import bodyImageTwo from './body-image-2.webp';
+import bodyImageThree from './body-image-3.webp';
+import bodyImageFour from './body-image-4.webp';
 
 const post: BlogPost = {
   slug: 'dad-do-you-love-me-enough-to-protect-me',
@@ -11,12 +14,12 @@ const post: BlogPost = {
   section: 'diary',
   publishedAt: '2026-05-01',
   status: 'Recent',
-  heroImage: topImage,
+  heroImage,
   heroAlt:
-    'Close crop of a glowing child-safety billboard with a teddy bear and purple tracking accents in a dark school-zone scene.',
-  cardImage: topImage,
+    'Two anonymous men on a lopsided 1990s Boulder couch watching a CRT news report about tracking chips, surrounded by pagers, cassette tapes, and wet ski gloves.',
+  cardImage,
   cardAlt:
-    'Glowing child-safety billboard with a teddy bear, shield icon, and restrained purple accents.',
+    'A teddy bear and child-tracking phone connected by a purple product tether as an adult hand hovers over the purchase button.',
   bodyHtml: `
     <p>In the ’90s, I was sunk into a lopsided couch off 6th and Pearl in Boulder, watching the local news through a haze of bong water, thrift-store patchouli, wet ski gloves, and whatever else we had decided counted as an evening.</p>
     <p>We’d flip between news and reruns, argue about whether The Sink or Dot’s Diner had the better hangover eggs, and stare out at the Flatirons like they were trying to tell us something. That night, two stories ran together in my memory: pets getting microchipped and some breathless segment about barcodes for people.</p>
@@ -38,7 +41,7 @@ const post: BlogPost = {
     <p>The product won’t look like dystopia. That would be bad branding.</p>
     <p>It’ll look like love.</p>
     <figure class="post-figure">
-      <img src="${acmeBillboardImage}" alt="Dystopian city street with a polished child-safety billboard promising peace of mind while a toy wagon and child shoe sit in the foreground." loading="lazy" decoding="async" />
+      <img src="${bodyImageOne}" alt="An anonymous parent in a bright kitchen studies a child-tracking app beside a teddy bear package and packed school lunch." loading="lazy" decoding="async" />
       <figcaption>It never arrives looking like control. It arrives looking soft, safe, and responsible.</figcaption>
     </figure>
     <p>Then the stories will come.</p>
@@ -53,11 +56,18 @@ const post: BlogPost = {
     <p><strong>This child was lost because the parents said no.</strong></p>
     <p>That’s the whole sales pitch.</p>
     <p>One halo.<br />One horror.<br />Then the line around the block.</p>
+    <figure class="post-figure">
+      <img src="${bodyImageTwo}" alt="Contrasting news scenes show a celebrated tracking-assisted rescue beside an empty podium and child’s shoe surrounded by accusing microphones." loading="lazy" decoding="async" />
+    </figure>
     <p>You don’t need a mandate right away. Mandates are clumsy. Mandates make people notice the door closing.</p>
     <p>Defaults work better.</p>
     <p>At first, it’s optional. Then it’s recommended. Then it’s built into the pediatric intake form. Then schools ask about it. Then insurance offers a discount. Then daycare charges a little more if your kid isn’t enrolled in the “enhanced safety system.” Then stadiums and airports and camps create fast lanes. Then “opting out” starts to feel less like a choice and more like making your child walk through life without shoes.</p>
     <p>No one forces you.</p>
     <p>They just make “no” expensive, suspicious, and inconvenient.</p>
+    <figure class="post-figure">
+      <img src="${bodyImageThree}" alt="A child’s backpack passes through medical, school, insurance, daycare, and travel checkpoints connected by one purple tracking thread." loading="lazy" decoding="async" />
+      <figcaption>The question is not whether parents love their kids. The question is what we normalize in the name of that love.</figcaption>
+    </figure>
     <p>That’s how the trap works.</p>
     <p>And the worst part is that the technology will probably help sometimes.</p>
     <p>That’s what makes the argument hard.</p>
@@ -70,10 +80,6 @@ const post: BlogPost = {
     <p>But zero risk is where freedom goes to die.</p>
     <p>Kids need protection. They also need room. They need to become people away from the dashboard. They need to make dumb choices, have private thoughts, go places their parents don’t instantly know about, and grow into adults who are not permanently legible to every company, school, insurer, cop, and bored administrator with a login.</p>
     <p>Privacy is not a crime plan.</p>
-    <figure class="post-figure">
-      <img src="${crosswalkImage}" alt="Moody grayscale school-zone crosswalk at dusk with a lone child watching classmates cross beneath a glowing child-safety billboard with subtle purple accents." loading="lazy" decoding="async" />
-      <figcaption>The question is not whether parents love their kids. The question is what we normalize in the name of that love.</figcaption>
-    </figure>
     <p>Privacy is part of growing up.</p>
     <p>A kid deserves some untracked space before the world starts converting him into data. A teenager deserves some room to be stupid without a permanent record of every route, pause, mistake, and association. An adult deserves to look back on childhood as a life, not as a searchable event log.</p>
     <p>But that’s not how the sales copy will frame it.</p>
@@ -119,6 +125,9 @@ const post: BlogPost = {
     <p>Everyone has something to hide.</p>
     <p>A route.<br />A crush.<br />A fight.<br />A bad afternoon.<br />A place you went because you needed to be alone.<br />A friend your parents don’t like.<br />A mistake that should have disappeared into memory instead of becoming metadata.</p>
     <p>A child’s life should not begin as evidence.</p>
+    <figure class="post-figure">
+      <img src="${bodyImageFour}" alt="An anonymous teenager walks beyond the end of a purple tracking route while a parent’s phone remains in the foreground." loading="lazy" decoding="async" />
+    </figure>
     <p>That’s my line.</p>
     <p>Not “never use technology.” Not “smash the machines.” Not “every safety tool is tyranny.” That’s too easy, and it isn’t true.</p>
     <p>My line is this:</p>
