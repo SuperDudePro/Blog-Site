@@ -8,31 +8,36 @@ import bodyImageFour from './body-image-4.webp';
 
 const post: BlogPost = {
   slug: 'three-straight-2-aerosmith',
-  title: 'Three Straight No. 2: Aerosmith Had Four',
+  title: 'Straight Greats No. 2: Aerosmith Had Four',
   excerpt:
-    "Aerosmith's first four albums created two qualifying Three Straight runs—and bought the band decades of loyalty from an eleven-year-old saving for his first stereo.",
+    "Aerosmith's first four albums earn four Certified skulls—and bought the band decades of loyalty from an eleven-year-old saving for his first stereo.",
   section: 'music-playlists',
   publishedAt: '2026-07-25',
   status: 'Recent',
   heroImage,
   heroAlt:
-    "Charcoal-and-purple sketch of an eleven-year-old boy admiring a turntable, receiver, 8-track player, and detached speakers in a 1976 mall stereo store.",
+    "Distressed black, gold, cream, and purple Straight Greats poster certifying Aerosmith's first four albums as a clean sweep.",
   cardImage,
   cardAlt:
     "Charcoal sketch with restrained purple highlights of a boy beside a turntable, surrounded by four hand-lettered record sleeves representing Aerosmith's 1973–1976 album run.",
   bodyHtml: `
-    <p>The series is called <strong>Three Straight</strong>, and we’re already bending the rule on the second post.</p>
+    <p><strong>STRAIGHT GREATS</strong></p>
 
-    <p>Aerosmith made four great albums in a row, which gives them two different qualifying runs:</p>
+    <p><strong>FOUR STRAIGHT</strong></p>
 
-    <ol>
-      <li><em>Aerosmith</em>, <em>Get Your Wings</em>, and <em>Toys in the Attic</em></li>
-      <li><em>Get Your Wings</em>, <em>Toys in the Attic</em>, and <em>Rocks</em></li>
-    </ol>
+    <p><strong>☠☠☠☠ 4 CERTIFIED</strong></p>
 
-    <p>Leaving one of them out just to protect the name of the series would be stupid, so we’re doing all four.</p>
+    <h2>Aerosmith</h2>
 
-    <p>I understand that the first album is where people may argue with me. That’s fine. I’m counting it.</p>
+    <p><em>Aerosmith</em> · <em>Get Your Wings</em> · <em>Toys in the Attic</em> · <em>Rocks</em></p>
+
+    <p>Straight Greats is the series for artists who put together runs of nearly perfect albums, one after another. Some make it to three. A few go further. The point isn’t whether every sane person on earth has to agree. The point is that a run holds up start to finish, album after album, with no dead weight and no charity required.</p>
+
+    <p>This one gets four certified skulls: <em>Aerosmith</em>, <em>Get Your Wings</em>, <em>Toys in the Attic</em>, and <em>Rocks</em>. All four clear the line clean.</p>
+
+    <p>The debut is where people may argue with me. That’s fine. Throw it out and the next three are still an easy Straight Greats run. I’m not throwing it out.</p>
+
+    <p>No asterisk. No mercy ruling. Four albums, all good from beginning to end. And because this is now official, Aerosmith may fill out the contact form to claim its badge.</p>
 
     <p>The four albums came out in a little more than three years:</p>
 
@@ -43,9 +48,7 @@ const post: BlogPost = {
       <li><em>Rocks</em> — 1976</li>
     </ul>
 
-    <p>Four albums, all good from beginning to end.</p>
-
-    <p>That’s not just Three Straight. It’s showing off.</p>
+    <p>Three would have been enough. Four is showing off.</p>
 
     <h2><em>Aerosmith</em> — 1973</h2>
 
