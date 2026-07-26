@@ -4,31 +4,40 @@ import cardImage from './card-image.webp';
 import bodyImageOne from './body-image-1.webp';
 import bodyImageTwo from './body-image-2.webp';
 import bodyImageThree from './body-image-3.webp';
+import bodyImageFour from './body-image-4.webp';
 
 const post: BlogPost = {
   slug: 'three-straight-1-radiohead',
-  title: 'Three Straight No. 1: Radiohead',
+  title: 'Straight Greats No. 1: Radiohead',
   excerpt:
-    'Radiohead opened the Three Straight series with The Bends, OK Computer, and Kid A: three consecutive albums, three different versions of the band, and nothing to skip.',
+    'Radiohead opens Straight Greats with The Bends, OK Computer, and Kid A: three consecutive albums, three different versions of the band, and three Certified skulls.',
   section: 'music-playlists',
   publishedAt: '2026-07-23',
   status: 'Recent',
   heroImage,
   heroAlt:
-    "Original charcoal-and-purple triptych representing Radiohead's run from The Bends through OK Computer and Kid A.",
+    "Distressed black, cream, gold, and neon-purple Straight Greats poster certifying Radiohead's run of The Bends, OK Computer, and Kid A as a three-album clean sweep.",
   cardImage,
   cardAlt:
-    'Our Old Dad purple-and-charcoal series card for Three Straight No. 1: Radiohead, featuring three original illustrated panels inspired by The Bends, OK Computer, and Kid A.',
+    'Distressed black, cream, gold, and purple Straight Greats No. 1 card for Radiohead, dated 1995, 1997, and 2000.',
   bodyHtml: `
-    <p>The idea behind <strong>Three Straight</strong> is pretty simple.</p>
+    <p><strong>STRAIGHT GREATS</strong></p>
 
-    <p>Pick a band or singer and find three consecutive albums that are great from beginning to end. Not three albums that contain enough good songs to make one excellent playlist. Not one masterpiece surrounded by two respectable efforts. Three straight albums you can put on, start at the beginning, and let play without waiting through the filler to get back to the good part.</p>
+    <p><strong>THREE STRAIGHT</strong></p>
 
-    <p>It sounds easy until you start trying to name them.</p>
+    <p><strong>☠☠☠ 3 CERTIFIED</strong></p>
 
-    <p>Even great bands usually leave something behind: an album that runs out of gas near the end, a song that clearly should've been a B-side, or an experimental detour everyone agrees to call interesting because nobody wants to admit they always skip it.</p>
+    <h2>Radiohead</h2>
 
-    <p>Doing it once is hard. Doing it three times in a row is something else.</p>
+    <p><em>The Bends</em> · <em>OK Computer</em> · <em>Kid A</em></p>
+
+    <p>Straight Greats is the series for artists who put together runs of nearly perfect albums, one after another. Some make it to three. A few go further. The point isn't whether every sane person on earth has to agree. The point is that a run holds up start to finish, album after album, with no dead weight and no charity required.</p>
+
+    <p>Radiohead gets three Certified skulls for three albums that could hardly sound less alike and still belong to the same band: <em>The Bends</em>, <em>OK Computer</em>, and <em>Kid A</em>.</p>
+
+    <p>Certified means each one clears the line clean from beginning to end. No asterisk. No mercy ruling.</p>
+
+    <p>And because this is now official, Radiohead is welcome to fill out the contact form to claim its badge.</p>
 
     <p>For the first one, we could've gone back to the 1960s or 1970s, where these conversations usually begin. There are plenty of obvious candidates there, and we'll get to them. Instead, we're starting in the 1990s with something a little less expected.</p>
 
@@ -45,7 +54,7 @@ const post: BlogPost = {
     <p>&ldquo;Planet Telex&rdquo; opens the record by making it clear that Radiohead wasn't going to spend the rest of its career trying to rewrite &ldquo;Creep.&rdquo; Then come &ldquo;High and Dry,&rdquo; &ldquo;Fake Plastic Trees,&rdquo; &ldquo;Just,&rdquo; &ldquo;My Iron Lung,&rdquo; and &ldquo;Black Star.&rdquo; The album closes with &ldquo;Street Spirit,&rdquo; which somehow sounds beautiful and hopeless at the same time.</p>
 
     <figure class="post-figure">
-      <img src="${bodyImageOne}" alt="Original charcoal-and-purple sketch of a guitarist caught inside a surge of electric energy, inspired by the emotional force of The Bends." loading="lazy" decoding="async" />
+      <img src="${bodyImageOne}" alt="Bright charcoal sketch of an anonymous guitarist leaning into an electric guitar as amplifier lines surge across light paper, representing The Bends." loading="lazy" decoding="async" />
       <figcaption><em>The Bends</em>: the guitar record, except that description isn't nearly big enough.</figcaption>
     </figure>
 
@@ -64,7 +73,7 @@ const post: BlogPost = {
     <p>&ldquo;Airbag&rdquo; leads into &ldquo;Paranoid Android,&rdquo; which should be too complicated and too strange to work as well as it does. &ldquo;Let Down&rdquo; may be the prettiest song on the record. &ldquo;Karma Police&rdquo; sounds almost conventional until it doesn't. &ldquo;No Surprises&rdquo; wraps complete exhaustion in something that could almost pass for a lullaby, and &ldquo;Lucky&rdquo; sounds like the end of the world with a guitar solo.</p>
 
     <figure class="post-figure">
-      <img src="${bodyImageTwo}" alt="Original charcoal-and-purple sketch of a lone person inside a layered urban machine of roads, trains, towers, and surveillance, inspired by OK Computer." loading="lazy" decoding="async" />
+      <img src="${bodyImageTwo}" alt="Bright charcoal sketch of a lone figure facing an anxious city of roads, towers, wires, signals, and surveillance, representing OK Computer." loading="lazy" decoding="async" />
       <figcaption><em>OK Computer</em> doesn't feel like a collection of songs. It feels like entering a world.</figcaption>
     </figure>
 
@@ -85,7 +94,7 @@ const post: BlogPost = {
     <p>&ldquo;The National Anthem&rdquo; lurches forward until the horns seem to be fighting each other. &ldquo;How to Disappear Completely&rdquo; may be one of the most emotionally overwhelming songs they ever recorded. &ldquo;Idioteque&rdquo; sounds panicked and mechanical at the same time. &ldquo;Motion Picture Soundtrack&rdquo; closes the album like something disappearing beneath the water.</p>
 
     <figure class="post-figure">
-      <img src="${bodyImageThree}" alt="Original charcoal-and-purple sketch of a solitary figure in a cold, glitched mountain landscape, inspired by the disorienting world of Kid A." loading="lazy" decoding="async" />
+      <img src="${bodyImageThree}" alt="Bright charcoal sketch of a pale mountain range breaking into offset lines and sparse purple pixel fragments, representing Kid A." loading="lazy" decoding="async" />
       <figcaption><em>Kid A</em>: cold, strange, disorienting, and completely its own environment.</figcaption>
     </figure>
 
@@ -119,13 +128,18 @@ const post: BlogPost = {
 
     <p>It was a small, morally flexible record-store economy, powered by the fact that there was always another album we needed.</p>
 
+    <figure class="post-figure">
+      <img src="${bodyImageFour}" alt="Bright charcoal sketch of a late-1990s CD burner, blank disc, jewel cases, record-store bag, and store-credit slip illustrating a buy-copy-trade cycle." loading="lazy" decoding="async" />
+      <figcaption>Buy, copy, trade, repeat: a small, morally flexible record-store economy.</figcaption>
+    </figure>
+
     <p>I still made cassette mixtapes, but recordable CDs changed the scale of the operation. You could keep the music while cycling the same limited amount of money back through the store.</p>
 
     <p>Then you put the album on and listened to the entire thing.</p>
 
     <p>With these three, that was exactly the point.</p>
 
-    <h2>Three Straight</h2>
+    <h2>Straight Greats</h2>
 
     <p>Three albums released between 1995 and 2000. Three completely different versions of the same band.</p>
 
@@ -135,7 +149,7 @@ const post: BlogPost = {
 
     <p><em>Kid A</em> proved it didn't have to keep making either one.</p>
 
-    <p>That's three straight.</p>
+    <p>That's a clean sweep: three Certified skulls.</p>
 
     <div class="post-links">
       <a class="button button--primary" href="https://www.youtube.com/playlist?list=PLEo7Vn003Ekw" target="_blank" rel="noreferrer">Watch on YouTube</a>
