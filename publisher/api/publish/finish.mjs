@@ -1,10 +1,27 @@
 import { requirePublisher } from '../../lib/auth.mjs';
 import { repoRequest } from '../../lib/github.mjs';
 import { json, method, readJson } from '../../lib/http.mjs';
-import { compareDestination, listDestinationFiles } from '../../lib/repository.mjs';
+import { buildTreeEntries, compareDestination, listDestinationFiles } from '../../lib/repository.mjs';
 import { branchFor, safeRelative, validateManifest } from '../../lib/validation.mjs';
 
 const summaryLine = (label, files) => `- ${label}: ${files.length}${files.length ? ` — ${files.map((file) => `\`${file}\``).join(', ')}` : ''}`;
+
+function stageError(stage, error) {
+  const wrapped = new Error(`${stage}: ${error.message}`);
+  wrapped.status = error.status || 400;
+  wrapped.code = error.code;
+  wrapped.details = error.details;
+  wrapped.stage = stage;
+  return wrapped;
+}
+
+async function atStage(stage, operation) {
+  try {
+    return await operation();
+  } catch (error) {
+    throw stageError(stage, error);
+  }
+}
 
 export default async function handler(request, response) {
   if (!method(request, response, 'POST')) return;
@@ -16,12 +33,12 @@ export default async function handler(request, response) {
     if (!session || session.repository !== manifest.repository || session.slug !== manifest.slug || session.destinationPath !== manifest.destinationPath) throw new Error('The publishing session does not match this package.');
     if (!Array.isArray(blobs) || !blobs.length) throw new Error('No uploaded production files were supplied.');
 
-    const repository = await repoRequest(manifest.repository, '');
+    const repository = await atStage('load-repository', () => repoRequest(manifest.repository, ''));
     const baseBranch = repository.default_branch || 'main';
-    const reference = await repoRequest(manifest.repository, `/git/ref/heads/${encodeURIComponent(baseBranch)}`);
+    const reference = await atStage('load-base-reference', () => repoRequest(manifest.repository, `/git/ref/heads/${encodeURIComponent(baseBranch)}`));
     const baseCommitSha = reference.object.sha;
-    const commit = await repoRequest(manifest.repository, `/git/commits/${baseCommitSha}`);
-    const existingFiles = await listDestinationFiles(manifest.repository, commit.tree.sha, manifest.destinationPath);
+    const commit = await atStage('load-base-commit', () => repoRequest(manifest.repository, `/git/commits/${baseCommitSha}`));
+    const existingFiles = await atStage('list-destination-files', () => listDestinationFiles(manifest.repository, commit.tree.sha, manifest.destinationPath));
 
     const uploadedFiles = blobs.map((blob) => {
       if (!blob.sha || !blob.path) throw new Error('An uploaded file is missing its path or blob SHA.');
@@ -31,36 +48,28 @@ export default async function handler(request, response) {
 
     const comparison = compareDestination(existingFiles, uploadedFiles);
     const operation = existingFiles.length ? 'replace' : 'create';
-    const tree = [
-      ...uploadedFiles.map((blob) => ({
-        path: `${manifest.destinationPath}${blob.path}`,
-        mode: '100644',
-        type: 'blob',
-        sha: blob.sha,
-      })),
-      ...comparison.deleted.map((path) => ({
-        path: `${manifest.destinationPath}${path}`,
-        sha: null,
-      })),
-    ];
+    const tree = buildTreeEntries(manifest.destinationPath, uploadedFiles, comparison.deleted);
+    if (!tree.length) throw new Error('The Git tree would be empty.');
 
-    const createdTree = await repoRequest(manifest.repository, '/git/trees', {
+    const createdTree = await atStage('create-tree', () => repoRequest(manifest.repository, '/git/trees', {
       method: 'POST',
       body: { base_tree: commit.tree.sha, tree },
-    });
+    }));
+    if (!createdTree?.sha) throw new Error('create-tree: GitHub returned no tree SHA.');
 
     const verb = operation === 'replace' ? 'Update' : 'Publish';
     const message = `${verb} ${manifest.title}`;
-    const createdCommit = await repoRequest(manifest.repository, '/git/commits', {
+    const createdCommit = await atStage('create-commit', () => repoRequest(manifest.repository, '/git/commits', {
       method: 'POST',
       body: { message, tree: createdTree.sha, parents: [baseCommitSha] },
-    });
+    }));
+    if (!createdCommit?.sha) throw new Error('create-commit: GitHub returned no commit SHA.');
 
     const branch = branchFor(manifest.slug);
-    await repoRequest(manifest.repository, '/git/refs', {
+    await atStage('create-branch', () => repoRequest(manifest.repository, '/git/refs', {
       method: 'POST',
       body: { ref: `refs/heads/${branch}`, sha: createdCommit.sha },
-    });
+    }));
 
     const changeSummary = [
       summaryLine('Added', comparison.added),
@@ -69,7 +78,7 @@ export default async function handler(request, response) {
       summaryLine('Deleted', comparison.deleted),
     ].join('\n');
 
-    const pullRequest = await repoRequest(manifest.repository, '/pulls', {
+    const pullRequest = await atStage('create-pull-request', () => repoRequest(manifest.repository, '/pulls', {
       method: 'POST',
       body: {
         title: message,
@@ -78,7 +87,7 @@ export default async function handler(request, response) {
         draft: true,
         body: `## What changed\n\n${operation === 'replace' ? 'Replaces the complete existing post folder' : 'Publishes a new post folder'} for **${manifest.title}** from an approved Wilbert Publisher package.\n\n- Operation: **${operation === 'replace' ? 'Update existing post' : 'Publish new post'}**\n- Slug: \`${manifest.slug}\`\n- Destination: \`${manifest.destinationPath}\`\n- Canonical URL: ${manifest.canonicalUrl}\n\n## Folder comparison\n\n${changeSummary}\n\n## Publisher controls\n\n- Package contract passed in the browser\n- The uploaded drop-in folder was treated as authoritative for this destination only\n- Stale files were deleted only from \`${manifest.destinationPath}\`\n- Production assets were committed atomically through the GitHub API\n- GitHub Actions and Vercel must pass before merge\n- Production merge remains manual\n`,
       },
-    });
+    }));
 
     return json(response, 200, {
       ok: true,
@@ -94,6 +103,17 @@ export default async function handler(request, response) {
       },
     });
   } catch (error) {
-    return json(response, error.status || 400, { error: error.message, code: error.code, details: error.details });
+    console.error('[publish/finish] failed', {
+      stage: error.stage || 'unknown',
+      message: error.message,
+      code: error.code,
+      details: error.details,
+    });
+    return json(response, error.status || 400, {
+      error: error.message,
+      stage: error.stage || 'unknown',
+      code: error.code,
+      details: error.details,
+    });
   }
 }

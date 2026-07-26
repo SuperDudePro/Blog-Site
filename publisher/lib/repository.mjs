@@ -39,3 +39,21 @@ export function compareDestination(existingFiles, uploadedFiles) {
     deleted: deleted.sort(),
   };
 }
+
+export function buildTreeEntries(destinationPath, uploadedFiles, deletedPaths) {
+  const prefix = String(destinationPath || '').replace(/^\/+/, '').replace(/\/?$/, '/');
+  return [
+    ...uploadedFiles.map((file) => ({
+      path: `${prefix}${safeRelative(file.path)}`,
+      mode: '100644',
+      type: 'blob',
+      sha: file.sha,
+    })),
+    ...deletedPaths.map((path) => ({
+      path: `${prefix}${safeRelative(path)}`,
+      mode: '100644',
+      type: 'blob',
+      sha: null,
+    })),
+  ];
+}
