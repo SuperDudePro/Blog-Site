@@ -16,11 +16,21 @@ const post: BlogPost = {
   status: 'Recent',
   heroImage,
   heroAlt:
-    'Wide charcoal illustration of Joe Walsh in a vintage Chicago radio studio connected by musical lines to a recording ranch in the Colorado mountains.',
+    'Black, cream, bright-gold, and neon-purple OOD Playlists banner for Joe Walsh: 34 Songs and a Familiar Kind of Crazy, with the bearded skull mascot, a record, and waveform ornaments.',
   cardImage,
   cardAlt:
     'Charcoal sketch of Joe Walsh wearing headphones and leaning toward a vintage radio microphone with a guitar beside him.',
   bodyHtml: `
+    <div class="post-center">
+      <strong>OOD PLAYLISTS</strong><br>
+      <strong>Joe Walsh: 34 Songs and a Familiar Kind of Crazy</strong><br>
+      <em>Thirty-four tracks from the James Gang through Barnstorm, the solo records, and a few additions outside the main sequence.</em><br>
+      34 TRACKS | ARTIST PLAYLIST
+    </div>
+    <p>OOD Playlists is where the songs get gathered by year, artist, mood, place, memory, or whatever else makes them belong together. The list matters, but the reason for the list is the post.</p>
+    <p>This one follows Joe Walsh from the James Gang through <em>Barnstorm</em>, the solo records, and a few additions that belong even if they sit outside the main sequence. The playlist runs chronologically enough to show how much more was happening beneath the jokes, the voice, and the guitar playing everybody already noticed.</p>
+    <p>The YouTube and YouTube Music links are waiting at the bottom. The story starts with Chicago radio, wanders through Caribou Ranch, and eventually arrives at two dusty &ldquo;bowling trophies&rdquo; that were not bowling trophies.</p>
+
     <p>Joe Walsh got into my head long before I knew much about the James Gang, <em>Barnstorm</em>, or most of the records represented on this playlist.</p>
 
     <p>Sometime in the early 1980s, Steve Dahl went on vacation and Walsh filled in for him on Chicago radio. I think he did it more than once, and I remember at least one stretch lasting a week or two, but forty-some years have made the details unreliable. I went looking for the exact dates and couldn&rsquo;t find them. I found enough to know I didn&rsquo;t invent the whole thing, which is about the best I can usually hope for with memories from high school.</p>
@@ -80,11 +90,7 @@ const post: BlogPost = {
 
     <p>By the time that final track ends, you&rsquo;ve either had enough Joe Walsh or you finally understand the point of the entire playlist.</p>
 
-    <p>Working through these albums also gave me another idea. I&rsquo;m thinking about starting a series called <strong>Three Straight</strong>, devoted to bands or artists who released three consecutive great albums all the way through.</p>
-
-    <p>Not three albums with enough good singles to create a greatest-hits collection. Three records you can put on at the beginning and let run without having to rescue the experience.</p>
-
-    <p>I already have a few candidates. I&rsquo;m sure people will explain why all of them are wrong.</p>
+    <p>If I missed the Joe Walsh song that makes the whole argument fall apart&mdash;or if you have another artist playlist I ought to build&mdash;<a href="/contact">send it through the contact page</a>. I&rsquo;m sure somebody will explain what I got wrong.</p>
 
     <p>Anyway, here are 34 songs and almost three hours of Joe Walsh. The hits are here, but they aren&rsquo;t really the reason I keep playing it.</p>
 
