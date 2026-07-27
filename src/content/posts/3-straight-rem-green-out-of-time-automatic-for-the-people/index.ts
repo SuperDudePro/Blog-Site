@@ -131,6 +131,11 @@ const post: BlogPost = {
     <p>Give me the artist and the consecutive studio albums you can play all the way through without doing maintenance—no strategic skips and no pretending the bad song is secretly brilliant because you love the band.</p>
 
     <p><a href="https://ourolddad.com/contact">Use the contact page</a> and tell me.</p>
+
+    <div class="post-links">
+      <a class="button button--primary" href="https://www.youtube.com/playlist?list=PLDZ_gxW_bbVE" target="_blank" rel="noreferrer">Watch on YouTube</a>
+      <a class="button button--ghost" href="https://music.youtube.com/playlist?list=PLDZ_gxW_bbVE" target="_blank" rel="noreferrer">Listen on YouTube Music</a>
+    </div>
   `,
 };
 
