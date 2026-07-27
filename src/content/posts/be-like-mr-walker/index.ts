@@ -1,6 +1,10 @@
 import type { BlogPost } from '../../postTypes';
-import shovelingTheBlock from './shoveling-the-block.jpg';
-import shovelAndBoots from './shovel-and-boots.jpg';
+import cardImage from './card-image.webp';
+import heroImage from './hero-image.webp';
+import bodyImage1 from './body-image-1.webp';
+import bodyImage2 from './body-image-2.webp';
+import bodyImage3 from './body-image-3.webp';
+import bodyImage4 from './body-image-4.webp';
 
 const post: BlogPost = {
   slug: 'be-like-mr-walker',
@@ -10,35 +14,44 @@ const post: BlogPost = {
   section: 'advice',
   publishedAt: '2026-04-27',
   status: 'Recent',
-  heroImage: shovelingTheBlock,
+  heroImage,
   heroAlt:
-    'A person shoveling a snow-cleared sidewalk at dusk in a quiet residential neighborhood, with a streetlamp glowing and houses lit warmly along the block.',
-  cardImage: shovelingTheBlock,
+    'A nearly ninety-year-old man shoveling a long North Boulder sidewalk before sunrise while the neighboring houses remain quiet.',
+  cardImage,
   cardAlt:
-    'A person shoveling a snow-cleared sidewalk at dusk, streetlamp glowing overhead, lit houses along the block.',
+    'An elderly neighbor shoveling someone else’s snowy sidewalk before dawn.',
   bodyHtml: `
-<p>Hey, Dudes! Years ago, I moved back down to Boulder from Nederland. I was still working full time at IBM and also doing work for a friend who owned a computer hardware wholesaler in Boston. Things were going pretty well for me then, if you take my disastrous love life out of the equation.</p>
+    <p>Hey, Dudes! Years ago, I moved back down to Boulder from Nederland. I was still working full time at IBM and also doing work for a friend who owned a computer hardware wholesaler in Boston. Things were going pretty well for me then, if you take my disastrous love life out of the equation.</p>
     <p>Looking back, I can see that the restlessness that brought me down from the mountains was about to disrupt everything completely. But I did not see that then. I just knew it was time. Or maybe more accurately, I just knew I was being directed.</p>
     <p>I rented a nice house in North Boulder, catty-corner from the open space that led to the North Boulder Rec Center. It was my first time living in that part of town, and I liked it.</p>
     <p>Next door lived a man named Mr. Walker. His family had owned the Walker Ranch that was later donated to the Boulder County open space program. He was close to ninety years old.</p>
     <p>At the time, I was living with a woman and her three-year-old son. The boy loved the original Willy Wonka and the Chocolate Factory. When he heard us say &ldquo;Mr. Walker,&rdquo; he thought we were saying &ldquo;Mr. Wonka,&rdquo; and naturally assumed the old man next door was, in fact, Mr. Wonka. I may have done very little to correct that misunderstanding.</p>
+    <figure class="post-figure">
+      <img src="${bodyImage1}" alt="A small boy waves excitedly at the elderly neighbor he mistakenly calls Mr. Wonka." loading="lazy" decoding="async" />
+    </figure>
     <p>So any time poor Mr. Walker was out in the yard, the boy would yell, &ldquo;Mr. Wonka! Mr. Wonka!&rdquo; and Mr. Walker, being Mr. Walker, just let him. He was always kind about it.</p>
     <p>Then one morning in December, I woke up and looked outside and saw Mr. Walker shoveling the sidewalk in front of my house.</p>
+    <figure class="post-figure">
+      <img src="${bodyImage2}" alt="A younger man looks through a frosted window and discovers his elderly neighbor shoveling the sidewalk outside." loading="lazy" decoding="async" />
+    </figure>
     <p>That got my attention.</p>
     <p>There I was, about thirty-one, healthy, strong, and asleep inside while my nearly ninety-year-old neighbor was outside shoveling my sidewalk. I did not make a speech to myself about it. I just knew it was not going to happen again.</p>
     <p>So after that, every time it snowed, I got up before dawn and shoveled. Not just my sidewalk. I started at our corner and worked my way down the block in both directions. Back then I was in a lot better shape than I am now, so I also did driveways and the walks up to people&rsquo;s houses. I did not want anybody to know it was me. I was trying to get it done before anyone else was up.</p>
+    <figure class="post-figure">
+      <img src="${bodyImage3}" alt="A bundled man quietly clears sidewalks and driveways along both sides of a snowy block before dawn." loading="lazy" decoding="async" />
+      <figcaption>Done before anyone else was up.</figcaption>
+    </figure>
     <p>One morning, while I was working my way down the block, a woman a few doors away came out and tried to give me money. I told her no thanks. It was my pleasure.</p>
     <p>She looked at me and said, &ldquo;You know what? You&rsquo;re just like Mr. Walker.&rdquo;</p>
+    <figure class="post-figure">
+      <img src="${bodyImage4}" alt="A neighbor offers money to the young man clearing her sidewalk, but he politely refuses payment." loading="lazy" decoding="async" />
+    </figure>
     <p>Then she said, &ldquo;I don&rsquo;t understand you guys.&rdquo;</p>
     <p>To be clear, she was not admiring me. She was making fun of me. She thought there was something wrong with doing all that work for no reason. No money. No recognition. No audience. Just cold hands, early hours, and effort spent on people who were still asleep.</p>
     <p>And that was the moment it all became clear to me.</p>
     <p>I realized that I did want to be like Mr. Walker, and I was ashamed that I wasn&rsquo;t.</p>
     <p>Every once in a while you get a moment like that, where what matters becomes obvious and a bunch of other things suddenly look cheap and pointless. It does not happen often. But when it does, you need to catch it.</p>
     <p>She meant it as an insult. Instead, she gave me one of the best compliments I have ever received.</p>
-    <figure class="post-figure">
-      <img src="${shovelAndBoots}" alt="A snow shovel leaning against a wooden porch column at night, beside a pair of worn work boots and leather gloves, with a soft glow from the doorway." loading="lazy" decoding="async" />
-      <figcaption>Done before anyone else was up.</figcaption>
-    </figure>
     <p>A lot of people can understand doing something good if there is some reward attached to it. Money. Praise. Credit. At least a thank you. But there is a different kind of person who will do what needs doing anyway.</p>
     <p>That was Mr. Walker.</p>
     <p>And that is the kind of person I want you to become.</p>
