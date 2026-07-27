@@ -8,23 +8,39 @@ import bodyImageFour from './body-image-4.webp';
 
 const post: BlogPost = {
   slug: '3-straight-rem-green-out-of-time-automatic-for-the-people',
-  title: '3 Straight: R.E.M. and the Years I Was Lost',
-  excerpt: 'Thirty-four songs. One and a half of them almost kept R.E.M. out.',
+  title: 'Straight Greats No. 3: R.E.M. and the Years I Was Lost',
+  excerpt:
+    'Three R.E.M. albums arrived at three moments when I was lost. Two clear the line clean; one survives a single strange, irritating detour.',
   section: 'music-playlists',
   publishedAt: '2026-07-26',
   status: 'Recent',
   heroImage,
-  heroAlt: 'A record groove becomes a winding road through offices, nighttime Chicago, and the mountains of Colorado.',
+  heroAlt:
+    'Straight Greats scorecard for R.E.M.: Green rated On the Edge, with Out of Time and Automatic for the People rated Certified.',
   cardImage,
   cardAlt: 'Charcoal sketch of a skull wearing headphones and holding three vinyl records.',
   bodyHtml: `
-    <p>Thirty-four songs. One and a half of them almost kept R.E.M. out.</p>
+    <p><strong>STRAIGHT GREATS</strong></p>
 
-    <p>The rules of 3 Straight are simple: three consecutive studio albums I can play all the way through without doing maintenance. No strategic skips. No pretending the bad song is secretly brilliant because I love the band. For R.E.M., this is the run that belongs to me:</p>
+    <p><strong>THREE STRAIGHT</strong></p>
 
-    <p><em>Green.</em><br />
-    <em>Out of Time.</em><br />
-    <em>Automatic for the People.</em></p>
+    <p><strong>☠☠ 2 CERTIFIED • 1 ON THE EDGE</strong></p>
+
+    <h2>R.E.M.</h2>
+
+    <p><em>Green</em> · <em>Out of Time</em> · <em>Automatic for the People</em></p>
+
+    <p>Straight Greats is the series for artists who put together runs of nearly perfect albums, one after another. Some make it to three. A few go further. The point isn’t whether every sane person on earth has to agree. The point is that a run holds up start to finish, album after album, with no dead weight and no charity required.</p>
+
+    <p><em>Out of Time</em> and <em>Automatic for the People</em> clear that line clean. <em>Green</em> doesn’t quite.</p>
+
+    <p>On today’s listen, “Turn You Inside-Out” moved to passing, and so did “Untitled.” “The Wrong Child” still doesn’t make it. It annoys me too much, and I’m not going to pretend otherwise just to make the scorecard prettier.</p>
+
+    <p>But it is strange, short, and self-contained enough to function almost like an interlude. If it annoyed me a little less, I’d just say yes. That keeps <em>Green</em> in the run, but it gets silver instead of a charity certification.</p>
+
+    <p><em>Out of Time</em> and <em>Automatic for the People</em> are Certified beyond any doubt.</p>
+
+    <p>R.E.M. may <a href="https://ourolddad.com/contact">fill out the contact form</a> to claim its badge.</p>
 
     <p>All thirty-four songs in album order: <a href="https://music.youtube.com/playlist?list=PLDZ_gxW_bbVE" target="_blank" rel="noreferrer">YouTube Music</a> · <a href="https://www.youtube.com/playlist?list=PLDZ_gxW_bbVE" target="_blank" rel="noreferrer">YouTube</a></p>
 
@@ -102,15 +118,17 @@ const post: BlogPost = {
 
     <p><em>Monster</em> came next, and for me it was a real drop. There are songs on it that I like, but the spell broke. Whatever R.E.M. had been building through these three records reached its peak on <em>Automatic for the People</em>, and that was the end of this run.</p>
 
-    <p>Across the thirty-four songs, only one song and half of another came close to fucking the whole thing up. I'm not naming them yet—if you know these albums, take a guess.</p>
-
     <p>Now when I play <em>Automatic for the People</em>, I'm back outside the house at Caribou. Margo is still running around inside my head, the album has just ended, and I'm putting it back on before I go out again.</p>
+
+    <p>Thirty-four songs. Thirty-three pass.</p>
+
+    <p>“The Wrong Child” isn't getting a mercy ruling. It is the reason <em>Green</em> gets silver instead of gold. But an interlude-sized interruption doesn't break this run—not when the other two albums are Certified beyond any doubt, and not when these are the three R.E.M. records that carried me through the years I was lost.</p>
 
     <h2>Your Turn</h2>
 
-    <p>What's your 3 Straight?</p>
+    <p>What's your Straight Greats run?</p>
 
-    <p>Give me the band and three consecutive studio albums you can play all the way through without doing maintenance—no strategic skips and no pretending the bad song is secretly brilliant because you love the band.</p>
+    <p>Give me the artist and the consecutive studio albums you can play all the way through without doing maintenance—no strategic skips and no pretending the bad song is secretly brilliant because you love the band.</p>
 
     <p><a href="https://ourolddad.com/contact">Use the contact page</a> and tell me.</p>
   `,
