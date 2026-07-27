@@ -1,6 +1,10 @@
 import type { BlogPost } from '../../postTypes';
-import heroDesk from './hero-writing-desk.webp';
-import patchImage from './dont-be-a-dick-patch.jpg';
+import cardImage from './card-image.webp';
+import heroImage from './hero-image.webp';
+import bodyImage1 from './body-image-1.webp';
+import bodyImage2 from './body-image-2.webp';
+import bodyImage3 from './body-image-3.webp';
+import bodyImage4 from './body-image-4.webp';
 
 const post: BlogPost = {
   slug: 'advice-1-dont-be-a-dick',
@@ -10,22 +14,28 @@ const post: BlogPost = {
   section: 'advice',
   publishedAt: '2026-04-27',
   status: 'Recent',
-  heroImage: heroDesk,
+  heroImage,
   heroAlt:
-    'A cozy writing desk with a notebook, coffee, and a warm old-dad advice-post mood.',
-  cardImage: patchImage,
+    'An older father writing a letter at his desk with two empty child-sized chairs nearby.',
+  cardImage,
   cardAlt:
-    'An embroidered circular patch with a smiling flower and the words DON’T BE A DICK.',
+    'A crooked advice card above a cluttered desk reading Don’t Be a Dick.',
   bodyHtml: `
     <p>Hey, dudes,</p>
     <p>If I’m going to do this, I should probably do it honestly.</p>
     <p>That’s harder than it sounds.</p>
     <p>It’s easy to be honest when you can hide behind a joke, or make yourself sound better than you are, or sand down the rough spots. It’s a lot harder to say things straight. I’ve got plenty of flaws, and if I’m not careful, they can take up more of the story than they should. Still, if I’m going to write to you, I don’t want to fake my way through it. So I’m going to try to tell the truth, even when it makes me look less polished than I’d like.</p>
     <p>Here’s one truth right away: I worry about how much time I’ll get with you.</p>
+    <figure class="post-figure">
+      <img src="${bodyImage1}" alt="A father’s writing hand beside an old watch and a small indistinct family photograph." loading="lazy" decoding="async" />
+    </figure>
     <p>My dad died when he was 53. My youngest sister was 16. I’m older now than he ever got to be, and you two aren’t even here yet. That does something to a man’s mind. It makes time feel precious, and a little loud. Part of the reason I’m writing this stuff down is because I want there to be something here for you someday. And if I’m lucky, really lucky, you’ll read this while I’m still around and still sharp enough to talk with you about it. If that happens, remind me how badly I wanted that.</p>
     <p>You’re coming into a family with a lot of love in it.</p>
     <p>You’re also coming into a family with a pretty solid history of getting things wrong.</p>
     <p>Your brother and sister got the full first-draft version of us as parents. They got the love, but they also got the trial and error. They got the parts where we were figuring it out in real time. So in some ways, getting the chance to raise you feels like a gift. A second shot. A chance to do some things better.</p>
+    <figure class="post-figure">
+      <img src="${bodyImage2}" alt="An adult steadies two small bicycles beside a messy stack of revised parenting notes." loading="lazy" decoding="async" />
+    </figure>
     <p>Of course, it also means I could make a whole new set of mistakes.</p>
     <p>That’s parenting. You try. You fail. You love hard. You hope the love covers more than the failures damage. You keep going.</p>
     <p>When I think about what I really want for you, it comes down to something simple: I hope you learn to listen to that quiet voice inside you. The one that usually knows better. The one that tells you when something is off, when something is right, when you’re about to cross a line, when you’re lying to yourself, when you need to be brave, and when you need to stop.</p>
@@ -36,12 +46,11 @@ const post: BlogPost = {
     <p><strong>Don’t be a dick.</strong></p>
     <p>That may sound like a joke, but I mean it.</p>
     <p>One day your sister Alexa and I were at Caribou Coffee, and they had one of those chalkboards up asking people to share a piece of advice. Alexa didn’t hesitate. She wrote: <strong>“Don’t be a dick.”</strong></p>
+    <figure class="post-figure">
+      <img src="${bodyImage3}" alt="A teenage girl writes Don’t Be a Dick on a coffee-shop advice chalkboard as her father watches." loading="lazy" decoding="async" />
+    </figure>
     <p>Her explanation was about as good as the advice itself. She said, basically: if there’s nothing else you can manage, at least manage that. The world does not need one more person acting like a dick. So don’t do it.</p>
     <p>That’s pretty solid. Honestly, it may be better than most of what you’ll hear dressed up in nicer words.</p>
-    <figure class="post-figure">
-      <img src="${patchImage}" alt="Embroidered circular patch with a smiling flower and the words DON’T BE A DICK." loading="lazy" decoding="async" />
-      <figcaption>These are real patches. I borrowed the image from the place selling them. No endorsement. I just think it says what it needs to say, and I kind of want one.</figcaption>
-    </figure>
     <p>A lot of life can be cleaned up if you start there.</p>
     <p>You don’t always have to be brilliant.</p>
     <p>You don’t always have to be first.</p>
@@ -52,6 +61,9 @@ const post: BlogPost = {
     <p>Try not to be cruel when you could be decent.</p>
     <p>Try not to be selfish when you could be generous.</p>
     <p>Try not to be careless with other people’s dignity.</p>
+    <figure class="post-figure">
+      <img src="${bodyImage4}" alt="A person chooses to hold a door for someone struggling with bags instead of speaking harshly." loading="lazy" decoding="async" />
+    </figure>
     <p>Try not to turn every bad mood into everyone else’s problem.</p>
     <p>You’ll know when you’re drifting in the wrong direction. Most of the time, people do know. They just hope they can get away with it. That quiet inner voice usually speaks up before the damage is done.</p>
     <p>Listen to it.</p>
