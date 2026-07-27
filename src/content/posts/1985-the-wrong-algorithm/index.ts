@@ -14,10 +14,24 @@ const post: BlogPost = {
   publishedAt: '2026-06-12',
   status: 'Recent',
   heroImage,
-  heroAlt: 'A college student walks across a 1985 campus between a house party, career ambitions, and live music.',
+  heroAlt: 'OOD Playlists artwork for 1985: The Wrong Algorithm with a bearded skull mascot, record, cassette, and purple and gold accents.',
   cardImage,
   cardAlt: 'A cassette’s loose tape traces a confused route across a campus map beside a Walkman and loosened business tie.',
   bodyHtml: `
+    <p><strong>OOD PLAYLISTS</strong></p>
+
+    <h2>1985: The Wrong Algorithm</h2>
+
+    <p><em>A Purdue time capsule about analog college life, scattered music, and getting good at the wrong game.</em></p>
+
+    <p><strong>YEAR PLAYLIST · SHUFFLE RECOMMENDED</strong></p>
+
+    <p>OOD Playlists is where the songs get gathered by year, artist, mood, place, memory, or whatever else makes them belong together. The list matters, but the reason for the list is the post.</p>
+
+    <p>This one exists because 1985 refuses to sort cleanly—either musically or personally. I was at Purdue, learning how to work a college system I didn’t respect while the year’s music bounced from the Cult to Whitney Houston, R.E.M. to Ratt, Prince to Megadeth.</p>
+
+    <p>The playlist should stay random because sorting it would lie. Memory didn’t arrive by genre, college didn’t arrive by genre, and neither did 1985.</p>
+
     <p>I was at Purdue in 1985, coming out of sophomore year and heading into junior year, which is a dangerous age if you are just smart enough to figure things out and nowhere near smart enough to know what they mean.</p>
 
     <p>That was the year I started cracking the college algorithm.</p>
@@ -121,8 +135,10 @@ const post: BlogPost = {
 
     <div class="post-links">
       <a class="button button--primary" href="https://www.youtube.com/playlist?list=PLJ-R3jWagtQg7RQ2IxTkCDqkQBI-boRNo" target="_blank" rel="noreferrer">Watch on YouTube</a>
-      <a class="button button--ghost" href="https://music.youtube.com/playlist?list=PLJ-R3jWagtQg7RQ2IxTkCDqkQBI-boRNo&amp;si=HTB8EtXMl0miRbeB" target="_blank" rel="noreferrer">Listen on YouTube Music</a>
+      <a class="button button--ghost" href="https://music.youtube.com/playlist?list=PLJ-R3jWagtQg7RQ2IxTkCDqkQBI-boRNo&si=HTB8EtXMl0miRbeB" target="_blank" rel="noreferrer">Listen on YouTube Music</a>
     </div>
+
+    <p>What belongs on your version of 1985, and what would you throw off mine? <a href="/contact">Use the contact page</a> and tell me.</p>
 
   `,
 };
