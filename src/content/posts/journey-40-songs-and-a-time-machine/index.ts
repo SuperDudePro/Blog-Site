@@ -15,7 +15,7 @@ const post: BlogPost = {
   publishedAt: '2026-04-22',
   status: 'Recent',
   heroImage,
-  heroAlt: 'Black, cream, neon-gold, and neon-purple OOD Playlists banner for Journey: 40 Songs and a Time Machine, with the bearded skull mascot, a record, and waveform ornaments.',
+  heroAlt: 'Black, cream, warm gold, and neon-purple OOD Playlists banner for Journey: 40 Songs and a Time Machine, with the bearded skull mascot, a record, and waveform ornaments.',
   cardImage,
   cardAlt: 'Pencil-sketch portrait of Steve Perry singing onstage beneath bright spotlights, with sparse purple accents and a crowd suggested below.',
   bodyHtml: `
