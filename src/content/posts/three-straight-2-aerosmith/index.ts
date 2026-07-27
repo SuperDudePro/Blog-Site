@@ -8,47 +8,51 @@ import bodyImageFour from './body-image-4.webp';
 
 const post: BlogPost = {
   slug: 'three-straight-2-aerosmith',
-  title: 'Straight Greats No. 2: Aerosmith Had Four',
+  title: 'Straight Greats No. 2: Aerosmith Had Six',
   excerpt:
-    "Aerosmith's first four albums earn four Certified skulls—and bought the band decades of loyalty from an eleven-year-old saving for his first stereo.",
+    "Aerosmith's first six albums all clear the line. The last two only felt like letdowns because the first four had made the band an eleven-year-old's main connection to rock and roll.",
   section: 'music-playlists',
   publishedAt: '2026-07-25',
   status: 'Recent',
   heroImage,
   heroAlt:
-    "Distressed black, gold, cream, and purple Straight Greats poster certifying Aerosmith's first four albums as a clean sweep.",
+    "Distressed black, gold, cream, and neon-purple Straight Greats poster certifying Aerosmith's first six albums as a clean sweep.",
   cardImage,
   cardAlt:
-    "Charcoal sketch with restrained purple highlights of a boy beside a turntable, surrounded by four hand-lettered record sleeves representing Aerosmith's 1973–1976 album run.",
+    "Bright charcoal sketch of an eighth-grade boy holding the new Draw the Line album in a department-store record display while his father reaches for his wallet, with six LP jackets marking the Aerosmith run.",
   bodyHtml: `
     <p><strong>STRAIGHT GREATS</strong></p>
 
-    <p><strong>FOUR STRAIGHT</strong></p>
+    <p><strong>SIX STRAIGHT</strong></p>
 
-    <p><strong>☠☠☠☠ 4 CERTIFIED</strong></p>
+    <p><strong>☠☠☠☠☠☠ 6 CERTIFIED</strong></p>
 
     <h2>Aerosmith</h2>
 
-    <p><em>Aerosmith</em> · <em>Get Your Wings</em> · <em>Toys in the Attic</em> · <em>Rocks</em></p>
+    <p><em>Aerosmith</em> · <em>Get Your Wings</em> · <em>Toys in the Attic</em> · <em>Rocks</em> · <em>Draw the Line</em> · <em>Night in the Ruts</em></p>
 
     <p>Straight Greats is the series for artists who put together runs of nearly perfect albums, one after another. Some make it to three. A few go further. The point isn’t whether every sane person on earth has to agree. The point is that a run holds up start to finish, album after album, with no dead weight and no charity required.</p>
 
-    <p>This one gets four certified skulls: <em>Aerosmith</em>, <em>Get Your Wings</em>, <em>Toys in the Attic</em>, and <em>Rocks</em>. All four clear the line clean.</p>
+    <p>This one gets six certified skulls: <em>Aerosmith</em>, <em>Get Your Wings</em>, <em>Toys in the Attic</em>, <em>Rocks</em>, <em>Draw the Line</em>, and <em>Night in the Ruts</em>. All six clear the line clean.</p>
 
-    <p>The debut is where people may argue with me. That’s fine. Throw it out and the next three are still an easy Straight Greats run. I’m not throwing it out.</p>
+    <p>I originally stopped at four. Then, while applying the new rating system, I almost put <em>Draw the Line</em> on the edge. That was wrong too. I was still grading the last two albums against the four records in front of them instead of grading them against the actual line.</p>
 
-    <p>No asterisk. No mercy ruling. Four albums, all good from beginning to end. And because this is now official, Aerosmith may fill out the contact form to claim its badge.</p>
+    <p>The last two aren’t as good as the first four. That isn’t the same as not being great. If you heard <em>Draw the Line</em> and <em>Night in the Ruts</em> without knowing the band was coming apart, you wouldn’t hear two records that needed charity. You’d hear a great rock band that had finally stopped winning the World Series every year.</p>
 
-    <p>The four albums came out in a little more than three years:</p>
+    <p>No asterisk. No mercy ruling. Six albums, all good from beginning to end. And because this is now official, Aerosmith may fill out the contact form to claim its badge.</p>
+
+    <p>The six albums came out in less than seven years:</p>
 
     <ul>
       <li><em>Aerosmith</em> — 1973</li>
       <li><em>Get Your Wings</em> — 1974</li>
       <li><em>Toys in the Attic</em> — 1975</li>
       <li><em>Rocks</em> — 1976</li>
+      <li><em>Draw the Line</em> — 1977</li>
+      <li><em>Night in the Ruts</em> — 1979</li>
     </ul>
 
-    <p>Three would have been enough. Four is showing off.</p>
+    <p>Three would have been enough. Four was showing off. Six requires an explanation.</p>
 
     <h2><em>Aerosmith</em> — 1973</h2>
 
@@ -64,7 +68,7 @@ const post: BlogPost = {
 
     <p>The roughness helps. Aerosmith still sounds like a band playing in a room, trying to prove it deserves another record.</p>
 
-    <p>People can reject the debut if they want. That still leaves <em>Get Your Wings</em> through <em>Rocks</em>, which is an easy Three Straight.</p>
+    <p>People can reject the debut if they want. That still leaves five straight albums from <em>Get Your Wings</em> through <em>Night in the Ruts</em>.</p>
 
     <p>I’m keeping the first one.</p>
 
@@ -118,6 +122,52 @@ const post: BlogPost = {
 
     <p>It’s also where I came in.</p>
 
+    <h2><em>Draw the Line</em> — 1977</h2>
+
+    <p>Without the internet, it was surprisingly easy not to know that a band had a new album coming. There wasn’t a release date following you around for three months. Sometimes you heard a song on the radio first. Sometimes somebody told you. Sometimes you walked into a department store and there it was in a display.</p>
+
+    <p>That’s how I found <em>Draw the Line</em>. I’m pretty sure I was in eighth grade. We were at a big department store in a mall, I saw the new Aerosmith album, and I begged my dad for the money to buy it.</p>
+
+    <p>I took it home expecting another <em>Rocks</em>.</p>
+
+    <p>That was the problem.</p>
+
+    <p>The title track comes tearing out of the speakers. “I Wanna Know Why” is Aerosmith doing exactly what I wanted Aerosmith to do. “Kings and Queens” is darker and stranger, “Sight for Sore Eyes” has the swagger, and “Milk Cow Blues” lets them go back to the material underneath everything they had built.</p>
+
+    <p>It was a strong record. It just wasn’t the fifth impossible record in a row.</p>
+
+    <p>At the time, that felt like a letdown. Looking back, it was like watching a team win the World Series four years in a row and then feeling disappointed because it only won the division the next year. The drop-off is real. So is how ridiculous the standard had become.</p>
+
+    <p><em>Draw the Line</em> doesn’t need to be as good as <em>Rocks</em> to be Certified. It has to hold up from beginning to end without a track I need to excuse. It does.</p>
+
+    <p>This is where the band’s collapse starts becoming part of the story. If you know what was happening, you can listen for the damage. If you don’t know, it still sounds like a great rock band making a very good record.</p>
+
+    <p>Certified.</p>
+
+    <h2><em>Night in the Ruts</em> — 1979</h2>
+
+    <p>In between came <em>Live! Bootleg</em>, which gave me another full dose of the band I had connected with in the first place. Then <em>Night in the Ruts</em> showed up when I was in ninth grade, and I bought that one when it came out too.</p>
+
+    <p>By then, the situation felt different even if I didn’t have all the information. Joe Perry left while the album was being finished, but there was no internet delivering daily reports from inside Aerosmith. Mostly, you knew what the album sounded like, what the radio chose to play, and whether anybody around you seemed to care.</p>
+
+    <p>Columbia made “Remember (Walking in the Sand)” the single, which pissed me off. I liked the song. That wasn’t the issue. It just wasn’t freshman-in-high-school cool, and it wasn’t the song you wanted representing Aerosmith when you were trying to believe the band was still dangerous.</p>
+
+    <p>Nobody was really mocking the album. Nobody was raving about it either. It arrived, I bought it, and the sense that Aerosmith was moving backward got a little harder to ignore.</p>
+
+    <p>But that’s the story around the record. The record itself is better than the story.</p>
+
+    <p>“No Surprize” and “Chiquita” open it hard. “Three Mile Smile,” “Reefer Head Woman,” and “Bone to Bone” all sound like Aerosmith, not a damaged imitation of Aerosmith. “Think About It” is one of my favorites on the album.</p>
+
+    <p>Then there’s “Mia.” I wasn’t automatically drawn to the slow song just because it closed an Aerosmith record. Even “Home Tonight” wasn’t the part of <em>Rocks</em> I was putting on to prove something. But “Mia” works. It sounds beautiful and exhausted at the same time, which turned out to be a pretty accurate place for the original band to end.</p>
+
+    <p>If I didn’t know Aerosmith was falling apart while it made <em>Night in the Ruts</em>, I’m not sure the album would tell me. It sounds more focused than the circumstances had any right to produce. Every song belongs, and the whole record moves.</p>
+
+    <p>It isn’t <em>Rocks</em>. Almost nothing is.</p>
+
+    <p>Certified.</p>
+
+    <p>What it created for me was a different problem: What do you do when your main connection to rock and roll is going backward?</p>
+
     <h2>Before Aerosmith</h2>
 
     <p>I didn’t have an older brother or sister bringing records home and telling me what I was supposed to like. My mom had to provide the starting point.</p>
@@ -162,7 +212,7 @@ const post: BlogPost = {
     <p>“Dream On” was one of the singles I brought home.</p>
 
     <figure class="post-figure">
-      <img src="${bodyImageTwo}" alt="Charcoal-and-purple sketch of a boy buying the Dream On single at the counter of Bilotti's shoe-repair shop and record counter in Palos Heights." loading="lazy" decoding="async" />
+      <img src="${bodyImageTwo}" alt="Charcoal-and-purple sketch of a boy buying the Dream On single at the counter of Bilotti’s shoe-repair shop and record counter in Palos Heights." loading="lazy" decoding="async" />
       <figcaption>Bilotti's: shoe repair, Top 100 singles, and apparently no reason those couldn't be the same business.</figcaption>
     </figure>
 
@@ -223,6 +273,8 @@ const post: BlogPost = {
 
     <h2>The Loyalty Those Albums Bought</h2>
 
+    <p>That question had started before the original lineup completely fell apart. Aerosmith had become my main connection to rock and roll, and now the band seemed to be moving in the wrong direction. I didn’t stop caring. I started learning how much bad news six great albums could survive.</p>
+
     <p>I saw Aerosmith many times, but by the time I was old enough to go to concerts regularly, I had missed the band at its most dangerous and probably its best.</p>
 
     <p>The original version was falling apart. The drugs and damage were catching up with everybody. Joe Perry left. Brad Whitford left. The band kept going, but the wheels were coming off.</p>
@@ -237,7 +289,7 @@ const post: BlogPost = {
 
     <p>I kept going to see them anyway.</p>
 
-    <p>Those first four albums had purchased a nearly unlimited amount of loyalty from me. I defended later records more than they deserved. I found the good songs and ignored some of the others. I kept giving the band another chance because the group that made <em>Get Your Wings</em>, <em>Toys in the Attic</em>, and <em>Rocks</em> had to still be in there somewhere.</p>
+    <p>Those first six albums had purchased a nearly unlimited amount of loyalty from me. The first four created it. <em>Draw the Line</em> and <em>Night in the Ruts</em> tested it without breaking it. Later, I defended records more than they deserved. I found the good songs and ignored some of the others. I kept giving the band another chance because the group that made <em>Get Your Wings</em>, <em>Toys in the Attic</em>, <em>Rocks</em>, and even those two records while it was coming apart had to still be in there somewhere.</p>
 
     <p>The best Aerosmith show I ever saw came surprisingly late. It was at the Gorge in Washington in August 2001.</p>
 
@@ -266,16 +318,16 @@ const post: BlogPost = {
 
     <p>Someone looking for “Pink” or the run of giant Aerosmith ballads from the 1990s isn’t going to find that band on these records.</p>
 
-    <p>That isn’t automatically an insult to everything that came later. Aerosmith made good music after <em>Rocks</em>, and the comeback itself was remarkable. Most bands that fall apart as completely as Aerosmith did don’t get another real act. Aerosmith got several.</p>
+    <p>That isn’t automatically an insult to everything that came later. Aerosmith made good music after <em>Night in the Ruts</em>, and the comeback itself was remarkable. Most bands that fall apart as completely as Aerosmith did don’t get another real act. Aerosmith got several.</p>
 
-    <p>But the first four albums are a different thing. This is Aerosmith before it learned how to make an Aerosmith product—before the videos, the professional song doctors, the movie ballads, and the giant tours built around reminding everyone that Aerosmith was Aerosmith.</p>
+    <p>But the first six albums are a different thing. The first four are the peak. The next two are the sound of a great band losing its grip without yet losing the ability to make a great record. This is Aerosmith before it learned how to make an Aerosmith product—before the videos, the professional song doctors, the movie ballads, and the giant tours built around reminding everyone that Aerosmith was Aerosmith.</p>
 
-    <p>Those first four records bought the band more loyalty from me than the rest of its career had any right to expect.</p>
+    <p>Those first six records bought the band more loyalty from me than the rest of its career had any right to expect.</p>
 
     <p>I kept paying them back for another thirty years.</p>
 
     <div class="post-links">
-      <a class="button button--primary" href="https://www.youtube.com/playlist?list=PLGHFUYWT4MVw" target="_blank" rel="noreferrer">Watch on YouTube</a>
+      <a class="button button--primary" href="https://www.youtube.com/watch?list=PLGHFUYWT4MVw" target="_blank" rel="noreferrer">Watch on YouTube</a>
       <a class="button button--ghost" href="https://music.youtube.com/playlist?list=PLGHFUYWT4MVw&si=OVsxKOExvShE6smH" target="_blank" rel="noreferrer">Listen on YouTube Music</a>
     </div>
   `,
