@@ -1,7 +1,10 @@
 import type { BlogPost } from '../../postTypes';
-import heroImage from './running-away-running-true-hero.png';
-import tangledImage from './tangled-paths-hands.png';
-import signpostImage from './running-away-running-true-signpost.png';
+import cardImage from './card-image.webp';
+import heroImage from './hero-image.webp';
+import bodyImageOne from './body-image-1.webp';
+import bodyImageTwo from './body-image-2.webp';
+import bodyImageThree from './body-image-3.webp';
+import bodyImageFour from './body-image-4.webp';
 
 const post: BlogPost = {
   slug: 'running-away-running-true',
@@ -13,10 +16,10 @@ const post: BlogPost = {
   status: 'Recent',
   heroImage,
   heroAlt:
-    'An older father walks toward a bright open doorway while holding a young girl’s hand and carrying a toddler, with a dark hallway behind them.',
-  cardImage: heroImage,
+    'An older father walks beside two young children as a long path of jobs, moves, exits, and wrong turns stretches behind them.',
+  cardImage,
   cardAlt:
-    'An older father walks with two young children from a dark hallway toward a bright open doorway.',
+    'An older father stands at a fork where one winding path leads toward two small children.',
   bodyHtml: `
     <p>I think about regrets a lot.</p>
 
@@ -42,7 +45,7 @@ const post: BlogPost = {
     <p>Regret wants to edit the past selectively. It wants to remove the bad judgment, the dumb exits, the wasted time, the pain. But it rarely admits that if you start pulling on those threads, you may also unravel the parts of your life you would now protect at all costs.</p>
 
     <figure class="post-figure">
-      <img src="${tangledImage}" alt="Large hands pulling bright glowing threads apart to reveal the silhouettes of two children in the center." loading="lazy" decoding="async" />
+      <img src="${bodyImageOne}" alt="Two hands pull at tangled life threads that also form a protective circle around two children." loading="lazy" decoding="async" />
       <figcaption>Regret wants to pull out the bad threads without admitting what else might come undone.</figcaption>
     </figure>
 
@@ -59,6 +62,10 @@ const post: BlogPost = {
     <p>I just knew what I wasn’t going to keep doing.</p>
 
     <p>He had the calm compassion of an uncle or a trusted advisor. No judgment in it. He said he had found it was better to run toward something than away from something.</p>
+
+    <figure class="post-figure">
+      <img src="${bodyImageTwo}" alt="A young man with a packed office box listens to an older manager during a corporate exit interview." loading="lazy" decoding="async" />
+    </figure>
 
     <p>It was one of those lines that sounds wise the second you hear it.</p>
 
@@ -105,7 +112,7 @@ const post: BlogPost = {
     <p>Those exits stopped the drift toward a life that was becoming unrecognizable as mine.</p>
 
     <figure class="post-figure">
-      <img src="${signpostImage}" alt="A hand-drawn landscape with purple accents and a wooden signpost pointing toward Running Away and Running True." loading="lazy" decoding="async" />
+      <img src="${bodyImageThree}" alt="A weathered signpost points along crossing paths while footprints continue toward Colorado mountains." loading="lazy" decoding="async" />
       <figcaption>Sometimes the path only makes sense after you stop pretending every exit was the same kind of mistake.</figcaption>
     </figure>
 
@@ -159,6 +166,10 @@ const post: BlogPost = {
     <p>That is not lowering the bar.</p>
 
     <p>That is finally understanding the scale that matters.</p>
+
+    <figure class="post-figure">
+      <img src="${bodyImageFour}" alt="An older father helps two children prepare for a walk while discarded symbols of status sit behind them." loading="lazy" decoding="async" />
+    </figure>
 
     <p>Maybe the story of my life is not that I always knew where to go.</p>
 
