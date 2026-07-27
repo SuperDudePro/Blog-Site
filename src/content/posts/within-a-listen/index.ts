@@ -1,7 +1,10 @@
 import type { BlogPost } from '../../postTypes';
-import topSquare from './top-square.jpg';
-import vinylRecords from './vinyl-records.jpg';
-import nightRoad from './night-road.jpg';
+import cardImage from './card-image.webp';
+import heroImage from './hero-image.webp';
+import bodyImageOne from './body-image-1.webp';
+import bodyImageTwo from './body-image-2.webp';
+import bodyImageThree from './body-image-3.webp';
+import bodyImageFour from './body-image-4.webp';
 
 const post: BlogPost = {
   slug: 'within-a-listen',
@@ -12,13 +15,24 @@ const post: BlogPost = {
   publishedAt: '2026-05-23',
   displayDate: 'May 23, 2026',
   status: 'Recent',
-  heroImage: topSquare,
+  heroImage,
   heroAlt:
-    'A late-night college apartment room with people sitting around a stereo and turntable while smoke and warm light fill the room.',
-  cardImage: topSquare,
+    'OOD Playlists poster for Within a Listen, featuring the bearded skull mascot with cream, neon-purple, and warm-gold concert-poster artwork.',
+  cardImage,
   cardAlt:
-    'A late-night college apartment room with people sitting around a stereo and turntable while smoke and warm light fill the room.',
+    'Two vinyl records leaning against a turntable and stereo receiver in a cluttered apartment late at night.',
   bodyHtml: `
+    <p><strong>OOD PLAYLISTS</strong></p>
+    <h2>Within a Listen</h2>
+    <p><em>Thirty-six years folds down to the length of a listen.</em></p>
+    <p><strong>1990 | TWO ALBUMS | ONE NIGHT</strong></p>
+
+    <p>OOD Playlists is where the songs get gathered by year, artist, mood, place, memory, or whatever else makes them belong together. The list matters, but the reason for the list is the post.</p>
+
+    <p>This one is two whole albums rather than a shuffled list: <em>Let Love Rule</em> and <em>Shake Your Money Maker</em>, played back to back in a college apartment until the night became one of those memories music can still reach.</p>
+
+    <p>All four album links&mdash;YouTube Music and regular YouTube for each record&mdash;are waiting at the bottom.</p>
+
     <p>It was spring 1990. I&rsquo;d been out of Purdue almost two years, working at Andersen by then &mdash; dress clothes, office buildings, the start of what was supposed to be the adult version of the story. But I kept going back. Most weekends. Friend&rsquo;s couch, somebody&rsquo;s party, the long fade-out you get after graduation where the place hasn&rsquo;t quite admitted you&rsquo;ve left.</p>
 
     <p>That night was a friend-of-a-friend thing. I knew one person when I walked in. By two a.m. I knew six.</p>
@@ -37,11 +51,11 @@ const post: BlogPost = {
 
     <p>Then back to back again.</p>
 
-    <p>It was fucking glorious.</p>
-
     <figure class="post-figure">
-      <img src="${vinylRecords}" alt="Two vinyl records near a turntable, stereo receiver, ashtray, bottles, and a worn couch in low purple light." loading="lazy" decoding="async" />
+      <img src="${bodyImageOne}" alt="Young adults sitting quietly around a turntable and stereo in a crowded apartment after the music changes the room." loading="lazy" decoding="async" />
     </figure>
+
+    <p>It was fucking glorious.</p>
 
     <p>I can doubt the edges of that night now. I can&rsquo;t tell you exactly who was in the room, can&rsquo;t swear to the order of the records or the time on the clock. Memory&rsquo;s a bad librarian. Files things under the wrong year, loses names, steals light from one night and lays it over another.</p>
 
@@ -53,6 +67,10 @@ const post: BlogPost = {
 
     <p>That night made the difference sharper. Something broke at that listening. Or admitted it had already broken. I couldn&rsquo;t go all the way back to the costume after that.</p>
 
+    <figure class="post-figure">
+      <img src="${bodyImageTwo}" alt="Office clothes arranged beside a travel bag, road map, and cassette case on opposite sides of a worn chair." loading="lazy" decoding="async" />
+    </figure>
+
     <p>Thirty-six years.</p>
 
     <p>In normal life, that&rsquo;s an ocean. You don&rsquo;t swim it. You stand on the shore and describe the other side. You can say Purdue. You can say 1990. You can say Andersen. You can list the names you still have. You can draw the map.</p>
@@ -62,7 +80,7 @@ const post: BlogPost = {
     <p>Then a record starts and for a few minutes the ocean gets stupid. Not because the past comes back &mdash; that&rsquo;s the lie nostalgia tells when it&rsquo;s had too much to drink. The past doesn&rsquo;t come back. But the distance folds down to the length of a listen.</p>
 
     <figure class="post-figure">
-      <img src="${nightRoad}" alt="A car driving down a wet rural Midwestern road at night with distant town lights and bare trees." loading="lazy" decoding="async" />
+      <img src="${bodyImageThree}" alt="Ocean waves narrowing into the grooves of a vinyl record beneath a turntable needle." loading="lazy" decoding="async" />
     </figure>
 
     <p>Here&rsquo;s the part age gives you. If I walked into that room tonight, at sixty-one, I&rsquo;d see two things at once. The magic, and the warning label. I&rsquo;d see why it mattered. And I&rsquo;d see how easily a life like that could eat you. Both would be true.</p>
@@ -81,6 +99,10 @@ const post: BlogPost = {
 
     <p>Not all the way. But close enough to hurt.</p>
 
+    <figure class="post-figure">
+      <img src="${bodyImageFour}" alt="Older hands lowering a turntable needle while the record faintly reflects a crowded apartment listening room from years earlier." loading="lazy" decoding="async" />
+    </figure>
+
     <p>Then the album ends.</p>
 
     <p>So you play the other one.</p>
@@ -92,6 +114,12 @@ const post: BlogPost = {
       <a class="button button--ghost" href="https://www.youtube.com/playlist?list=OLAK5uy_kydgHNYxaMRLHhP_puA0bAO-hHI4RSsoU" target="_blank" rel="noreferrer"><em>Let Love Rule</em> — YouTube</a>
       <a class="button button--primary" href="https://music.youtube.com/playlist?list=OLAK5uy_m7QeRIInopDMjlXuC_hiNQfQTnu2cQtxs" target="_blank" rel="noreferrer"><em>Shake Your Money Maker</em> — YouTube Music</a>
       <a class="button button--ghost" href="https://www.youtube.com/playlist?list=OLAK5uy_lJUxjzVDIcayxntdQdsKrAi-L4aNZZIiM" target="_blank" rel="noreferrer"><em>Shake Your Money Maker</em> — YouTube</a>
+    </div>
+
+    <p>Have a record&mdash;or two&mdash;that can still collapse thirty-six years in a few seconds?</p>
+
+    <div class="post-links">
+      <a class="button button--ghost" href="/contact">Tell me through the Our Old Dad contact page</a>
     </div>
   `,
 };
