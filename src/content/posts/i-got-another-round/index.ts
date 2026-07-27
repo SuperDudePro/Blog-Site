@@ -1,7 +1,10 @@
 import type { BlogPost } from '../../postTypes';
-import topSquare from './top-square.jpg';
-import philippines from './philippines.jpg';
-import colorado from './colorado.jpg';
+import cardImage from './card-image.webp';
+import heroImage from './hero-image.webp';
+import bodyImage1 from './body-image-1.webp';
+import bodyImage2 from './body-image-2.webp';
+import bodyImage3 from './body-image-3.webp';
+import bodyImage4 from './body-image-4.webp';
 
 const post: BlogPost = {
   slug: 'i-got-another-round',
@@ -11,32 +14,31 @@ const post: BlogPost = {
   section: 'slow-travel',
   publishedAt: '2026-05-09',
   status: 'Recent',
-  heroImage: topSquare,
-  heroAlt: 'Will with a white beard, holding Alexander on his left and Raven on his right, autumn leaves on the trees and ground behind them in Colorado.',
-  cardImage: topSquare,
-  cardAlt: 'Will with a white beard, holding Alexander on his left and Raven on his right, autumn leaves on the trees and ground behind them in Colorado.',
+  heroImage,
+  heroAlt: 'Two versions of Will sixteen years apart, holding Christopher and Alexa in the Philippines and Raven and Alexander in Colorado.',
+  cardImage,
+  cardAlt: 'Older Will carrying Raven and Alexander toward an open road, with a faint echo of his younger family behind him.',
   bodyHtml: `
     <p>There are two pictures I keep looking at.</p>
 
     <p>The first one is from the Philippines. I&rsquo;m forty-five, holding Christopher and Alexa, my first two babies. Shaved head, no beard, tattoos newer than they are now. The flowers behind us are bright the way only tropical flowers are bright.</p>
 
     <figure class="post-figure">
-      <img src="${philippines}" alt="Younger Will, shaved head and no beard, kneeling in front of bright tropical flowers in the Philippines, holding baby Alexa and toddler Christopher." loading="lazy" decoding="async" />
+      <img src="${bodyImage1}" alt="Younger Will holding baby Alexa and toddler Christopher among bright tropical flowers in the Philippines." loading="lazy" decoding="async" />
       <figcaption>Philippines, with Christopher and Alexa.</figcaption>
     </figure>
 
     <p>The second one is from a couple of years ago. Raven on one side. Alexander on the other. Big white beard. Crocs on Raven&rsquo;s feet. Leaves on the ground. Colorado. I&rsquo;m sixty in that picture. Sixty-one now.</p>
-
-    <figure class="post-figure">
-      <img src="${colorado}" alt="Older Will, big white beard and green Champion hoodie, standing on a Colorado sidewalk with autumn trees behind him, holding baby Alexander on the left and toddler Raven on the right." loading="lazy" decoding="async" />
-      <figcaption>Colorado, with Raven and Alexander.</figcaption>
-    </figure>
 
     <p>In my head, I&rsquo;m still the guy in the first picture.</p>
 
     <p>Same basic dude. Same wiring. Same belief that if the kids are with me, we can probably figure it out. Same instinct to grab the babies, make a plan, and assume the rest will get handled.</p>
 
     <p>Then I see the second picture and think: who the fuck is that old dude?</p>
+
+    <figure class="post-figure">
+      <img src="${bodyImage2}" alt="Older Will holding Raven and Alexander while a mirror reflects his younger self with Christopher and Alexa." loading="lazy" decoding="async" />
+    </figure>
 
     <p>Because the outside has changed. Half the time I look like a grandfather who stole somebody&rsquo;s kids.</p>
 
@@ -61,6 +63,10 @@ const post: BlogPost = {
     <p>I know that now. So with Raven and Alexander, I don&rsquo;t want to just run the same program again and hope the default plan accidentally builds the kind of people I&rsquo;m trying to raise.</p>
 
     <p>I want to build the life first. Then fit the school, the work, the travel, the money, and the routines around that.</p>
+
+    <figure class="post-figure">
+      <img src="${bodyImage3}" alt="Will, Raven, and Alexander arranging maps, school materials, money, household items, and camping gear around a kitchen table." loading="lazy" decoding="async" />
+    </figure>
 
     <p>Here&rsquo;s the team.</p>
 
@@ -87,6 +93,10 @@ const post: BlogPost = {
     <p>The rest of the world in longer stays. Apartments. Grocery stores. Walkable neighborhoods. The same bakery enough times that the person behind the counter starts to recognize the kids.</p>
 
     <p>Not vacation. Life, somewhere else.</p>
+
+    <figure class="post-figure">
+      <img src="${bodyImage4}" alt="Older Will walking with close-aged Raven and Alexander as they carry groceries through a lived-in neighborhood abroad." loading="lazy" decoding="async" />
+    </figure>
 
     <p>Raven and Alexander are Filipino, American, and Irish citizens. Three passports each. The Irish one alone opens up Europe. They were born into a bigger map than I was, and I&rsquo;d like them to actually use it.</p>
 
