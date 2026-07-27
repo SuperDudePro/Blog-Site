@@ -8,7 +8,7 @@ import bodyImageFour from './body-image-4.webp';
 
 const post: BlogPost = {
   slug: 'the-cult-three-great-reincarnations-before-they-fucked-it-up',
-  title: 'The Cult: Three Great Reincarnations Before They Fucked It Up',
+  title: 'Straight Greats No. 4: The Cult — Three Great Reincarnations Before They Fucked It Up',
   excerpt:
     'The Cult made three nearly perfect albums by becoming a different band each time—then Kurt slept through their peak from the front row.',
   section: 'music-playlists',
@@ -92,6 +92,7 @@ const post: BlogPost = {
     <p>That was the feeling.</p>
     <p>They were pushing against the audience, almost fighting with us because we weren’t giving them enough. I remember thinking they were yelling at the wrong people. We were the ones who had still shown up. And maybe the room wasn’t going wild because this version of the band wasn’t making it go wild.</p>
     <p>I’d seen what happened when The Cult didn’t have to demand a reaction. Five years earlier, they just walked onstage and caused one.</p>
+    <p>What do you think? Did The Cult earn the clean sweep, or is there another album we should have included? <a href="https://ourolddad.com/contact">Let us know through the contact page.</a></p>
     <hr />
     <h2>Playlist</h2>
     <p><strong>YouTube Music:</strong> <a href="https://music.youtube.com/playlist?list=PLD_q7pSMs9Tk">Listen to the playlist</a></p>
