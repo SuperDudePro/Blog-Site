@@ -1,8 +1,12 @@
 import { allowedProductionPaths, getSiteProfile, imageManifestErrors, SITE_PROFILES } from '../siteProfiles.mjs';
 
 const configuredRepositories = () => {
-  const configured = process.env.PUBLISHER_REPOSITORIES || process.env.PUBLISHER_REPOSITORY || SITE_PROFILES.map((profile) => profile.repository).join(',');
-  return new Set(configured.split(',').map((value) => value.trim()).filter(Boolean));
+  const registered = SITE_PROFILES.map((profile) => profile.repository);
+  const configured = [
+    process.env.PUBLISHER_REPOSITORIES,
+    process.env.PUBLISHER_REPOSITORY,
+  ].filter(Boolean).flatMap((value) => value.split(','));
+  return new Set([...registered, ...configured].map((value) => value.trim()).filter(Boolean));
 };
 
 const fail = (message) => {
