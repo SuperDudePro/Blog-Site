@@ -36,3 +36,31 @@ test('preserves publisher manifests that already use file', () => {
 
   assert.equal(manifest.images[0].file, 'body-image-1.webp');
 });
+
+test('selects LifeEducation defaults from the target site', () => {
+  const manifest = normalizePackageManifest({
+    targetSite: 'LifeEducation',
+    slug: 'capability-over-credit',
+    title: 'Capability Over Credit',
+    publishedAt: '2026-07-28',
+    status: 'Draft',
+    topic: 'Founding Notes',
+    tags: ['LifeEducation', 'Capability'],
+    images: [],
+  });
+
+  assert.equal(manifest.repository, 'SuperDudePro/LifeEducationOrg');
+  assert.equal(manifest.destinationPath, 'src/content/posts/capability-over-credit/');
+  assert.equal(manifest.canonicalUrl, 'https://www.lifeeducation.org/posts/capability-over-credit');
+  assert.equal(manifest.buildCommand, 'npm run check');
+  assert.equal(manifest.topic, 'Founding Notes');
+  assert.deepEqual(manifest.tags, ['LifeEducation', 'Capability']);
+});
+
+test('rejects contradictory site and repository hints', () => {
+  assert.throws(() => normalizePackageManifest({
+    targetSite: 'LifeEducation',
+    repository: 'SuperDudePro/Blog-Site',
+    slug: 'wrong-route',
+  }), /do not match/);
+});

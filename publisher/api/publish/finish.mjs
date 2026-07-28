@@ -2,7 +2,7 @@ import { requirePublisher } from '../../lib/auth.mjs';
 import { repoRequest } from '../../lib/github.mjs';
 import { json, method, readJson } from '../../lib/http.mjs';
 import { buildTreeEntries, compareDestination, listDestinationFiles } from '../../lib/repository.mjs';
-import { branchFor, safeRelative, validateManifest } from '../../lib/validation.mjs';
+import { branchFor, safeRelative, validateManifest, validateProductionPaths } from '../../lib/validation.mjs';
 
 const summaryLine = (label, files) => `- ${label}: ${files.length}${files.length ? ` — ${files.map((file) => `\`${file}\``).join(', ')}` : ''}`;
 
@@ -40,11 +40,11 @@ export default async function handler(request, response) {
     const commit = await atStage('load-base-commit', () => repoRequest(manifest.repository, `/git/commits/${baseCommitSha}`));
     const existingFiles = await atStage('list-destination-files', () => listDestinationFiles(manifest.repository, commit.tree.sha, manifest.destinationPath));
 
+    validateProductionPaths(manifest, blobs.map((blob) => blob.path));
     const uploadedFiles = blobs.map((blob) => {
       if (!blob.sha || !blob.path) throw new Error('An uploaded file is missing its path or blob SHA.');
       return { path: safeRelative(blob.path), sha: blob.sha, size: blob.size || 0 };
     });
-    if (new Set(uploadedFiles.map((file) => file.path)).size !== uploadedFiles.length) throw new Error('The package contains duplicate production paths.');
 
     const comparison = compareDestination(existingFiles, uploadedFiles);
     const operation = existingFiles.length ? 'replace' : 'create';
@@ -85,7 +85,7 @@ export default async function handler(request, response) {
         head: branch,
         base: baseBranch,
         draft: true,
-        body: `## What changed\n\n${operation === 'replace' ? 'Replaces the complete existing post folder' : 'Publishes a new post folder'} for **${manifest.title}** from an approved Wilbert Publisher package.\n\n- Operation: **${operation === 'replace' ? 'Update existing post' : 'Publish new post'}**\n- Slug: \`${manifest.slug}\`\n- Destination: \`${manifest.destinationPath}\`\n- Canonical URL: ${manifest.canonicalUrl}\n\n## Folder comparison\n\n${changeSummary}\n\n## Publisher controls\n\n- Package contract passed in the browser\n- The uploaded drop-in folder was treated as authoritative for this destination only\n- Stale files were deleted only from \`${manifest.destinationPath}\`\n- Production assets were committed atomically through the GitHub API\n- GitHub Actions and Vercel must pass before merge\n- Production merge remains manual\n`,
+        body: `## What changed\n\n${operation === 'replace' ? 'Replaces the complete existing post folder' : 'Publishes a new post folder'} for **${manifest.title}** from an approved Wilbert Publisher package.\n\n- Site profile: **${manifest.targetSite}**\n- Operation: **${operation === 'replace' ? 'Update existing post' : 'Publish new post'}**\n- Slug: \`${manifest.slug}\`\n- Destination: \`${manifest.destinationPath}\`\n- Canonical URL: ${manifest.canonicalUrl}\n- Repository check: \`${manifest.buildCommand}\`\n\n## Folder comparison\n\n${changeSummary}\n\n## Publisher controls\n\n- Package contract passed in the browser and on the server\n- The uploaded drop-in folder was treated as authoritative for this destination only\n- Stale files were deleted only from \`${manifest.destinationPath}\`\n- Production assets were committed atomically through the GitHub API\n- GitHub Actions and Vercel must pass before merge\n- Production merge remains manual\n`,
       },
     }));
 
