@@ -1,6 +1,6 @@
 import assert from 'node:assert/strict';
 import test from 'node:test';
-import { deployedCommitIsReady, findVercelUrl, inspectPublishedHtml } from '../lib/publishStatus.mjs';
+import { deployedCommitIsReady, findVercelUrl, inspectPublishedHtml, missingStatusFields, normalizeStatusRequest } from '../lib/publishStatus.mjs';
 
 test('finds a deployable Vercel preview URL and ignores toolbar URLs', () => {
   const comments = [{ body: 'Toolbar https://example.vercel.live then preview https://blog-git-post-example.vercel.app' }];
@@ -25,4 +25,42 @@ test('requires the production commit to equal or follow the merge commit', () =>
   assert.equal(deployedCommitIsReady(merge, deployed, 'behind'), false);
   assert.equal(deployedCommitIsReady(merge, deployed, null), false);
   assert.equal(deployedCommitIsReady('not-a-commit', deployed, 'ahead'), false);
+});
+
+test('normalizes the current nested LifeEducation handoff request', () => {
+  const request = normalizeStatusRequest({
+    handoff: {
+      repository: 'SuperDudePro/LifeEducationOrg',
+      prNumber: 26,
+      commit: '0123456789abcdef0123456789abcdef01234567',
+      prUrl: 'https://github.com/SuperDudePro/LifeEducationOrg/pull/26',
+    },
+    manifest: {
+      canonicalUrl: 'https://www.lifeeducation.org/posts/domain-10-life-skills-project-execution',
+      title: 'Domain 10: Life Skills & Project Execution',
+    },
+  });
+  assert.deepEqual(missingStatusFields(request), []);
+  assert.equal(request.prNumber, 26);
+  assert.equal(request.repository, 'SuperDudePro/LifeEducationOrg');
+});
+
+test('recovers status fields from legacy aliases and a pull-request URL', () => {
+  const request = normalizeStatusRequest({
+    repository: 'SuperDudePro/LifeEducationOrg',
+    prUrl: 'https://github.com/SuperDudePro/LifeEducationOrg/pull/26',
+    commitSha: '0123456789abcdef0123456789abcdef01234567',
+    canonicalURL: 'https://www.lifeeducation.org/posts/domain-10-life-skills-project-execution',
+    title: 'Domain 10: Life Skills & Project Execution',
+  });
+  assert.deepEqual(missingStatusFields(request), []);
+  assert.equal(request.prNumber, 26);
+});
+
+test('reports the exact missing publisher handoff fields', () => {
+  const request = normalizeStatusRequest({
+    repository: 'SuperDudePro/LifeEducationOrg',
+    prNumber: 26,
+  });
+  assert.deepEqual(missingStatusFields(request), ['commit', 'canonical URL', 'title']);
 });

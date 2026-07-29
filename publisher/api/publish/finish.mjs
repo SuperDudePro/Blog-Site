@@ -98,6 +98,8 @@ export default async function handler(request, response) {
         prNumber: pullRequest.number,
         prUrl: pullRequest.html_url,
         baseBranch,
+        canonicalUrl: manifest.canonicalUrl,
+        title: manifest.title,
         operation,
         comparison,
       },
