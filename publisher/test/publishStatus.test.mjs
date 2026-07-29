@@ -14,7 +14,23 @@ test('verifies the expected title and canonical URL in rendered HTML', () => {
 
 test('rejects a generic app shell at the expected route', () => {
   const html = '<html><head><title>Our Old Dad</title></head><body><div id="root"></div></body></html>';
-  assert.match(inspectPublishedHtml(html, 'https://ourolddad.com/post/dads-story', "Dad's Story").error, /expected post title/);
+  assert.match(inspectPublishedHtml(html, 'https://ourolddad.com/post/dads-story', "Dad's Story").error, /canonical URL/);
+});
+
+test('accepts a canonical post route when a stale handoff title differs from rendered article metadata', () => {
+  const html = '<html><head><link rel="canonical" href="https://www.lifeeducation.org/posts/domain-10"><title>Domain 10: Life Skills &amp; Project Execution | LifeEducation.org</title><meta property="og:title" content="Domain 10: Life Skills &amp; Project Execution | LifeEducation.org"></head><body><div id="root"></div></body></html>';
+  assert.deepEqual(
+    inspectPublishedHtml(html, 'https://www.lifeeducation.org/posts/domain-10', 'Update Domain 10'),
+    { ok: true },
+  );
+});
+
+test('rejects a canonical route that does not declare any page title', () => {
+  const html = '<html><head><link rel="canonical" href="https://www.lifeeducation.org/posts/domain-10"></head><body><div id="root"></div></body></html>';
+  assert.match(
+    inspectPublishedHtml(html, 'https://www.lifeeducation.org/posts/domain-10', 'Domain 10').error,
+    /does not declare a page title/,
+  );
 });
 
 test('requires the production commit to equal or follow the merge commit', () => {
