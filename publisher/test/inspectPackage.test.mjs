@@ -1,7 +1,16 @@
 import assert from 'node:assert/strict';
 import test from 'node:test';
 import JSZip from 'jszip';
-import { inspectPackage } from '../src/inspectPackage.js';
+import { hasRequiredContactCta, inspectPackage } from '../src/inspectPackage.js';
+
+test('requires the correct site contact CTA for both publishing profiles', () => {
+  assert.equal(hasRequiredContactCta('lifeeducation', '<a href="/contact">Send it.</a>'), true);
+  assert.equal(hasRequiredContactCta('lifeeducation', '<a href="https://www.lifeeducation.org/contact">Send it.</a>'), true);
+  assert.equal(hasRequiredContactCta('our-old-dad', '<a href="/contact">Tell us.</a>'), true);
+  assert.equal(hasRequiredContactCta('our-old-dad', '<a href="https://ourolddad.com/contact">Tell us.</a>'), true);
+  assert.equal(hasRequiredContactCta('our-old-dad', '<a href="https://www.lifeeducation.org/contact">Wrong site.</a>'), false);
+  assert.equal(hasRequiredContactCta('our-old-dad', '<p>No contact link.</p>'), false);
+});
 
 test('browser inspection selects and validates the LifeEducation profile', async () => {
   const root = '2026-07-28--adaptive-test--lifeeducation';
