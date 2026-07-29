@@ -3,7 +3,7 @@ import { repoRequest } from '../../lib/github.mjs';
 import { json, method, readJson } from '../../lib/http.mjs';
 import { validateRepository } from '../../lib/validation.mjs';
 import { getSiteProfile } from '../../siteProfiles.mjs';
-import { deployedCommitIsReady, findVercelUrl, inspectPublishedHtml } from '../../lib/publishStatus.mjs';
+import { deployedCommitIsReady, findVercelUrl, inspectPublishedHtml, missingStatusFields, normalizeStatusRequest } from '../../lib/publishStatus.mjs';
 
 const failedConclusions = new Set(['failure', 'cancelled', 'timed_out', 'action_required', 'stale', 'startup_failure']);
 
@@ -65,10 +65,12 @@ export default async function handler(request, response) {
   if (!method(request, response, 'POST')) return;
   try { requirePublisher(request); } catch (error) { return json(response, error.status || 401, { error: error.message }); }
   try {
-    const { repository, prNumber, commit, canonicalUrl, title } = await readJson(request);
+    const statusRequest = normalizeStatusRequest(await readJson(request));
+    const { repository, prNumber, commit, canonicalUrl, title } = statusRequest;
     validateRepository(repository);
     const profile = getSiteProfile({ repository });
-    if (!prNumber || !commit || !canonicalUrl || !title) throw new Error('Pull request, commit, canonical URL, and title are required.');
+    const missing = missingStatusFields(statusRequest);
+    if (missing.length) throw new Error(`Publisher handoff is missing: ${missing.join(', ')}.`);
     if (!canonicalUrl.startsWith(profile.canonicalPrefix)) throw new Error('Canonical URL does not match the selected site profile.');
     const [checkRuns, combinedStatus, comments, pullRequest] = await Promise.all([
       repoRequest(repository, `/commits/${commit}/check-runs?per_page=100`, { headers: { accept: 'application/vnd.github+json' } }),

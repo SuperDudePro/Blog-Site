@@ -55,3 +55,56 @@ export function deployedCommitIsReady(mergeCommit, deployedCommit, comparisonSta
   if (mergeCommit === deployedCommit) return true;
   return comparisonStatus === 'ahead' || comparisonStatus === 'identical';
 }
+
+const text = (value) => String(value ?? '').trim();
+
+function pullRequestNumber(value) {
+  const direct = Number(value);
+  if (Number.isInteger(direct) && direct > 0) return direct;
+  const match = text(value).match(/\/pull\/(\d+)(?:\/|$)/);
+  return match ? Number(match[1]) : 0;
+}
+
+export function normalizeStatusRequest(payload = {}) {
+  const handoff = payload.handoff && typeof payload.handoff === 'object' ? payload.handoff : {};
+  const manifest = payload.manifest && typeof payload.manifest === 'object' ? payload.manifest : {};
+  return {
+    repository: text(payload.repository || handoff.repository || manifest.repository),
+    prNumber: pullRequestNumber(
+      payload.prNumber
+      || payload.pullRequest
+      || payload.pullRequestNumber
+      || payload.prUrl
+      || handoff.prNumber
+      || handoff.pullRequest
+      || handoff.pullRequestNumber
+      || handoff.prUrl,
+    ),
+    commit: text(
+      payload.commit
+      || payload.commitSha
+      || payload.sha
+      || handoff.commit
+      || handoff.commitSha
+      || handoff.sha,
+    ),
+    canonicalUrl: text(
+      payload.canonicalUrl
+      || payload.canonicalURL
+      || handoff.canonicalUrl
+      || handoff.canonicalURL
+      || manifest.canonicalUrl
+      || manifest.canonicalURL,
+    ),
+    title: text(payload.title || handoff.title || manifest.title),
+  };
+}
+
+export function missingStatusFields(request) {
+  return [
+    !request.prNumber && 'pull request',
+    !request.commit && 'commit',
+    !request.canonicalUrl && 'canonical URL',
+    !request.title && 'title',
+  ].filter(Boolean);
+}

@@ -4,7 +4,7 @@ import { inspectPackage } from './inspectPackage.js';
 import type { ImageView, Inspection } from './inspectPackage.js';
 import type { NormalizedManifest as Manifest } from './packageManifest.js';
 type Session = { repository: string; slug: string; title: string; destinationPath: string; canonicalUrl: string; baseBranch: string; baseCommitSha: string; baseTreeSha: string; branch?: string; operation?: 'create'|'replace'; existingFiles?: Array<{path:string;sha:string;size?:number}> };
-type Handoff = { repository: string; branch: string; commit: string; prNumber: number; prUrl: string; baseBranch: string };
+type Handoff = { repository: string; branch: string; commit: string; prNumber: number; prUrl: string; baseBranch: string; canonicalUrl?: string; title?: string };
 type Verification = { state:'pending'|'success'|'failed'; status?:number; smokeUrl?:string; error?:string; deployedCommit?:string; mergeCommit?:string };
 type Status = { checks: { state: 'pending' | 'success' | 'failed'; items: Array<{name:string; status:string; conclusion:string|null}> }; deploymentUrl: string | null; smoke: Verification; readyToMerge: boolean; merged: boolean; mergedAt: string|null; production: Verification; publishingComplete: boolean };
 type StepState = 'pending'|'active'|'complete'|'failed';
@@ -56,7 +56,7 @@ export default function App(){
 
   async function poll(h:Handoff,m:Manifest){
     for(let attempt=0;attempt<180;attempt++){
-      const current=await api<Status>('/api/publish/status',key,{repository:h.repository,prNumber:h.prNumber,commit:h.commit,canonicalUrl:m.canonicalUrl,title:m.title});setStatus(current);
+      const current=await api<Status>('/api/publish/status',key,{handoff:h,manifest:m});setStatus(current);
       if(current.checks.state==='failed'){update(5,'failed','A required check failed.');throw new Error('A pull-request check failed. Open the draft PR for details.');}
       update(5,current.checks.state==='success'?'complete':'active',current.checks.state==='success'?`${current.checks.items.length} checks passed`:'Waiting for checks');
       update(6,current.deploymentUrl?'complete':'pending',current.deploymentUrl||'Waiting for Vercel');
