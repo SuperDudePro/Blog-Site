@@ -1,6 +1,7 @@
 import assert from 'node:assert/strict';
 import test from 'node:test';
 import { normalizePackageManifest } from '../src/packageManifest.js';
+import { extractField } from '../src/packageManifest.js';
 
 test('normalizes image-studio manifests that use filename', () => {
   const manifest = normalizePackageManifest({
@@ -55,6 +56,13 @@ test('selects LifeEducation defaults from the target site', () => {
   assert.equal(manifest.buildCommand, 'npm run check');
   assert.equal(manifest.topic, 'Founding Notes');
   assert.deepEqual(manifest.tags, ['LifeEducation', 'Capability']);
+});
+
+test('compares manifest text with escaped source string literals', () => {
+  const source = `export const post = {
+    excerpt: 'Dad\\'s “quoted” line',
+  };`;
+  assert.equal(extractField(source, 'excerpt'), "Dad's “quoted” line");
 });
 
 test('rejects contradictory site and repository hints', () => {

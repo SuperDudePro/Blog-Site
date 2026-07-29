@@ -2,8 +2,29 @@ import { getSiteProfile } from '../siteProfiles.mjs';
 
 const asString = (value) => typeof value === 'string' ? value.trim() : '';
 
+function decodeStringLiteral(value) {
+  return value.replace(/\\(?:u\{([0-9a-f]+)\}|u([0-9a-f]{4})|x([0-9a-f]{2})|([\\'"bfnrtv0]))/gi, (match, codePoint, unicode, hex, escaped) => {
+    if (codePoint) return String.fromCodePoint(Number.parseInt(codePoint, 16));
+    if (unicode) return String.fromCharCode(Number.parseInt(unicode, 16));
+    if (hex) return String.fromCharCode(Number.parseInt(hex, 16));
+    return {
+      '\\': '\\',
+      "'": "'",
+      '"': '"',
+      b: '\b',
+      f: '\f',
+      n: '\n',
+      r: '\r',
+      t: '\t',
+      v: '\v',
+      0: '\0',
+    }[escaped] ?? match;
+  });
+}
+
 export function extractField(source, field) {
-  return source.match(new RegExp(`${field}:\\s*(?:\\n\\s*)?(["'])([\\s\\S]*?)\\1,`))?.[2]?.trim() ?? '';
+  const value = source.match(new RegExp(`${field}:\\s*(?:\\n\\s*)?(["'])((?:\\\\.|(?!\\1)[\\s\\S])*?)\\1,`))?.[2];
+  return value === undefined ? '' : decodeStringLiteral(value).trim();
 }
 
 export function normalizePackageManifest(raw, source = '') {

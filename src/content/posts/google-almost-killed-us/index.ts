@@ -27,7 +27,7 @@ const post: BlogPost = {
     <p>Guess which version we got.</p>
 
     <figure class="post-figure">
-      <iframe title="Black Bear Pass switchbacks near Telluride, Colorado" src="https://www.flickr.com/photos/szazszorszapathy/20585358052/player/" width="100%" height="560" frameborder="0" allowfullscreen></iframe>
+      <iframe title="Black Bear Pass switchbacks near Telluride, Colorado" src="https://www.flickr.com/photos/szazszorszapathy/20585358052/player/" width="100%" height="560" frameborder="0" loading="lazy" allowfullscreen></iframe>
       <figcaption>Black Bear Pass switchbacks near Telluride. Photo by <a href="https://www.flickr.com/photos/szazszorszapathy/20585358052/" target="_blank" rel="noreferrer">szazszorszapathy</a>, <a href="https://creativecommons.org/licenses/by-nc-sa/2.0/" target="_blank" rel="noreferrer">CC BY-NC-SA 2.0</a>, via Flickr.</figcaption>
     </figure>
 
