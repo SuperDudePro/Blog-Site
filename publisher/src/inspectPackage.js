@@ -45,6 +45,13 @@ export async function inspectPackage(file) {
     const tags = Array.isArray(manifest.tags) ? manifest.tags : [];
     const tagsMatch = tags.length > 0 && tags.every((tag) => source.includes(`"${tag}"`) || source.includes(`'${tag}'`));
     add('Metadata', 'tags', tagsMatch, tagsMatch ? tags.join(', ') : 'Manifest tags are missing or do not match meta.ts');
+    const contactCta = /<a\b[^>]*\bhref\s*=\s*(?:["']\/contact(?:[?#][^"']*)?["']|\{\s*["']\/contact(?:[?#][^"']*)?["']\s*\})[^>]*>/i.test(source);
+    add(
+      'Editorial',
+      'Reader CTA and contact path',
+      contactCta,
+      contactCta ? 'Linked to /contact' : 'LifeEducation posts must include a reader-facing CTA linked to /contact',
+    );
   }
 
   for (const message of imageManifestErrors(profile, manifest.images)) add('Images', 'Role contract', false, message);
