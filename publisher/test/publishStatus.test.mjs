@@ -1,6 +1,6 @@
 import assert from 'node:assert/strict';
 import test from 'node:test';
-import { deployedCommitIsReady, findVercelUrl, inspectPublishedHtml, missingStatusFields, normalizeStatusRequest } from '../lib/publishStatus.mjs';
+import { canonicalUrlsMatch, deployedCommitIsReady, findVercelUrl, inspectPublishedHtml, missingStatusFields, normalizeStatusRequest } from '../lib/publishStatus.mjs';
 
 test('finds a deployable Vercel preview URL and ignores toolbar URLs', () => {
   const comments = [{ body: 'Toolbar https://example.vercel.live then preview https://blog-git-post-example.vercel.app' }];
@@ -10,6 +10,21 @@ test('finds a deployable Vercel preview URL and ignores toolbar URLs', () => {
 test('verifies the expected title and canonical URL in rendered HTML', () => {
   const html = '<html><head><link rel="canonical" href="https://ourolddad.com/post/dads-story"></head><body><h1>Dad&#39;s Story</h1></body></html>';
   assert.deepEqual(inspectPublishedHtml(html, 'https://ourolddad.com/post/dads-story', "Dad's Story"), { ok: true });
+});
+
+test('treats equivalent canonical URL forms as the same route', () => {
+  assert.equal(canonicalUrlsMatch(
+    'https://WWW.LIFEEDUCATION.ORG/posts/domain-10-life-skills-project-execution/',
+    'https://www.lifeeducation.org/posts/domain-10-life-skills-project-execution',
+  ), true);
+  assert.deepEqual(
+    inspectPublishedHtml(
+      '<html><head><link href="https://www.lifeeducation.org/posts/domain-10-life-skills-project-execution/" rel="canonical"><title>Domain 10</title></head></html>',
+      'https://www.lifeeducation.org/posts/domain-10-life-skills-project-execution',
+      'Domain 10',
+    ),
+    { ok: true },
+  );
 });
 
 test('rejects a generic app shell at the expected route', () => {

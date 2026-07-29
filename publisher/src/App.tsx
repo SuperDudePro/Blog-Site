@@ -3,6 +3,7 @@ import JSZip from 'jszip';
 import { inspectPackage } from './inspectPackage.js';
 import type { ImageView, Inspection } from './inspectPackage.js';
 import type { NormalizedManifest as Manifest } from './packageManifest.js';
+import { clearPublisherJob, loadPublisherJob, savePublisherJob } from './jobPersistence.js';
 type Session = { repository: string; slug: string; title: string; destinationPath: string; canonicalUrl: string; baseBranch: string; baseCommitSha: string; baseTreeSha: string; branch?: string; operation?: 'create'|'replace'; existingFiles?: Array<{path:string;sha:string;size?:number}> };
 type Handoff = { repository: string; branch: string; commit: string; prNumber: number; prUrl: string; baseBranch: string; canonicalUrl?: string; title?: string };
 type Verification = { state:'pending'|'success'|'failed'; status?:number; smokeUrl?:string; error?:string; deployedCommit?:string; mergeCommit?:string };
@@ -30,19 +31,22 @@ async function api<T>(path:string,key:string,body?:unknown):Promise<T>{
 }
 
 export default function App(){
+  const [restoredJob] = useState(()=>loadPublisherJob(localStorage));
   const [key,setKey]=useState(sessionStorage.getItem(KEY)||'');
   const [keyInput,setKeyInput]=useState(key);
   const [authenticated,setAuthenticated]=useState(false);
   const [authError,setAuthError]=useState('');
   const [file,setFile]=useState<File|null>(null);
-  const [inspection,setInspection]=useState<Inspection|null>(null);
+  const [inspection,setInspection]=useState<Inspection|null>(restoredJob?.inspection||null);
   const [selected,setSelected]=useState<ImageView|null>(null);
   const [error,setError]=useState('');
   const [busy,setBusy]=useState(false);
   const [drag,setDrag]=useState(false);
   const [approval,setApproval]=useState(false);
-  const [pipeline,setPipeline]=useState<Step[]>(steps());
-  const [handoff,setHandoff]=useState<Handoff|null>(null);
+  const [pipeline,setPipeline]=useState<Step[]>(()=>restoredJob
+    ? steps().map((step,index)=>index<5?{...step,state:'complete' as StepState}:index===5?{...step,state:'active' as StepState}:step)
+    : steps());
+  const [handoff,setHandoff]=useState<Handoff|null>(restoredJob?.handoff||null);
   const [status,setStatus]=useState<Status|null>(null);
   const passed=inspection?.checks.filter(c=>c.ok).length||0;
   const total=inspection?.checks.length||0;
@@ -52,7 +56,7 @@ export default function App(){
 
   async function login(candidate:string){ setAuthError(''); try{await api('/api/session',candidate);sessionStorage.setItem(KEY,candidate);setKey(candidate);setAuthenticated(true);}catch(e){setAuthenticated(false);setAuthError(e instanceof Error?e.message:'Access failed.');} }
   useEffect(()=>{if(key)void login(key);},[]);
-  async function load(chosen?:File){ if(!chosen)return; if(!chosen.name.toLowerCase().endsWith('.zip')){setError('Choose a ZIP package.');return;} inspection?.images.forEach(i=>i.url&&URL.revokeObjectURL(i.url));setBusy(true);setError('');setFile(chosen);setInspection(null);setSelected(null);setHandoff(null);setStatus(null);setPipeline(steps());try{const result=await inspectPackage(chosen);setInspection(result);setSelected(result.images[0]||null);}catch(e){setError(e instanceof Error?e.message:'Inspection failed.');}finally{setBusy(false);} }
+  async function load(chosen?:File){ if(!chosen)return; if(!chosen.name.toLowerCase().endsWith('.zip')){setError('Choose a ZIP package.');return;} inspection?.images.forEach(i=>i.url&&URL.revokeObjectURL(i.url));clearPublisherJob(localStorage);setBusy(true);setError('');setFile(chosen);setInspection(null);setSelected(null);setHandoff(null);setStatus(null);setPipeline(steps());try{const result=await inspectPackage(chosen);setInspection(result);setSelected(result.images[0]||null);}catch(e){setError(e instanceof Error?e.message:'Inspection failed.');}finally{setBusy(false);} }
 
   async function poll(h:Handoff,m:Manifest){
     for(let attempt=0;attempt<180;attempt++){
@@ -85,6 +89,14 @@ export default function App(){
     return ()=>window.clearInterval(timer);
   },[handoff,inspection,status?.readyToMerge,status?.merged,status?.publishingComplete,busy]);
 
+  useEffect(()=>{
+    if(!authenticated||!restoredJob||!handoff||!inspection||status||busy)return;
+    setBusy(true);
+    void poll(handoff,inspection.manifest)
+      .catch(e=>setError(e instanceof Error?e.message:'Status check failed.'))
+      .finally(()=>setBusy(false));
+  },[authenticated]);
+
   async function publish(){
     if(!file||!inspection||!ready)return;setApproval(false);setBusy(true);setError('');setPipeline(steps());setHandoff(null);setStatus(null);update(0,'complete','Explicit approval received.');
     try{
@@ -94,7 +106,7 @@ export default function App(){
       update(2,'active',`0/${entries.length} files`);
       for(let i=0;i<entries.length;i++){const entry=entries[i];const path=normalize(entry.name).slice(inspection.dropPrefix.length);const bytes=await entry.async('uint8array');const result=await api<{sha:string;size:number}>('/api/publish/blob',key,{repository:inspection.manifest.repository,encoding:'base64',content:toBase64(bytes)});blobs.push({path,sha:result.sha,size:bytes.length});update(2,'active',`${i+1}/${entries.length}: ${path}`);}
       update(2,'complete',`${entries.length} files uploaded`);update(3,'active','Creating one tree and commit');
-      const finish=await api<{result:Handoff}>('/api/publish/finish',key,{manifest:inspection.manifest,session:start.session,blobs});setHandoff(finish.result);update(3,'complete',finish.result.commit.slice(0,7));update(4,'complete',`PR #${finish.result.prNumber}`);update(5,'active','Waiting for checks');await poll(finish.result,inspection.manifest);
+      const finish=await api<{result:Handoff}>('/api/publish/finish',key,{manifest:inspection.manifest,session:start.session,blobs});savePublisherJob(localStorage,finish.result,inspection);setHandoff(finish.result);update(3,'complete',finish.result.commit.slice(0,7));update(4,'complete',`PR #${finish.result.prNumber}`);update(5,'active','Waiting for checks');await poll(finish.result,inspection.manifest);
     }catch(e){setError(e instanceof Error?e.message:'Publishing failed.');setPipeline(current=>{const i=current.findIndex(s=>s.state==='active');return i<0?current:current.map((s,n)=>n===i?{...s,state:'failed',detail:e instanceof Error?e.message:'Failed'}:s);});}finally{setBusy(false);}
   }
 

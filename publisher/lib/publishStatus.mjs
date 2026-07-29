@@ -20,6 +20,22 @@ function decodeHtml(value) {
 
 const normalizeText = (value) => decodeHtml(value).replace(/\s+/g, ' ').trim().toLowerCase();
 
+export function canonicalUrlsMatch(actual, expected) {
+  try {
+    const normalize = (value) => {
+      const url = new URL(decodeHtml(value));
+      url.hash = '';
+      url.hostname = url.hostname.toLowerCase();
+      url.protocol = url.protocol.toLowerCase();
+      if (url.pathname !== '/') url.pathname = url.pathname.replace(/\/+$/, '');
+      return url.toString();
+    };
+    return normalize(actual) === normalize(expected);
+  } catch {
+    return false;
+  }
+}
+
 export function findVercelUrl(comments) {
   for (const comment of comments) {
     const matches = String(comment.body || '').match(/https:\/\/[a-z0-9.-]+\.vercel\.app(?:\/[a-zA-Z0-9_./?=&%#-]*)?/gi) || [];
@@ -37,7 +53,7 @@ export function inspectPublishedHtml(body, canonicalUrl, title) {
   const canonicalTags = html.match(canonicalPattern) || [];
   const canonicalMatches = canonicalTags.some((tag) => {
     const href = tag.match(/\bhref=["']([^"']+)["']/i)?.[1];
-    return href && decodeHtml(href) === canonicalUrl;
+    return href && canonicalUrlsMatch(href, canonicalUrl);
   });
   if (!canonicalMatches) return { ok: false, error: 'The route does not declare the expected canonical URL.' };
 
