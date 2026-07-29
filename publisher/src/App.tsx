@@ -6,6 +6,7 @@ import type { NormalizedManifest as Manifest } from './packageManifest.js';
 import { clearPublisherJob, loadPublisherJob, savePublisherJob } from './jobPersistence.js';
 type Session = { repository: string; slug: string; title: string; destinationPath: string; canonicalUrl: string; baseBranch: string; baseCommitSha: string; baseTreeSha: string; branch?: string; operation?: 'create'|'replace'; existingFiles?: Array<{path:string;sha:string;size?:number}> };
 type Handoff = { repository: string; branch: string; commit: string; prNumber: number; prUrl: string; baseBranch: string; canonicalUrl?: string; title?: string };
+type ResumeJob = { handoff:Handoff; manifest:Manifest; state:'open'|'closed'|'merged'; updatedAt:string };
 type Verification = { state:'pending'|'success'|'failed'; status?:number; smokeUrl?:string; error?:string; deployedCommit?:string; mergeCommit?:string };
 type Status = { checks: { state: 'pending' | 'success' | 'failed'; items: Array<{name:string; status:string; conclusion:string|null}> }; deploymentUrl: string | null; smoke: Verification; readyToMerge: boolean; merged: boolean; mergedAt: string|null; production: Verification; publishingComplete: boolean };
 type StepState = 'pending'|'active'|'complete'|'failed';
@@ -54,8 +55,48 @@ export default function App(){
   const groups=useMemo(()=>inspection?[...new Set(inspection.checks.map(c=>c.group))]:[],[inspection]);
   const update=(i:number,state:StepState,detail?:string)=>setPipeline(current=>current.map((s,n)=>n===i?{...s,state,detail}:s));
 
+  function resumeInspection(job:ResumeJob):Inspection {
+    return {
+      manifest: job.manifest,
+      profile: {
+        id: job.manifest.repository === 'SuperDudePro/LifeEducationOrg' ? 'lifeeducation' : 'our-old-dad',
+        targetSite: job.manifest.targetSite,
+        repository: job.manifest.repository,
+        canonicalPrefix: new URL(job.manifest.canonicalUrl).origin,
+        buildCommand: '',
+        sourceFiles: [],
+        metadataFields: [],
+        imageDirectory: '',
+        statuses: [],
+        sections: [],
+      },
+      files: [],
+      checks: [{ group:'Recovery', label:'Publishing job restored from GitHub', ok:true, detail:`PR #${job.handoff.prNumber}` }],
+      images: [],
+      productionFiles: [],
+      root: '',
+      dropPrefix: '',
+    };
+  }
+
   async function login(candidate:string){ setAuthError(''); try{await api('/api/session',candidate);sessionStorage.setItem(KEY,candidate);setKey(candidate);setAuthenticated(true);}catch(e){setAuthenticated(false);setAuthError(e instanceof Error?e.message:'Access failed.');} }
   useEffect(()=>{if(key)void login(key);},[]);
+  useEffect(()=>{
+    if(!authenticated||restoredJob||handoff||inspection||busy)return;
+    setBusy(true);
+    void api<{job:ResumeJob|null}>('/api/publish/resume',key)
+      .then(({job})=>{
+        if(!job)return;
+        const recovered=resumeInspection(job);
+        setInspection(recovered);
+        setHandoff(job.handoff);
+        savePublisherJob(localStorage,job.handoff,recovered);
+        setPipeline(steps().map((step,index)=>index<5?{...step,state:'complete' as StepState}:index===5?{...step,state:'active' as StepState}:step));
+        return poll(job.handoff,job.manifest);
+      })
+      .catch(e=>setError(e instanceof Error?e.message:'Could not restore the active publishing job.'))
+      .finally(()=>setBusy(false));
+  },[authenticated]);
   async function load(chosen?:File){ if(!chosen)return; if(!chosen.name.toLowerCase().endsWith('.zip')){setError('Choose a ZIP package.');return;} inspection?.images.forEach(i=>i.url&&URL.revokeObjectURL(i.url));clearPublisherJob(localStorage);setBusy(true);setError('');setFile(chosen);setInspection(null);setSelected(null);setHandoff(null);setStatus(null);setPipeline(steps());try{const result=await inspectPackage(chosen);setInspection(result);setSelected(result.images[0]||null);}catch(e){setError(e instanceof Error?e.message:'Inspection failed.');}finally{setBusy(false);} }
 
   async function poll(h:Handoff,m:Manifest){
