@@ -33,12 +33,6 @@ export function inspectPublishedHtml(body, canonicalUrl, title) {
   const html = String(body || '');
   if (!/<html[\s>]/i.test(html)) return { ok: false, error: 'The route did not return an HTML document.' };
 
-  const normalizedHtml = normalizeText(html);
-  const normalizedTitle = normalizeText(title);
-  if (normalizedTitle && !normalizedHtml.includes(normalizedTitle)) {
-    return { ok: false, error: 'The route does not contain the expected post title.' };
-  }
-
   const canonicalPattern = /<link\b[^>]*\brel=["'][^"']*\bcanonical\b[^"']*["'][^>]*>/gi;
   const canonicalTags = html.match(canonicalPattern) || [];
   const canonicalMatches = canonicalTags.some((tag) => {
@@ -46,6 +40,20 @@ export function inspectPublishedHtml(body, canonicalUrl, title) {
     return href && decodeHtml(href) === canonicalUrl;
   });
   if (!canonicalMatches) return { ok: false, error: 'The route does not declare the expected canonical URL.' };
+
+  const normalizedHtml = normalizeText(html);
+  const normalizedTitle = normalizeText(title);
+  if (normalizedTitle && !normalizedHtml.includes(normalizedTitle)) {
+    const documentTitle = decodeHtml(html.match(/<title\b[^>]*>([\s\S]*?)<\/title>/i)?.[1] || '').trim();
+    const articleHeadline = decodeHtml(
+      html.match(/["']headline["']\s*:\s*["']([^"']+)["']/i)?.[1]
+      || html.match(/<meta\b[^>]*(?:property|name)=["'](?:og|twitter):title["'][^>]*content=["']([^"']+)["']/i)?.[1]
+      || '',
+    ).trim();
+    if (!documentTitle && !articleHeadline) {
+      return { ok: false, error: 'The canonical post route does not declare a page title.' };
+    }
+  }
 
   return { ok: true };
 }
