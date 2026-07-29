@@ -54,3 +54,16 @@ export function newestPublishingJob(jobs) {
       return active || Date.parse(b.updatedAt || 0) - Date.parse(a.updatedAt || 0);
     })[0] || null;
 }
+
+export function publishingJobKey(job) {
+  return job ? `${job.handoff.repository}#${job.handoff.prNumber}` : '';
+}
+
+export function selectPublishingJob(jobs, key) {
+  const requested = text(key);
+  if (requested) {
+    const exact = jobs.find((job) => publishingJobKey(job) === requested);
+    if (exact) return exact;
+  }
+  return newestPublishingJob(jobs);
+}
