@@ -7,6 +7,19 @@ const normalize = (value) => value.replace(/\\/g, '/').replace(/^\.\//, '');
 const escapeRx = (value) => value.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
 const find = (zip, test) => Object.values(zip.files).find((entry) => !entry.dir && test(normalize(entry.name)));
 
+export function hasRequiredContactCta(profileId, source) {
+  const hosts = {
+    lifeeducation: 'https://www\\.lifeeducation\\.org',
+    'our-old-dad': 'https://ourolddad\\.com',
+  };
+  const host = hosts[profileId];
+  if (!host) return false;
+  return new RegExp(
+    `<a\\b[^>]*\\bhref\\s*=\\s*(?:["'](?:${host})?\\/contact(?:[?#][^"']*)?["']|\\{\\s*["'](?:${host})?\\/contact(?:[?#][^"']*)?["']\\s*\\})[^>]*>`,
+    'i',
+  ).test(source);
+}
+
 export async function inspectPackage(file) {
   const zip = await JSZip.loadAsync(file);
   const files = Object.values(zip.files).filter((entry) => !entry.dir).map((entry) => normalize(entry.name)).sort();
@@ -45,14 +58,14 @@ export async function inspectPackage(file) {
     const tags = Array.isArray(manifest.tags) ? manifest.tags : [];
     const tagsMatch = tags.length > 0 && tags.every((tag) => source.includes(`"${tag}"`) || source.includes(`'${tag}'`));
     add('Metadata', 'tags', tagsMatch, tagsMatch ? tags.join(', ') : 'Manifest tags are missing or do not match meta.ts');
-    const contactCta = /<a\b[^>]*\bhref\s*=\s*(?:["']\/contact(?:[?#][^"']*)?["']|\{\s*["']\/contact(?:[?#][^"']*)?["']\s*\})[^>]*>/i.test(source);
-    add(
-      'Editorial',
-      'Reader CTA and contact path',
-      contactCta,
-      contactCta ? 'Linked to /contact' : 'LifeEducation posts must include a reader-facing CTA linked to /contact',
-    );
   }
+  const contactCta = hasRequiredContactCta(profile.id, source);
+  add(
+    'Editorial',
+    'Reader CTA and contact path',
+    contactCta,
+    contactCta ? 'Linked to the site contact page' : `${profile.targetSite} posts must include a reader-facing CTA linked to the site contact page`,
+  );
 
   for (const message of imageManifestErrors(profile, manifest.images)) add('Images', 'Role contract', false, message);
   if (!imageManifestErrors(profile, manifest.images).length) add('Images', 'Role contract', true, `${manifest.images.length - 2} approved body images`);
