@@ -1,6 +1,6 @@
 import assert from 'node:assert/strict';
 import test from 'node:test';
-import { jobFromPullRequest, newestPublishingJob } from '../lib/publishingJobs.mjs';
+import { jobFromPullRequest, newestPublishingJob, publishingJobKey, selectPublishingJob } from '../lib/publishingJobs.mjs';
 
 const pull = (overrides = {}) => ({
   number: 26,
@@ -40,4 +40,6 @@ test('prefers an open job before a more recently updated merged job', () => {
     head: { ref: 'publisher/another-post-1', sha: 'b'.repeat(40) },
   }));
   assert.equal(newestPublishingJob([merged, open]).handoff.prNumber, 70);
+  assert.equal(publishingJobKey(merged), 'SuperDudePro/LifeEducationOrg#26');
+  assert.equal(selectPublishingJob([open, merged], 'SuperDudePro/LifeEducationOrg#26').handoff.prNumber, 26);
 });
