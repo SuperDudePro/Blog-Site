@@ -1,3 +1,10 @@
+import {
+  clientIp,
+  durableRateLimit,
+  fetchWithTimeout,
+  rejectUnsafeRequest,
+} from './_security.mjs';
+
 function getString(body, key) {
   const value = body && typeof body === 'object' ? body[key] : undefined;
   return typeof value === 'string' ? value.trim() : '';
@@ -24,7 +31,7 @@ function json(response, status, body) {
 }
 
 async function resendRequest(path, apiKey, options = {}) {
-  return fetch(`https://api.resend.com${path}`, {
+  return fetchWithTimeout(`https://api.resend.com${path}`, {
     ...options,
     headers: {
       Authorization: `Bearer ${apiKey}`,
@@ -79,6 +86,7 @@ export default async function handler(request, response) {
     response.setHeader('Allow', 'POST');
     return json(response, 405, { ok: false, error: 'Method not allowed.' });
   }
+  if (rejectUnsafeRequest(request, response, { maxBytes: 8_192 })) return;
 
   const body = await readBody(request);
 
@@ -92,6 +100,22 @@ export default async function handler(request, response) {
   const subject = getString(body, 'subject') || 'New contact message';
   const message = getString(body, 'message');
   const wantsSubscription = getString(body, 'subscribe') === 'yes';
+
+  const [ipRate, emailRate] = await Promise.all([
+    durableRateLimit(`ood:contact:ip:${clientIp(request)}`, { limit: 8, windowMs: 60 * 60 * 1000 }),
+    email
+      ? durableRateLimit(`ood:contact:email:${email}`, { limit: 4, windowMs: 24 * 60 * 60 * 1000 })
+      : Promise.resolve({ allowed: true }),
+  ]);
+  if (!ipRate.allowed || !emailRate.allowed) {
+    response.setHeader('Retry-After', '3600');
+    return json(response, ipRate.unavailable || emailRate.unavailable ? 503 : 429, {
+      ok: false,
+      error: ipRate.unavailable || emailRate.unavailable
+        ? 'The form is temporarily unavailable.'
+        : 'Please wait before sending another message.',
+    });
+  }
 
   if (!name || !email || !message) {
     return json(response, 400, { ok: false, error: 'Name, email, and message are required.' });
