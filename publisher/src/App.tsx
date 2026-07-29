@@ -5,12 +5,13 @@ import type { ImageView, Inspection } from './inspectPackage.js';
 import type { NormalizedManifest as Manifest } from './packageManifest.js';
 type Session = { repository: string; slug: string; title: string; destinationPath: string; canonicalUrl: string; baseBranch: string; baseCommitSha: string; baseTreeSha: string; branch?: string; operation?: 'create'|'replace'; existingFiles?: Array<{path:string;sha:string;size?:number}> };
 type Handoff = { repository: string; branch: string; commit: string; prNumber: number; prUrl: string; baseBranch: string };
-type Status = { checks: { state: 'pending' | 'success' | 'failed'; items: Array<{name:string; status:string; conclusion:string|null}> }; deploymentUrl: string | null; smoke: { state:'pending'|'success'|'failed'; status?:number; smokeUrl?:string; error?:string }; readyToMerge: boolean };
+type Verification = { state:'pending'|'success'|'failed'; status?:number; smokeUrl?:string; error?:string; deployedCommit?:string; mergeCommit?:string };
+type Status = { checks: { state: 'pending' | 'success' | 'failed'; items: Array<{name:string; status:string; conclusion:string|null}> }; deploymentUrl: string | null; smoke: Verification; readyToMerge: boolean; merged: boolean; mergedAt: string|null; production: Verification; publishingComplete: boolean };
 type StepState = 'pending'|'active'|'complete'|'failed';
 type Step = { label: string; state: StepState; detail?: string };
 
 const KEY = 'wilbert-publisher-access-key';
-const labels = ['Approval confirmed','GitHub base loaded','Production files uploaded','Atomic commit created','Draft PR opened','GitHub checks passed','Vercel preview discovered','Published page smoke tested','Ready to merge'];
+const labels = ['Approval confirmed','GitHub base loaded','Production files uploaded','Atomic commit created','Draft PR opened','GitHub checks passed','Vercel preview discovered','Preview page verified','Ready for your merge','Production deployment verified'];
 const steps = (): Step[] => labels.map(label => ({ label, state:'pending' }));
 const normalize = (value:string) => value.replace(/\\/g,'/').replace(/^\.\//,'');
 const delay = (ms:number) => new Promise(resolve => window.setTimeout(resolve,ms));
@@ -55,17 +56,34 @@ export default function App(){
 
   async function poll(h:Handoff,m:Manifest){
     for(let attempt=0;attempt<180;attempt++){
-      const current=await api<Status>('/api/publish/status',key,{repository:h.repository,prNumber:h.prNumber,commit:h.commit,canonicalUrl:m.canonicalUrl});setStatus(current);
+      const current=await api<Status>('/api/publish/status',key,{repository:h.repository,prNumber:h.prNumber,commit:h.commit,canonicalUrl:m.canonicalUrl,title:m.title});setStatus(current);
       if(current.checks.state==='failed'){update(5,'failed','A required check failed.');throw new Error('A pull-request check failed. Open the draft PR for details.');}
       update(5,current.checks.state==='success'?'complete':'active',current.checks.state==='success'?`${current.checks.items.length} checks passed`:'Waiting for checks');
       update(6,current.deploymentUrl?'complete':'pending',current.deploymentUrl||'Waiting for Vercel');
       if(current.smoke.state==='failed'){update(7,'failed',current.smoke.error);throw new Error(current.smoke.error||'Smoke test failed.');}
       update(7,current.smoke.state==='success'?'complete':current.deploymentUrl?'active':'pending',current.smoke.state==='success'?`HTTP ${current.smoke.status}`:'Waiting for deployable route');
+      if(current.merged){
+        update(8,'complete',current.mergedAt?`Merged manually ${new Date(current.mergedAt).toLocaleString()}`:'Merged manually.');
+        if(current.production.state==='failed'){update(9,'failed',current.production.error);throw new Error(current.production.error||'Production verification failed.');}
+        update(9,current.production.state==='success'?'complete':'active',current.production.state==='success'?'Merged commit and live post verified.':current.production.error||'Waiting for production deployment');
+        if(current.publishingComplete)return;
+      } else {
+        update(9,'pending','Waiting for your manual merge.');
+      }
       if(current.readyToMerge){update(8,'complete','Final human review and merge remain manual.');return;}
       await delay(5000);
     }
     throw new Error('The checks are still running. Use Check status again.');
   }
+
+  useEffect(()=>{
+    if(!handoff||!inspection||!status?.readyToMerge||status.merged||status.publishingComplete||busy)return;
+    const timer=window.setInterval(()=>{
+      setBusy(true);
+      void poll(handoff,inspection.manifest).catch(e=>setError(e instanceof Error?e.message:'Status check failed.')).finally(()=>setBusy(false));
+    },15000);
+    return ()=>window.clearInterval(timer);
+  },[handoff,inspection,status?.readyToMerge,status?.merged,status?.publishingComplete,busy]);
 
   async function publish(){
     if(!file||!inspection||!ready)return;setApproval(false);setBusy(true);setError('');setPipeline(steps());setHandoff(null);setStatus(null);update(0,'complete','Explicit approval received.');
@@ -83,17 +101,17 @@ export default function App(){
   if(!authenticated)return <main className="auth-shell"><form className="auth-card" onSubmit={(e:FormEvent)=>{e.preventDefault();void login(keyInput.trim());}}><p className="eyebrow">Wilbert Publisher</p><h1>Private publishing control.</h1><p>Enter the publisher access key. The GitHub token stays on the server.</p><input type="password" value={keyInput} onChange={e=>setKeyInput(e.target.value)} placeholder="Publisher access key" />{authError&&<div className="error-banner">{authError}</div>}<button disabled={!keyInput.trim()}>Open publisher</button></form></main>;
 
   return <main className="app-shell">
-    <header className="masthead"><div><p className="eyebrow">Wilbert Publisher</p><h1>Package in. Draft preview out.</h1><p className="intro">Inspect the ZIP, create one controlled commit, wait for GitHub and Vercel, smoke-test the real route, and stop before merge.</p></div><button className="ghost" onClick={()=>{sessionStorage.removeItem(KEY);setAuthenticated(false);}}>Lock</button></header>
+    <header className="masthead"><div><p className="eyebrow">Wilbert Publisher</p><h1>Package in. Verified publishing out.</h1><p className="intro">Inspect the ZIP, create one controlled commit, verify the preview, leave the merge decision to you, then confirm the merged post reaches production.</p></div><button className="ghost" onClick={()=>{sessionStorage.removeItem(KEY);setAuthenticated(false);}}>Lock</button></header>
     <label className={`drop-zone ${drag?'active':''}`} onDragOver={e=>{e.preventDefault();setDrag(true)}} onDragLeave={()=>setDrag(false)} onDrop={(e:DragEvent)=>{e.preventDefault();setDrag(false);void load(e.dataTransfer.files?.[0])}}><input type="file" accept=".zip" onChange={(e:ChangeEvent<HTMLInputElement>)=>void load(e.target.files?.[0])}/><strong>{busy&&!inspection?'Reading package…':'Drop a finished post ZIP here'}</strong><span>or click to choose one</span></label>
     {error&&<div className="error-banner">{error}</div>}
     {approval&&inspection&&<section className="panel approval"><p className="eyebrow">Approval required</p><h2>Create the draft preview?</h2><p>This writes only <code>{inspection.manifest.destinationPath}</code>, opens a draft PR, and does not merge production.</p><div className="actions"><button className="ghost" onClick={()=>setApproval(false)}>Cancel</button><button onClick={()=>void publish()}>Approve and start</button></div></section>}
     {inspection&&<>
-      <section className="hero"><div><p className="eyebrow">{inspection.manifest.targetSite}</p><h2>{inspection.manifest.title}</h2><p>{inspection.manifest.excerpt}</p></div><div className={`score ${ready?'good':''}`}><span>{status?.readyToMerge?'Ready to merge':ready?'Ready for approval':'Needs attention'}</span><strong>{passed}/{total}</strong><small>checks passed</small></div></section>
+      <section className="hero"><div><p className="eyebrow">{inspection.manifest.targetSite}</p><h2>{inspection.manifest.title}</h2><p>{inspection.manifest.excerpt}</p></div><div className={`score ${ready?'good':''}`}><span>{status?.publishingComplete?'Published':status?.merged?'Finishing production':status?.readyToMerge?'Ready for your merge':ready?'Ready for approval':'Needs attention'}</span><strong>{passed}/{total}</strong><small>checks passed</small></div></section>
       <section className="meta">{[['Slug',inspection.manifest.slug],['Section / topic',inspection.manifest.section||inspection.manifest.topic],['Published',inspection.manifest.publishedAt],['Repository',inspection.manifest.repository],['Destination',inspection.manifest.destinationPath]].map(([a,b])=><div key={a}><span>{a}</span><strong>{b}</strong></div>)}</section>
-      {(busy||handoff)&&<section className="panel pipeline"><div className="panel-head"><div><p className="eyebrow">Draft preview pipeline</p><h2>{status?.readyToMerge?'Ready for final review':busy?'Working through the pipeline':'Current pipeline status'}</h2></div>{handoff&&<button className="ghost" disabled={busy} onClick={()=>{setBusy(true);void poll(handoff,inspection.manifest).catch(e=>setError(e.message)).finally(()=>setBusy(false));}}>Check status</button>}</div><div className="pipeline-grid"><div>{pipeline.map(s=><div className="step" key={s.label}><i className={s.state}>{s.state==='complete'?'✓':s.state==='failed'?'!':s.state==='active'?'…':'○'}</i><div><strong>{s.label}</strong><span>{s.detail||s.state}</span></div></div>)}</div>{handoff&&<aside><p><b>Branch</b><br/>{handoff.branch}</p><p><b>Commit</b><br/>{handoff.commit}</p><a href={handoff.prUrl} target="_blank" rel="noreferrer">Open draft PR</a>{status?.deploymentUrl&&<a href={status.deploymentUrl} target="_blank" rel="noreferrer">Open Vercel preview</a>}{status?.smoke.smokeUrl&&<a href={status.smoke.smokeUrl} target="_blank" rel="noreferrer">Open tested post</a>}</aside>}</div></section>}
+      {(busy||handoff)&&<section className="panel pipeline"><div className="panel-head"><div><p className="eyebrow">Publishing pipeline</p><h2>{status?.publishingComplete?'Publishing complete':status?.merged?'Verifying production':status?.readyToMerge?'Ready for final review':busy?'Working through the pipeline':'Current pipeline status'}</h2></div>{handoff&&<button className="ghost" disabled={busy} onClick={()=>{setBusy(true);void poll(handoff,inspection.manifest).catch(e=>setError(e.message)).finally(()=>setBusy(false));}}>Check status</button>}</div><div className="pipeline-grid"><div>{pipeline.map(s=><div className="step" key={s.label}><i className={s.state}>{s.state==='complete'?'✓':s.state==='failed'?'!':s.state==='active'?'…':'○'}</i><div><strong>{s.label}</strong><span>{s.detail||s.state}</span></div></div>)}</div>{handoff&&<aside><p><b>Branch</b><br/>{handoff.branch}</p><p><b>Commit</b><br/>{handoff.commit}</p><a href={handoff.prUrl} target="_blank" rel="noreferrer">Open draft PR</a>{status?.deploymentUrl&&<a href={status.deploymentUrl} target="_blank" rel="noreferrer">Open Vercel preview</a>}{status?.smoke.smokeUrl&&<a href={status.smoke.smokeUrl} target="_blank" rel="noreferrer">Open tested preview</a>}{status?.publishingComplete&&<a href={inspection.manifest.canonicalUrl} target="_blank" rel="noreferrer">Open published post</a>}</aside>}</div></section>}
       <section className="workspace"><div className="panel"><p className="eyebrow">Images</p><div className="image-grid">{inspection.images.map(img=><button className={selected?.file===img.file?'selected':''} key={img.file} onClick={()=>setSelected(img)}>{img.url?<img src={img.url} alt={img.alt}/>:<span>Missing</span>}<b>{img.file}</b><small>{img.role}</small></button>)}</div></div><aside className="panel inspector">{selected&&<><img src={selected.url} alt={selected.alt}/><h3>{selected.file}</h3><p><b>Alt:</b> {selected.alt}</p><p><b>Caption:</b> {selected.caption||'None'}</p></>}</aside></section>
       <section className="workspace lower"><div className="panel"><p className="eyebrow">Validation</p>{groups.map(g=><div key={g}><h3>{g}</h3>{inspection.checks.filter(c=>c.group===g).map(c=><div className="check" key={c.label}><i className={c.ok?'complete':'failed'}>{c.ok?'✓':'!'}</i><div><strong>{c.label}</strong><span>{c.detail}</span></div></div>)}</div>)}</div><div className="panel"><p className="eyebrow">Production files</p>{inspection.productionFiles.map(f=><code key={f}>{f.replace(`${inspection.root}/`,'')}</code>)}</div></section>
-      <footer><div><strong>{file?.name}</strong><span>{status?.readyToMerge?'Open the PR for final review and manual merge.':handoff?'The draft preview exists.':'Package is ready for approval.'}</span></div>{status?.readyToMerge&&handoff?<a href={handoff.prUrl} target="_blank" rel="noreferrer">Open PR to finish</a>:handoff?<button disabled={busy} onClick={()=>{setBusy(true);void poll(handoff,inspection.manifest).catch(e=>setError(e.message)).finally(()=>setBusy(false));}}>Check status</button>:<button disabled={!ready||busy} onClick={()=>setApproval(true)}>Create draft preview</button>}</footer>
+      <footer><div><strong>{file?.name}</strong><span>{status?.publishingComplete?'Publishing complete. The merged post is live and verified.':status?.merged?'The PR is merged. Check status while production deploys.':status?.readyToMerge?'Open the PR for final review and manual merge.':handoff?'The draft preview exists.':'Package is ready for approval.'}</span></div>{status?.publishingComplete?<a href={inspection.manifest.canonicalUrl} target="_blank" rel="noreferrer">Open published post</a>:status?.readyToMerge&&handoff?<a href={handoff.prUrl} target="_blank" rel="noreferrer">Open PR to finish</a>:handoff?<button disabled={busy} onClick={()=>{setBusy(true);void poll(handoff,inspection.manifest).catch(e=>setError(e.message)).finally(()=>setBusy(false));}}>Check status</button>:<button disabled={!ready||busy} onClick={()=>setApproval(true)}>Create draft preview</button>}</footer>
     </>}
   </main>;
 }

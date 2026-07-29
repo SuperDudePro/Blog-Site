@@ -9,6 +9,31 @@ function capture(source, pattern, group = 1) {
   return match?.[group] ? match[group].trim() : '';
 }
 
+function decodeStringLiteral(value) {
+  return value.replace(/\\(?:u\{([0-9a-f]+)\}|u([0-9a-f]{4})|x([0-9a-f]{2})|([\\'"bfnrtv0]))/gi, (match, codePoint, unicode, hex, escaped) => {
+    if (codePoint) return String.fromCodePoint(Number.parseInt(codePoint, 16));
+    if (unicode) return String.fromCharCode(Number.parseInt(unicode, 16));
+    if (hex) return String.fromCharCode(Number.parseInt(hex, 16));
+    return {
+      '\\': '\\',
+      "'": "'",
+      '"': '"',
+      b: '\b',
+      f: '\f',
+      n: '\n',
+      r: '\r',
+      t: '\t',
+      v: '\v',
+      0: '\0',
+    }[escaped] ?? match;
+  });
+}
+
+function stringField(source, field) {
+  const value = source.match(new RegExp(`${field}:\\s*(?:\\n\\s*)?(["'])((?:\\\\.|(?!\\1)[\\s\\S])*?)\\1,`))?.[2];
+  return value === undefined ? '' : decodeStringLiteral(value).replace(/\s+/g, ' ').trim();
+}
+
 function hasField(source, field) {
   return new RegExp(`${field}\\s*:`).test(source);
 }
@@ -35,11 +60,11 @@ export function readPosts() {
         folder,
         indexPath,
         source,
-        slug: capture(source, /slug:\s*['"]([^'"]+)['"]/),
-        title: capture(source, /title:\s*['"]([^'"]+)['"]/),
-        excerpt: capture(source, /excerpt:\s*([`'"])([\s\S]*?)\1,/, 2).replace(/\s+/g, ' '),
-        section: capture(source, /section:\s*['"]([^'"]+)['"]/),
-        publishedAt: capture(source, /publishedAt:\s*['"]([^'"]+)['"]/),
+        slug: stringField(source, 'slug'),
+        title: stringField(source, 'title'),
+        excerpt: stringField(source, 'excerpt') || capture(source, /excerpt:\s*`([\s\S]*?)`,/).replace(/\s+/g, ' '),
+        section: stringField(source, 'section'),
+        publishedAt: stringField(source, 'publishedAt'),
         hasBodyHtml: hasField(source, 'bodyHtml'),
         hasHeroImage: hasField(source, 'heroImage'),
         hasHeroAlt: hasField(source, 'heroAlt'),

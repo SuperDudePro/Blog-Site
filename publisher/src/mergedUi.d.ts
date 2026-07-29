@@ -1,1 +1,0 @@
-export function installMergedUi(): void;

@@ -1,7 +1,6 @@
 import React from 'react';
 import ReactDOM from 'react-dom/client';
 import App from './App';
-import { installMergedUi } from './mergedUi.js';
 import { normalizePackageManifest } from './packageManifest.js';
 import './styles.css';
 
@@ -19,8 +18,6 @@ JSON.parse = ((text: string, reviver?: (this: unknown, key: string, value: unkno
   }
   return parsed;
 }) as typeof JSON.parse;
-
-installMergedUi();
 
 ReactDOM.createRoot(document.getElementById('root')!).render(
   <React.StrictMode>

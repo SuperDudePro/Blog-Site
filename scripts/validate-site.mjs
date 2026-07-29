@@ -46,7 +46,18 @@ if (!routes.size) fail('public/sitemap.xml', '<loc>', 'sitemap has no routes');
 
 for (const route of routes) {
   const html = route === '/' ? join(DIST, 'index.html') : join(DIST, ...route.slice(1).split('/'), 'index.html');
-  if (!existsSync(html)) fail(rel(html), route, 'sitemap route has no generated entry page');
+  if (!existsSync(html)) {
+    fail(rel(html), route, 'sitemap route has no generated entry page');
+    continue;
+  }
+  const routeHtml = readFileSync(html, 'utf8');
+  const canonical = `${ORIGIN}${route === '/' ? '/' : route}`;
+  if (!routeHtml.includes(`<link rel="canonical" href="${canonical}" />`)) {
+    fail(rel(html), 'canonical', `expected ${canonical}`);
+  }
+  if (route.startsWith('/post/') && !/<title>.+ \| Our Old Dad<\/title>/.test(routeHtml)) {
+    fail(rel(html), 'title', 'post route is missing its static post title');
+  }
 }
 
 function validateTarget(source, raw) {
