@@ -17,6 +17,12 @@ const labels = ['Approval confirmed','GitHub base loaded','Production files uplo
 const steps = (): Step[] => labels.map(label => ({ label, state:'pending' }));
 const normalize = (value:string) => value.replace(/\\/g,'/').replace(/^\.\//,'');
 const delay = (ms:number) => new Promise(resolve => window.setTimeout(resolve,ms));
+const jobKey = (handoff:Handoff) => `${handoff.repository}#${handoff.prNumber}`;
+const rememberJob = (handoff:Handoff) => {
+  const url=new URL(window.location.href);
+  url.searchParams.set('job',jobKey(handoff));
+  window.history.replaceState(null,'',url);
+};
 
 function toBase64(bytes:Uint8Array) {
   let binary='';
@@ -84,12 +90,14 @@ export default function App(){
   useEffect(()=>{
     if(!authenticated||restoredJob||handoff||inspection||busy)return;
     setBusy(true);
-    void api<{job:ResumeJob|null}>('/api/publish/resume',key)
+    const requestedJob=new URL(window.location.href).searchParams.get('job')||'';
+    void api<{job:ResumeJob|null;jobKey:string}>('/api/publish/resume',key,{job:requestedJob})
       .then(({job})=>{
         if(!job)return;
         const recovered=resumeInspection(job);
         setInspection(recovered);
         setHandoff(job.handoff);
+        rememberJob(job.handoff);
         savePublisherJob(localStorage,job.handoff,recovered);
         setPipeline(steps().map((step,index)=>index<5?{...step,state:'complete' as StepState}:index===5?{...step,state:'active' as StepState}:step));
         return poll(job.handoff,job.manifest);
@@ -147,7 +155,7 @@ export default function App(){
       update(2,'active',`0/${entries.length} files`);
       for(let i=0;i<entries.length;i++){const entry=entries[i];const path=normalize(entry.name).slice(inspection.dropPrefix.length);const bytes=await entry.async('uint8array');const result=await api<{sha:string;size:number}>('/api/publish/blob',key,{repository:inspection.manifest.repository,encoding:'base64',content:toBase64(bytes)});blobs.push({path,sha:result.sha,size:bytes.length});update(2,'active',`${i+1}/${entries.length}: ${path}`);}
       update(2,'complete',`${entries.length} files uploaded`);update(3,'active','Creating one tree and commit');
-      const finish=await api<{result:Handoff}>('/api/publish/finish',key,{manifest:inspection.manifest,session:start.session,blobs});savePublisherJob(localStorage,finish.result,inspection);setHandoff(finish.result);update(3,'complete',finish.result.commit.slice(0,7));update(4,'complete',`PR #${finish.result.prNumber}`);update(5,'active','Waiting for checks');await poll(finish.result,inspection.manifest);
+      const finish=await api<{result:Handoff}>('/api/publish/finish',key,{manifest:inspection.manifest,session:start.session,blobs});savePublisherJob(localStorage,finish.result,inspection);rememberJob(finish.result);setHandoff(finish.result);update(3,'complete',finish.result.commit.slice(0,7));update(4,'complete',`PR #${finish.result.prNumber}`);update(5,'active','Waiting for checks');await poll(finish.result,inspection.manifest);
     }catch(e){setError(e instanceof Error?e.message:'Publishing failed.');setPipeline(current=>{const i=current.findIndex(s=>s.state==='active');return i<0?current:current.map((s,n)=>n===i?{...s,state:'failed',detail:e instanceof Error?e.message:'Failed'}:s);});}finally{setBusy(false);}
   }
 
