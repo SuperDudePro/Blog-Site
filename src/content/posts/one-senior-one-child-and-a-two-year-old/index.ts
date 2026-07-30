@@ -4,6 +4,7 @@ import cardImage from './card-image.webp';
 import bodyImageOne from './body-image-1.webp';
 import bodyImageTwo from './body-image-2.webp';
 import bodyImageThree from './body-image-3.webp';
+import bodyImageFour from './body-image-4.webp';
 
 const post: BlogPost = {
   slug: 'one-senior-one-child-and-a-two-year-old',
@@ -123,11 +124,17 @@ const post: BlogPost = {
 
     <p>Tomorrow at the pool, I’m going to stop making it easy.</p>
 
+    <figure class="post-figure">
+      <img src="${bodyImageFour}" alt="A pool clerk pauses over the register while an older father, his young daughter, and toddler son wait for their admission total." loading="lazy" decoding="async" />
+    </figure>
+
     <p>“One senior, one child, and a two-year-old.”</p>
 
     <p>Then I’m going to wait.</p>
 
     <p>Raven will probably ruin it before they finish.</p>
+
+    <p>Has anyone ever confidently assigned you the wrong role in your own family? <a href="https://ourolddad.com/contact">Let us know through the contact page.</a></p>
   `,
 };
 
