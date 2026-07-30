@@ -1,4 +1,5 @@
 import { requirePublisher } from '../../lib/auth.mjs';
+import { decodeGithubBlob, encodeBaseline, retireResolvedBaselineEntries } from '../../lib/baselineRetirement.mjs';
 import { repoRequest } from '../../lib/github.mjs';
 import { json, method, readJson } from '../../lib/http.mjs';
 import { buildTreeEntries, compareDestination, listDestinationFiles } from '../../lib/repository.mjs';
@@ -51,6 +52,38 @@ export default async function handler(request, response) {
     const tree = buildTreeEntries(manifest.destinationPath, uploadedFiles, comparison.deleted);
     if (!tree.length) throw new Error('The Git tree would be empty.');
 
+    let baselineRetirement = { retired: [], retained: [], changed: false };
+    if (manifest.repository === 'SuperDudePro/Blog-Site') {
+      const indexFile = uploadedFiles.find((file) => file.path === 'index.ts');
+      if (!indexFile) throw new Error('The uploaded post is missing index.ts.');
+      const [indexBlob, baselineFile] = await Promise.all([
+        atStage('load-uploaded-index', () => repoRequest(manifest.repository, `/git/blobs/${indexFile.sha}`)),
+        atStage('load-post-contract-baseline', () => repoRequest(
+          manifest.repository,
+          `/contents/post-contract-baseline.json?ref=${encodeURIComponent(baseCommitSha)}`,
+        )),
+      ]);
+      const baseline = JSON.parse(decodeGithubBlob(baselineFile));
+      baselineRetirement = retireResolvedBaselineEntries({
+        baseline,
+        repository: manifest.repository,
+        slug: manifest.slug,
+        indexSource: decodeGithubBlob(indexBlob),
+      });
+      if (baselineRetirement.changed) {
+        const baselineBlob = await atStage('create-updated-baseline', () => repoRequest(manifest.repository, '/git/blobs', {
+          method: 'POST',
+          body: { content: encodeBaseline(baselineRetirement.baseline), encoding: 'utf-8' },
+        }));
+        tree.push({
+          path: 'post-contract-baseline.json',
+          mode: '100644',
+          type: 'blob',
+          sha: baselineBlob.sha,
+        });
+      }
+    }
+
     const createdTree = await atStage('create-tree', () => repoRequest(manifest.repository, '/git/trees', {
       method: 'POST',
       body: { base_tree: commit.tree.sha, tree },
@@ -77,6 +110,9 @@ export default async function handler(request, response) {
       summaryLine('Unchanged', comparison.unchanged),
       summaryLine('Deleted', comparison.deleted),
     ].join('\n');
+    const retiredBaselineSummary = baselineRetirement.retired.length
+      ? `\n\n## Retired legacy exceptions\n\n${baselineRetirement.retired.map((entry) => `- \`${entry.ruleId}\` — \`${entry.signature}\``).join('\n')}\n`
+      : '';
 
     const pullRequest = await atStage('create-pull-request', () => repoRequest(manifest.repository, '/pulls', {
       method: 'POST',
@@ -85,7 +121,7 @@ export default async function handler(request, response) {
         head: branch,
         base: baseBranch,
         draft: true,
-        body: `## What changed\n\n${operation === 'replace' ? 'Replaces the complete existing post folder' : 'Publishes a new post folder'} for **${manifest.title}** from an approved Wilbert Publisher package.\n\n- Site profile: **${manifest.targetSite}**\n- Operation: **${operation === 'replace' ? 'Update existing post' : 'Publish new post'}**\n- Slug: \`${manifest.slug}\`\n- Destination: \`${manifest.destinationPath}\`\n- Canonical URL: ${manifest.canonicalUrl}\n- Repository check: \`${manifest.buildCommand}\`\n\n## Folder comparison\n\n${changeSummary}\n\n## Publisher controls\n\n- Package contract passed in the browser and on the server\n- The uploaded drop-in folder was treated as authoritative for this destination only\n- Stale files were deleted only from \`${manifest.destinationPath}\`\n- Production assets were committed atomically through the GitHub API\n- GitHub Actions and Vercel must pass before merge\n- Production merge remains manual\n`,
+        body: `## What changed\n\n${operation === 'replace' ? 'Replaces the complete existing post folder' : 'Publishes a new post folder'} for **${manifest.title}** from an approved Wilbert Publisher package.\n\n- Site profile: **${manifest.targetSite}**\n- Operation: **${operation === 'replace' ? 'Update existing post' : 'Publish new post'}**\n- Slug: \`${manifest.slug}\`\n- Destination: \`${manifest.destinationPath}\`\n- Canonical URL: ${manifest.canonicalUrl}\n- Repository check: \`${manifest.buildCommand}\`\n\n## Folder comparison\n\n${changeSummary}${retiredBaselineSummary}\n\n## Publisher controls\n\n- Package contract passed in the browser and on the server\n- Resolved legacy exceptions were verified against the uploaded index before retirement\n- Unresolved and unsupported legacy exceptions were preserved\n- The uploaded drop-in folder was treated as authoritative for this destination only\n- Stale files were deleted only from \`${manifest.destinationPath}\`\n- Production assets were committed atomically through the GitHub API\n- GitHub Actions and Vercel must pass before merge\n- Production merge remains manual\n`,
       },
     }));
 
@@ -102,6 +138,10 @@ export default async function handler(request, response) {
         title: manifest.title,
         operation,
         comparison,
+        baselineRetirement: {
+          retired: baselineRetirement.retired,
+          retained: baselineRetirement.retained,
+        },
       },
     });
   } catch (error) {
