@@ -326,6 +326,8 @@ const post: BlogPost = {
 
     <p>I kept paying them back for another thirty years.</p>
 
+    <p>Does Aerosmith get all six for you, or does the run stop after <em>Rocks</em>? <a href="https://ourolddad.com/contact">Let us know through the contact page.</a></p>
+
     <div class="post-links">
       <a class="button button--primary" href="https://www.youtube.com/watch?list=PLGHFUYWT4MVw" target="_blank" rel="noreferrer">Watch on YouTube</a>
       <a class="button button--ghost" href="https://music.youtube.com/playlist?list=PLGHFUYWT4MVw&si=OVsxKOExvShE6smH" target="_blank" rel="noreferrer">Listen on YouTube Music</a>
