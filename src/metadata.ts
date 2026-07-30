@@ -1,4 +1,4 @@
-import { getPostBySlug } from './content/loadPosts';
+import { getPostMetadataBySlug } from './content/loadPosts';
 import { getSectionName, sections, site } from './data/siteContent';
 import type { Route } from './routes';
 
@@ -24,7 +24,7 @@ function getRouteMetadata(route: Route): RouteMetadata {
   if (route.page === 'contact') return { title: titleWithSite('Contact'), description: 'Send a note to Our Old Dad without exposing a public email address.', canonicalPath: route.canonicalPath, type: 'website' };
   if (route.page === 'section') return { title: titleWithSite(getSectionName(route.sectionKey)), description: getSectionDescription(route.sectionKey), canonicalPath: route.canonicalPath, type: 'website' };
   if (route.page === 'post') {
-    const post = getPostBySlug(route.slug);
+    const post = getPostMetadataBySlug(route.slug);
     if (post) {
       const image = post.cardImage ?? post.heroImage;
       return { title: titleWithSite(post.title), description: post.excerpt, canonicalPath: route.canonicalPath, type: 'article', ...(image ? { image } : {}) };
@@ -45,7 +45,7 @@ function getStructuredData(route: Route, metadata: RouteMetadata): JsonLd {
     { '@type': 'WebSite', '@id': websiteId, url: `${site.url}/`, name: site.title, description: site.description, publisher: { '@id': authorId } },
   ];
   if (route.page === 'post') {
-    const post = getPostBySlug(route.slug);
+    const post = getPostMetadataBySlug(route.slug);
     if (post) {
       const image = post.cardImage ?? post.heroImage;
       graph.push({ '@type': 'BlogPosting', '@id': `${canonicalUrl}#article`, headline: post.title, description: post.excerpt, url: canonicalUrl, mainEntityOfPage: canonicalUrl, datePublished: post.publishedAt, ...(post.modifiedAt ? { dateModified: post.modifiedAt } : {}), author: { '@id': authorId }, publisher: { '@id': authorId }, isPartOf: { '@id': websiteId }, articleSection: getSectionName(post.section), ...(image ? { image: absoluteUrl(image) } : {}) });

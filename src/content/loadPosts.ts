@@ -1,31 +1,37 @@
 import { featuredPostSlug, type SectionKey } from '../data/siteContent';
-import type { BlogPost } from './postTypes';
+import { postMetadata } from './postMetadata.generated';
+import type { BlogPost, PostMetadata } from './postTypes';
 
-const modules = import.meta.glob('./posts/*/index.ts', { eager: true }) as Record<
+const modules = import.meta.glob('./posts/*/index.ts') as Record<
   string,
-  { default: BlogPost }
+  () => Promise<{ default: BlogPost }>
 >;
 
-export const posts: BlogPost[] = Object.values(modules)
-  .map((module) => module.default)
+export const posts: PostMetadata[] = [...postMetadata]
   .sort((a, b) => new Date(b.publishedAt).getTime() - new Date(a.publishedAt).getTime());
 
-export function getFeaturedPost(): BlogPost | undefined {
+export function getFeaturedPost(): PostMetadata | undefined {
   if (featuredPostSlug) {
     return posts.find((post) => post.slug === featuredPostSlug) ?? posts[0];
   }
   return posts[0];
 }
 
-export function getPostBySlug(slug: string): BlogPost | undefined {
+export function getPostMetadataBySlug(slug: string): PostMetadata | undefined {
   return posts.find((post) => post.slug === slug);
 }
 
-export function getPostsForSection(sectionKey: SectionKey): BlogPost[] {
+export async function loadPostBySlug(slug: string): Promise<BlogPost | undefined> {
+  const loader = modules[`./posts/${slug}/index.ts`];
+  if (!loader) return undefined;
+  return (await loader()).default;
+}
+
+export function getPostsForSection(sectionKey: SectionKey): PostMetadata[] {
   return sectionKey === 'everything' ? posts : posts.filter((post) => post.section === sectionKey);
 }
 
-export function getRelatedPosts(post: BlogPost, limit = 3): BlogPost[] {
+export function getRelatedPosts(post: PostMetadata, limit = 3): PostMetadata[] {
   const words = new Set(`${post.title} ${post.excerpt}`.toLowerCase().match(/[a-z0-9]{4,}/g) ?? []);
   return posts
     .filter((candidate) => candidate.slug !== post.slug)
@@ -40,7 +46,7 @@ export function getRelatedPosts(post: BlogPost, limit = 3): BlogPost[] {
     .map(({ candidate }) => candidate);
 }
 
-export function formatPostDate(post: BlogPost): string {
+export function formatPostDate(post: PostMetadata): string {
   if (post.displayDate) return post.displayDate;
   return new Intl.DateTimeFormat('en-US', {
     month: 'long',

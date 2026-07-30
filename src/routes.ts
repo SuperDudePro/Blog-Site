@@ -1,4 +1,4 @@
-import { getPostBySlug } from './content/loadPosts';
+import { getPostMetadataBySlug } from './content/loadPosts';
 import { getLegacyPostSlug } from './data/legacyRoutes';
 import { sections, type SectionKey } from './data/siteContent';
 
@@ -60,7 +60,7 @@ export function routeFromPath(pathname: string): Route {
   const postMatch = cleanPath.match(/^\/post\/([^/]+)$/);
   if (postMatch?.[1]) {
     const slug = decodeSegment(postMatch[1]);
-    return getPostBySlug(slug) ? { page: 'post', slug, canonicalPath: postPath(slug) } : everythingRoute(true);
+    return getPostMetadataBySlug(slug) ? { page: 'post', slug, canonicalPath: postPath(slug) } : everythingRoute(true);
   }
 
   const sectionMatch = cleanPath.match(/^\/section\/([^/]+)$/);

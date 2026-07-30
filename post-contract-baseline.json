@@ -1,0 +1,353 @@
+{
+  "schemaVersion": 1,
+  "site": "Our Old Dad",
+  "repository": "SuperDudePro/Blog-Site",
+  "status": "reviewed",
+  "reviewedAt": "2026-07-29",
+  "entries": {
+    "a-message-for-louis": [
+      {
+        "ruleId": "cta.contact.required",
+        "signature": "/contact",
+        "reason": "No reader CTA linking to /contact was found inside bodyHtml; sitewide header/footer Contact links do not count."
+      },
+      {
+        "ruleId": "image.body.minimum",
+        "signature": "count=3",
+        "reason": "Only 3 distinct body images; current minimum is 4."
+      }
+    ],
+    "a-room-from-1983": [
+      {
+        "ruleId": "cta.contact.required",
+        "signature": "/contact",
+        "reason": "No reader CTA linking to /contact was found inside bodyHtml; sitewide header/footer Contact links do not count."
+      }
+    ],
+    "advice-1-dont-be-a-dick": [
+      {
+        "ruleId": "cta.contact.required",
+        "signature": "/contact",
+        "reason": "No reader CTA linking to /contact was found inside bodyHtml; sitewide header/footer Contact links do not count."
+      }
+    ],
+    "be-like-mr-walker": [
+      {
+        "ruleId": "cta.contact.required",
+        "signature": "/contact",
+        "reason": "No reader CTA linking to /contact was found inside bodyHtml; sitewide header/footer Contact links do not count."
+      }
+    ],
+    "closer-to-nomadland-than-i-want-to-admit": [
+      {
+        "ruleId": "cta.contact.required",
+        "signature": "/contact",
+        "reason": "No reader CTA linking to /contact was found inside bodyHtml; sitewide header/footer Contact links do not count."
+      },
+      {
+        "ruleId": "image.body.minimum",
+        "signature": "count=3",
+        "reason": "Only 3 distinct body images; current minimum is 4."
+      },
+      {
+        "ruleId": "image.body.sequence",
+        "signature": "actual=body-image-1.webp,body-image-3.webp,body-image-2.webp;expected=body-image-1.webp,body-image-2.webp,body-image-3.webp",
+        "reason": "Body roles must use the exact sequential filenames body-image-1.webp, body-image-2.webp, body-image-3.webp."
+      }
+    ],
+    "dad-do-you-love-me-enough-to-protect-me": [
+      {
+        "ruleId": "cta.contact.required",
+        "signature": "/contact",
+        "reason": "No reader CTA linking to /contact was found inside bodyHtml; sitewide header/footer Contact links do not count."
+      }
+    ],
+    "did-i-shit-myself": [
+      {
+        "ruleId": "cta.contact.required",
+        "signature": "/contact",
+        "reason": "No reader CTA linking to /contact was found inside bodyHtml; sitewide header/footer Contact links do not count."
+      }
+    ],
+    "earlines-mom": [
+      {
+        "ruleId": "cta.contact.required",
+        "signature": "/contact",
+        "reason": "No reader CTA linking to /contact was found inside bodyHtml; sitewide header/footer Contact links do not count."
+      }
+    ],
+    "google-almost-killed-us": [
+      {
+        "ruleId": "cta.contact.required",
+        "signature": "/contact",
+        "reason": "No reader CTA linking to /contact was found inside bodyHtml; sitewide header/footer Contact links do not count."
+      },
+      {
+        "ruleId": "image.body.minimum",
+        "signature": "count=0",
+        "reason": "Only 0 distinct body images; current minimum is 4."
+      },
+      {
+        "ruleId": "image.body.reference",
+        "signature": "https://upload.wikimedia.org/wikipedia/commons/5/5d/Bridal_Veil_Falls_Telluride_CO3.jpg",
+        "reason": "Body image source \"https://upload.wikimedia.org/wikipedia/commons/5/5d/Bridal_Veil_Falls_Telluride_CO3.jpg\" does not match a local import."
+      },
+      {
+        "ruleId": "image.body.reference",
+        "signature": "https://upload.wikimedia.org/wikipedia/commons/e/e0/SmugglerUnionPowerPlantCO.jpg",
+        "reason": "Body image source \"https://upload.wikimedia.org/wikipedia/commons/e/e0/SmugglerUnionPowerPlantCO.jpg\" does not match a local import."
+      },
+      {
+        "ruleId": "image.role.card.missing",
+        "signature": "card-image.webp",
+        "reason": "Missing dedicated card image import and field."
+      },
+      {
+        "ruleId": "image.role.hero.missing",
+        "signature": "hero-image.webp",
+        "reason": "Missing dedicated hero image import and field."
+      }
+    ],
+    "i-got-another-round": [
+      {
+        "ruleId": "cta.contact.required",
+        "signature": "/contact",
+        "reason": "No reader CTA linking to /contact was found inside bodyHtml; sitewide header/footer Contact links do not count."
+      }
+    ],
+    "im-almost-5-dad": [
+      {
+        "ruleId": "cta.contact.required",
+        "signature": "/contact",
+        "reason": "No reader CTA linking to /contact was found inside bodyHtml; sitewide header/footer Contact links do not count."
+      }
+    ],
+    "joe-walsh-34-songs-and-a-familiar-kind-of-crazy": [
+      {
+        "ruleId": "image.body.sequence",
+        "signature": "actual=body-image-1.webp,body-image-4.webp,body-image-2.webp,body-image-3.webp;expected=body-image-1.webp,body-image-2.webp,body-image-3.webp,body-image-4.webp",
+        "reason": "Body roles must use the exact sequential filenames body-image-1.webp, body-image-2.webp, body-image-3.webp, body-image-4.webp."
+      }
+    ],
+    "my-friends-had-oregano": [
+      {
+        "ruleId": "cta.contact.required",
+        "signature": "/contact",
+        "reason": "No reader CTA linking to /contact was found inside bodyHtml; sitewide header/footer Contact links do not count."
+      },
+      {
+        "ruleId": "image.body.minimum",
+        "signature": "count=3",
+        "reason": "Only 3 distinct body images; current minimum is 4."
+      }
+    ],
+    "none-of-those-roads": [
+      {
+        "ruleId": "cta.contact.required",
+        "signature": "/contact",
+        "reason": "No reader CTA linking to /contact was found inside bodyHtml; sitewide header/footer Contact links do not count."
+      },
+      {
+        "ruleId": "image.body.minimum",
+        "signature": "count=2",
+        "reason": "Only 2 distinct body images; current minimum is 4."
+      }
+    ],
+    "not-everyone-should-teach": [
+      {
+        "ruleId": "cta.contact.required",
+        "signature": "/contact",
+        "reason": "No reader CTA linking to /contact was found inside bodyHtml; sitewide header/footer Contact links do not count."
+      },
+      {
+        "ruleId": "image.body.minimum",
+        "signature": "count=2",
+        "reason": "Only 2 distinct body images; current minimum is 4."
+      }
+    ],
+    "not-satisfied": [
+      {
+        "ruleId": "cta.contact.required",
+        "signature": "/contact",
+        "reason": "No reader CTA linking to /contact was found inside bodyHtml; sitewide header/footer Contact links do not count."
+      },
+      {
+        "ruleId": "image.body.minimum",
+        "signature": "count=3",
+        "reason": "Only 3 distinct body images; current minimum is 4."
+      }
+    ],
+    "one-senior-one-child-and-a-two-year-old": [
+      {
+        "ruleId": "cta.contact.required",
+        "signature": "/contact",
+        "reason": "No reader CTA linking to /contact was found inside bodyHtml; sitewide header/footer Contact links do not count."
+      },
+      {
+        "ruleId": "image.body.minimum",
+        "signature": "count=3",
+        "reason": "Only 3 distinct body images; current minimum is 4."
+      }
+    ],
+    "running-away-running-true": [
+      {
+        "ruleId": "cta.contact.required",
+        "signature": "/contact",
+        "reason": "No reader CTA linking to /contact was found inside bodyHtml; sitewide header/footer Contact links do not count."
+      }
+    ],
+    "slow-travel-the-mission": [
+      {
+        "ruleId": "cta.contact.required",
+        "signature": "/contact",
+        "reason": "No reader CTA linking to /contact was found inside bodyHtml; sitewide header/footer Contact links do not count."
+      },
+      {
+        "ruleId": "image.body.minimum",
+        "signature": "count=2",
+        "reason": "Only 2 distinct body images; current minimum is 4."
+      }
+    ],
+    "slow-travel-weather-filter": [
+      {
+        "ruleId": "cta.contact.required",
+        "signature": "/contact",
+        "reason": "No reader CTA linking to /contact was found inside bodyHtml; sitewide header/footer Contact links do not count."
+      },
+      {
+        "ruleId": "image.body.minimum",
+        "signature": "count=2",
+        "reason": "Only 2 distinct body images; current minimum is 4."
+      }
+    ],
+    "supporting-characters": [
+      {
+        "ruleId": "cta.contact.required",
+        "signature": "/contact",
+        "reason": "No reader CTA linking to /contact was found inside bodyHtml; sitewide header/footer Contact links do not count."
+      },
+      {
+        "ruleId": "image.body.minimum",
+        "signature": "count=3",
+        "reason": "Only 3 distinct body images; current minimum is 4."
+      },
+      {
+        "ruleId": "image.body.sequence",
+        "signature": "actual=body-image-2.webp,body-image-1.webp,body-image-3.webp;expected=body-image-1.webp,body-image-2.webp,body-image-3.webp",
+        "reason": "Body roles must use the exact sequential filenames body-image-1.webp, body-image-2.webp, body-image-3.webp."
+      }
+    ],
+    "sure-you-will": [
+      {
+        "ruleId": "cta.contact.required",
+        "signature": "/contact",
+        "reason": "No reader CTA linking to /contact was found inside bodyHtml; sitewide header/footer Contact links do not count."
+      }
+    ],
+    "the-constraint-system-that-will-pick-our-next-places": [
+      {
+        "ruleId": "image.body.minimum",
+        "signature": "count=2",
+        "reason": "Only 2 distinct body images; current minimum is 4."
+      }
+    ],
+    "the-pace-rule-we-are-not-dragging-two-kids-through-the-world": [
+      {
+        "ruleId": "cta.contact.required",
+        "signature": "/contact",
+        "reason": "No reader CTA linking to /contact was found inside bodyHtml; sitewide header/footer Contact links do not count."
+      },
+      {
+        "ruleId": "image.body.minimum",
+        "signature": "count=2",
+        "reason": "Only 2 distinct body images; current minimum is 4."
+      }
+    ],
+    "the-purple-scooter-walk": [
+      {
+        "ruleId": "cta.contact.required",
+        "signature": "/contact",
+        "reason": "No reader CTA linking to /contact was found inside bodyHtml; sitewide header/footer Contact links do not count."
+      },
+      {
+        "ruleId": "image.body.minimum",
+        "signature": "count=3",
+        "reason": "Only 3 distinct body images; current minimum is 4."
+      }
+    ],
+    "the-wrong-ruler": [
+      {
+        "ruleId": "cta.contact.required",
+        "signature": "/contact",
+        "reason": "No reader CTA linking to /contact was found inside bodyHtml; sitewide header/footer Contact links do not count."
+      }
+    ],
+    "the-zam-coup": [
+      {
+        "ruleId": "cta.contact.required",
+        "signature": "/contact",
+        "reason": "No reader CTA linking to /contact was found inside bodyHtml; sitewide header/footer Contact links do not count."
+      },
+      {
+        "ruleId": "image.body.minimum",
+        "signature": "count=2",
+        "reason": "Only 2 distinct body images; current minimum is 4."
+      },
+      {
+        "ruleId": "image.body.sequence",
+        "signature": "actual=baby-name-strategy.webp,i-am-zam-shirts.webp;expected=body-image-1.webp,body-image-2.webp",
+        "reason": "Body roles must use the exact sequential filenames body-image-1.webp, body-image-2.webp."
+      }
+    ],
+    "there-was-no-ned": [
+      {
+        "ruleId": "cta.contact.required",
+        "signature": "/contact",
+        "reason": "No reader CTA linking to /contact was found inside bodyHtml; sitewide header/footer Contact links do not count."
+      },
+      {
+        "ruleId": "image.body.minimum",
+        "signature": "count=3",
+        "reason": "Only 3 distinct body images; current minimum is 4."
+      }
+    ],
+    "three-straight-1-radiohead": [
+      {
+        "ruleId": "cta.contact.required",
+        "signature": "/contact",
+        "reason": "No reader CTA linking to /contact was found inside bodyHtml; sitewide header/footer Contact links do not count."
+      }
+    ],
+    "three-straight-2-aerosmith": [
+      {
+        "ruleId": "cta.contact.required",
+        "signature": "/contact",
+        "reason": "No reader CTA linking to /contact was found inside bodyHtml; sitewide header/footer Contact links do not count."
+      }
+    ],
+    "we-werent-going-to-tell-her-so-soon": [
+      {
+        "ruleId": "cta.contact.required",
+        "signature": "/contact",
+        "reason": "No reader CTA linking to /contact was found inside bodyHtml; sitewide header/footer Contact links do not count."
+      },
+      {
+        "ruleId": "image.body.minimum",
+        "signature": "count=3",
+        "reason": "Only 3 distinct body images; current minimum is 4."
+      }
+    ],
+    "what-if-i-dont": [
+      {
+        "ruleId": "cta.contact.required",
+        "signature": "/contact",
+        "reason": "No reader CTA linking to /contact was found inside bodyHtml; sitewide header/footer Contact links do not count."
+      },
+      {
+        "ruleId": "image.body.sequence",
+        "signature": "actual=body-image-1.webp,body-image-3.webp,body-image-2.webp,body-image-4.webp;expected=body-image-1.webp,body-image-2.webp,body-image-3.webp,body-image-4.webp",
+        "reason": "Body roles must use the exact sequential filenames body-image-1.webp, body-image-2.webp, body-image-3.webp, body-image-4.webp."
+      }
+    ]
+  }
+}
