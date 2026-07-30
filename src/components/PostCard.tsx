@@ -1,12 +1,12 @@
 import { formatPostDate } from '../content/loadPosts';
-import type { BlogPost } from '../content/postTypes';
+import type { PostMetadata } from '../content/postTypes';
 import { getSectionName } from '../data/siteContent';
 import { postPath } from '../routes';
 import { ImagePlaceholder } from './ImagePlaceholder';
 import { SiteLink } from './SiteLink';
 
 type Props = {
-  post: BlogPost;
+  post: PostMetadata;
 };
 
 export function PostCard({ post }: Props) {

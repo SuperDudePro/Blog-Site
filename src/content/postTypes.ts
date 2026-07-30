@@ -18,3 +18,5 @@ export type BlogPost = {
   cardAlt?: string;
   bodyHtml: string;
 };
+
+export type PostMetadata = Omit<BlogPost, 'bodyHtml'>;

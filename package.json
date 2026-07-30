@@ -7,17 +7,22 @@
     "node": "^20.19.0 || >=22.12.0"
   },
   "scripts": {
-    "dev": "vite",
+    "dev": "npm run generate:post-metadata && vite",
     "create:post": "node scripts/create-post.mjs",
     "generate:sitemap": "node scripts/generate-sitemap.mjs",
     "generate:rss": "node scripts/generate-rss.mjs",
     "generate:routes": "node scripts/generate-route-pages.mjs",
     "generate:deployment": "node scripts/write-deployment-marker.mjs",
+    "generate:post-metadata": "node scripts/generate-post-metadata.mjs",
     "sync:redirects": "node scripts/sync-redirects.mjs",
     "validate:redirects": "node scripts/validate-redirects.mjs",
     "validate:content": "node scripts/validate-content.mjs",
     "validate:site": "node scripts/validate-site.mjs",
-    "build": "npm run validate:redirects && npm run generate:sitemap && npm run generate:rss && npm run generate:deployment && npm run validate:content && tsc --noEmit -p tsconfig.app.json && tsc --noEmit -p tsconfig.node.json && vite build && npm run generate:routes && npm run validate:site",
+    "test:post-contract": "node --test test/post-contract.test.mjs",
+    "test:post-loading": "node --test test/post-loading.test.mjs",
+    "validate:post-contract": "node scripts/validate-post-contract.mjs --enforce",
+    "validate:bundle-size": "node scripts/validate-bundle-size.mjs",
+    "build": "npm run validate:redirects && npm run generate:sitemap && npm run generate:rss && npm run generate:deployment && npm run generate:post-metadata && npm run validate:content && npm run test:post-contract && npm run test:post-loading && npm run validate:post-contract && tsc --noEmit -p tsconfig.app.json && tsc --noEmit -p tsconfig.node.json && vite build && npm run validate:bundle-size && npm run generate:routes && npm run validate:site",
     "preview": "vite preview"
   },
   "dependencies": {

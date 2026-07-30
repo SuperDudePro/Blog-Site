@@ -3,14 +3,37 @@ import { PostCard } from '../components/PostCard';
 import { SharePost } from '../components/SharePost';
 import { SiteLink } from '../components/SiteLink';
 import { SubscribeForm } from '../components/SubscribeForm';
-import { getPostBySlug, formatPostDate, getRelatedPosts } from '../content/loadPosts';
+import { formatPostDate, getRelatedPosts, loadPostBySlug } from '../content/loadPosts';
+import type { BlogPost } from '../content/postTypes';
 import { getSectionName, site } from '../data/siteContent';
 import { sectionPath } from '../routes';
 
 type Props = { slug: string };
 
 export function PostPage({ slug }: Props) {
-  const post = getPostBySlug(slug);
+  const [post, setPost] = useState<BlogPost>();
+  const [loadedSlug, setLoadedSlug] = useState('');
+
+  useEffect(() => {
+    let active = true;
+    setPost(undefined);
+    setLoadedSlug('');
+    void loadPostBySlug(slug)
+      .then((loadedPost) => {
+        if (active) setPost(loadedPost);
+      })
+      .catch(() => {
+        if (active) setPost(undefined);
+      })
+      .finally(() => {
+        if (active) setLoadedSlug(slug);
+      });
+    return () => { active = false; };
+  }, [slug]);
+
+  if (loadedSlug !== slug) {
+    return <div className="page-wrap"><section className="page-hero"><p className="lead">Loading post…</p></section></div>;
+  }
 
   if (!post) {
     return (
@@ -63,3 +86,4 @@ export function PostPage({ slug }: Props) {
     </div>
   );
 }
+import { useEffect, useState } from 'react';
