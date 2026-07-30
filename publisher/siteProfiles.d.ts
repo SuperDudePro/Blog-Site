@@ -2,6 +2,7 @@ export type SiteProfile = {
   id: string;
   targetSite: string;
   repository: string;
+  deploymentProject: string;
   canonicalPrefix: string;
   buildCommand: string;
   sourceFiles: string[];
