@@ -36,13 +36,55 @@ export function canonicalUrlsMatch(actual, expected) {
   }
 }
 
-export function findVercelUrl(comments) {
-  for (const comment of comments) {
-    const matches = String(comment.body || '').match(/https:\/\/[a-z0-9.-]+\.vercel\.app(?:\/[a-zA-Z0-9_./?=&%#-]*)?/gi) || [];
-    const url = matches.find((candidate) => !candidate.includes('vercel.live'));
+const vercelUrls = (value) => (
+  String(value || '').match(/https:\/\/[a-z0-9.-]+\.vercel\.app(?:\/[a-zA-Z0-9_./?=&%#-]*)?/gi) || []
+).filter((candidate) => !candidate.includes('vercel.live'));
+
+export function findVercelUrl(comments, deploymentProject = '') {
+  const newestFirst = [...comments].reverse();
+  if (deploymentProject) {
+    const projectLink = `[${deploymentProject}](`.toLowerCase();
+    for (const comment of newestFirst) {
+      const rows = String(comment.body || '').split(/\r?\n/);
+      const projectRow = rows.find((row) => row.toLowerCase().includes(projectLink));
+      const url = vercelUrls(projectRow)[0];
+      if (url) return url.replace(/[)>.,]+$/, '');
+    }
+  }
+  for (const comment of newestFirst) {
+    const url = vercelUrls(comment.body)[0];
     if (url) return url.replace(/[)>.,]+$/, '');
   }
   return null;
+}
+
+export async function inspectPublishedUrl({
+  url,
+  canonicalUrl,
+  title,
+  fetchText,
+  attempts = 3,
+  wait = () => Promise.resolve(),
+}) {
+  let last = { ok: false, status: 0, error: 'Preview verification did not run.' };
+  for (let attempt = 0; attempt < attempts; attempt += 1) {
+    try {
+      const { result, body } = await fetchText(url);
+      const inspection = inspectPublishedHtml(body, canonicalUrl, title);
+      last = result.ok && inspection.ok
+        ? { ok: true, status: result.status }
+        : {
+            ok: false,
+            status: result.status,
+            error: result.ok ? inspection.error : `Preview route returned HTTP ${result.status}.`,
+          };
+    } catch (error) {
+      last = { ok: false, status: 0, error: error.message };
+    }
+    if (last.ok) return last;
+    if (attempt < attempts - 1) await wait();
+  }
+  return last;
 }
 
 export function inspectPublishedHtml(body, canonicalUrl, title) {

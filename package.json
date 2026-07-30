@@ -19,6 +19,7 @@
     "validate:content": "node scripts/validate-content.mjs",
     "validate:site": "node scripts/validate-site.mjs",
     "test:post-contract": "node --test test/post-contract.test.mjs",
+    "retrofit:next": "node scripts/retrofit-next.mjs",
     "test:post-loading": "node --test test/post-loading.test.mjs",
     "validate:post-contract": "node scripts/validate-post-contract.mjs --enforce",
     "validate:bundle-size": "node scripts/validate-bundle-size.mjs",
