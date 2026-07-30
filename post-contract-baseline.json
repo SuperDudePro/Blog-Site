@@ -177,18 +177,6 @@
         "reason": "Only 3 distinct body images; current minimum is 4."
       }
     ],
-    "one-senior-one-child-and-a-two-year-old": [
-      {
-        "ruleId": "cta.contact.required",
-        "signature": "/contact",
-        "reason": "No reader CTA linking to /contact was found inside bodyHtml; sitewide header/footer Contact links do not count."
-      },
-      {
-        "ruleId": "image.body.minimum",
-        "signature": "count=3",
-        "reason": "Only 3 distinct body images; current minimum is 4."
-      }
-    ],
     "running-away-running-true": [
       {
         "ruleId": "cta.contact.required",
