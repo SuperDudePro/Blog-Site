@@ -1,12 +1,18 @@
 import fs from 'node:fs';
 import path from 'node:path';
 import { validateBodyHtml } from './html-validator.mjs';
+import { inspectImage } from './image-metadata.mjs';
 import { parsePostSource } from './post-parser.mjs';
 
 const VALID_SECTIONS = new Set(['diary', 'life-education', 'music-playlists', 'slow-travel', 'advice']);
 const IMAGE_EXTENSIONS = new Set(['.png', '.jpg', '.jpeg', '.webp']);
 const REQUIRED_FIELDS = ['slug', 'title', 'excerpt', 'section', 'publishedAt', 'bodyHtml'];
 const CANONICAL_ORIGIN = 'https://ourolddad.com';
+const IMAGE_GEOMETRY = {
+  card: { width: 960, height: 720 },
+  hero: { width: 1600, height: 900 },
+  body: { width: 1200, height: 900 },
+};
 
 function issue(ruleId, signature, message) {
   return { ruleId, signature, message };
@@ -99,7 +105,10 @@ function priorityFor(defects) {
     || value.ruleId === 'code.parse'
     || /image\.role\.(?:card|hero)\.missing/.test(value.ruleId),
   )) return 'P1 structural';
-  if (defects.some((value) => value.ruleId.startsWith('image.body.'))) return 'P2 image completion';
+  if (defects.some((value) =>
+    value.ruleId.startsWith('image.body.')
+    || /^image\.role\.(?:card|hero)\.geometry$/.test(value.ruleId),
+  )) return 'P2 image completion';
   return 'P3 finish and cleanup';
 }
 
@@ -135,7 +144,7 @@ export function scanOurOldDad(root = process.cwd()) {
 
     if (!fs.existsSync(indexPath)) {
       add('structure.index.required', 'index.ts', 'The post folder is missing index.ts.');
-      posts.push({ slug, title: '', defects, priority: priorityFor(defects) });
+      posts.push({ slug, title: '', publishedAt: '', defects, priority: priorityFor(defects) });
       continue;
     }
 
@@ -160,6 +169,7 @@ export function scanOurOldDad(root = process.cwd()) {
     const value = (field) => parsed.values.get(field);
     const sourceSlug = value('slug') || '';
     const title = value('title') || '';
+    const publishedAt = value('publishedAt') || '';
 
     for (const field of REQUIRED_FIELDS) {
       const current = field === 'bodyHtml' ? parsed.bodyHtml : value(field);
@@ -242,6 +252,30 @@ export function scanOurOldDad(root = process.cwd()) {
       if (!assets.has(file)) add('asset.missing', file, `Imported image ${file} does not exist.`);
     }
 
+    const checkGeometry = (role, file, ruleId) => {
+      if (!file || !assets.has(file)) return;
+      const expected = IMAGE_GEOMETRY[role];
+      try {
+        const actual = inspectImage(path.join(folder, file));
+        if (actual.width !== expected.width || actual.height !== expected.height) {
+          add(
+            ruleId,
+            `file=${file};actual=${actual.width}x${actual.height};expected=${expected.width}x${expected.height}`,
+            `${file} is ${actual.width}x${actual.height}; the ${role} role requires ${expected.width}x${expected.height}.`,
+          );
+        }
+      } catch {
+        add(
+          ruleId,
+          `file=${file};actual=unreadable;expected=${expected.width}x${expected.height}`,
+          `${file} does not contain readable PNG, JPEG, or WebP image data; the ${role} role requires ${expected.width}x${expected.height}.`,
+        );
+      }
+    };
+    checkGeometry('card', roleFiles.get('card'), 'image.role.card.geometry');
+    checkGeometry('hero', roleFiles.get('hero'), 'image.role.hero.geometry');
+    for (const file of uniqueBodyFiles) checkGeometry('body', file, 'image.body.geometry');
+
     const links = html.tags.filter((candidate) => candidate.tag === 'a').map((tag) => tag.attributes.get('href') || '');
     const ctaEvidence = contactCtaEvidence(parsed.bodyHtml);
     if (!ctaEvidence.matches.length) {
@@ -268,10 +302,39 @@ export function scanOurOldDad(root = process.cwd()) {
 
     const deduped = [...new Map(defects.map((value) => [issueKey(value), value])).values()]
       .sort((a, b) => issueKey(a).localeCompare(issueKey(b)));
-    posts.push({ slug, title, defects: deduped, priority: priorityFor(deduped), ctaEvidence });
+    posts.push({ slug, title, publishedAt, defects: deduped, priority: priorityFor(deduped), ctaEvidence });
   }
 
   return { site: 'Our Old Dad', repository: 'SuperDudePro/Blog-Site', posts, repositoryDefects: [] };
+}
+
+export function retrofitQueue(scan, baseline) {
+  const posts = new Map(scan.posts.map((post) => [post.slug, post]));
+  const queue = Object.entries(baseline?.entries || {})
+    .map(([slug, defects]) => {
+      const post = posts.get(slug);
+      return {
+        slug,
+        title: post?.title || '',
+        publishedAt: post?.publishedAt || '',
+        priority: post?.priority || 'P1 structural',
+        defects: defects.map(({ ruleId, signature, reason, message }) => ({
+          ruleId,
+          signature,
+          message: reason || message || '',
+        })),
+      };
+    })
+    .sort((a, b) =>
+      b.publishedAt.localeCompare(a.publishedAt)
+      || a.slug.localeCompare(b.slug),
+    );
+
+  return queue.map((entry, index) => ({
+    queueNumber: index + 1,
+    queueTotal: queue.length,
+    ...entry,
+  }));
 }
 
 export function candidateBaseline(scan) {

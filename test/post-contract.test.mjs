@@ -3,9 +3,33 @@ import fs from 'node:fs';
 import os from 'node:os';
 import path from 'node:path';
 import test from 'node:test';
-import { candidateBaseline, ctaAuditMarkdown, evaluateBaseline, scanOurOldDad } from '../scripts/post-contract.mjs';
+import {
+  candidateBaseline,
+  ctaAuditMarkdown,
+  evaluateBaseline,
+  retrofitQueue,
+  scanOurOldDad,
+} from '../scripts/post-contract.mjs';
 
-function createRepo({ count = 4, cardFile = 'card-image.webp', heroFile = 'hero-image.webp', gap = false, blankAlt = false } = {}) {
+function png(width, height) {
+  const buffer = Buffer.alloc(24);
+  Buffer.from('89504e470d0a1a0a', 'hex').copy(buffer);
+  buffer.write('IHDR', 12, 4, 'ascii');
+  buffer.writeUInt32BE(width, 16);
+  buffer.writeUInt32BE(height, 20);
+  return buffer;
+}
+
+function createRepo({
+  count = 4,
+  cardFile = 'card-image.webp',
+  heroFile = 'hero-image.webp',
+  gap = false,
+  blankAlt = false,
+  cardDimensions = [960, 720],
+  heroDimensions = [1600, 900],
+  bodyDimensions = [1200, 900],
+} = {}) {
   const root = fs.mkdtempSync(path.join(os.tmpdir(), 'ood-contract-'));
   const folder = path.join(root, 'src/content/posts/valid-post');
   fs.mkdirSync(folder, { recursive: true });
@@ -15,7 +39,9 @@ function createRepo({ count = 4, cardFile = 'card-image.webp', heroFile = 'hero-
     '<urlset><url><loc>https://ourolddad.com/contact</loc></url><url><loc>https://ourolddad.com/post/valid-post</loc></url></urlset>',
   );
   const bodyFiles = Array.from({ length: count }, (_, index) => `body-image-${gap && index === count - 1 ? index + 2 : index + 1}.webp`);
-  for (const file of [cardFile, heroFile, ...bodyFiles]) fs.writeFileSync(path.join(folder, file), '');
+  fs.writeFileSync(path.join(folder, cardFile), png(...cardDimensions));
+  fs.writeFileSync(path.join(folder, heroFile), png(...heroDimensions));
+  for (const file of bodyFiles) fs.writeFileSync(path.join(folder, file), png(...bodyDimensions));
   const imports = [
     "import type { BlogPost } from '../../postTypes';",
     `import cardImage from './${cardFile}';`,
@@ -97,6 +123,67 @@ test('card or hero reuse and numbering gaps fail', () => {
 test('code, file, and alt mismatch fails', () => {
   const scan = scanOurOldDad(createRepo({ blankAlt: true }));
   assert(scan.posts[0].defects.some((value) => value.ruleId === 'image.body.alt'));
+});
+
+test('invalid card, hero, and body geometry is reported with exact dimensions', () => {
+  const scan = scanOurOldDad(createRepo({
+    cardDimensions: [1200, 900],
+    heroDimensions: [960, 720],
+    bodyDimensions: [800, 600],
+  }));
+  const defects = scan.posts[0].defects;
+  assert(defects.some((value) =>
+    value.ruleId === 'image.role.card.geometry'
+    && value.signature === 'file=card-image.webp;actual=1200x900;expected=960x720'));
+  assert(defects.some((value) =>
+    value.ruleId === 'image.role.hero.geometry'
+    && value.signature === 'file=hero-image.webp;actual=960x720;expected=1600x900'));
+  assert.equal(defects.filter((value) => value.ruleId === 'image.body.geometry').length, 4);
+  assert.equal(scan.posts[0].priority, 'P2 image completion');
+});
+
+test('unreadable image data is reported as a geometry defect instead of crashing', () => {
+  const root = createRepo();
+  fs.writeFileSync(path.join(root, 'src/content/posts/valid-post/card-image.webp'), '');
+  const scan = scanOurOldDad(root);
+  assert(scan.posts[0].defects.some((value) =>
+    value.ruleId === 'image.role.card.geometry'
+    && value.signature.includes('actual=unreadable')));
+});
+
+test('retrofit queue is newest-first and exposes the exact reviewed findings', () => {
+  const scan = {
+    posts: [
+      { slug: 'older', title: 'Older', publishedAt: '2024-01-01', priority: 'P3 finish and cleanup' },
+      { slug: 'newer', title: 'Newer', publishedAt: '2026-01-01', priority: 'P2 image completion' },
+    ],
+  };
+  const baseline = {
+    entries: {
+      older: [{ ruleId: 'cta.contact.required', signature: '/contact', reason: 'Missing CTA.' }],
+      newer: [{ ruleId: 'image.body.geometry', signature: 'bad-size', reason: 'Bad size.' }],
+    },
+  };
+  assert.deepEqual(retrofitQueue(scan, baseline), [
+    {
+      queueNumber: 1,
+      queueTotal: 2,
+      slug: 'newer',
+      title: 'Newer',
+      publishedAt: '2026-01-01',
+      priority: 'P2 image completion',
+      defects: [{ ruleId: 'image.body.geometry', signature: 'bad-size', message: 'Bad size.' }],
+    },
+    {
+      queueNumber: 2,
+      queueTotal: 2,
+      slug: 'older',
+      title: 'Older',
+      publishedAt: '2024-01-01',
+      priority: 'P3 finish and cleanup',
+      defects: [{ ruleId: 'cta.contact.required', signature: '/contact', message: 'Missing CTA.' }],
+    },
+  ]);
 });
 
 test('only the exact reviewed legacy defect is allowed', () => {
