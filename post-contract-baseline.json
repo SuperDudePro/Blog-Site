@@ -318,13 +318,6 @@
         "reason": "No reader CTA linking to /contact was found inside bodyHtml; sitewide header/footer Contact links do not count."
       }
     ],
-    "three-straight-2-aerosmith": [
-      {
-        "ruleId": "cta.contact.required",
-        "signature": "/contact",
-        "reason": "No reader CTA linking to /contact was found inside bodyHtml; sitewide header/footer Contact links do not count."
-      }
-    ],
     "we-werent-going-to-tell-her-so-soon": [
       {
         "ruleId": "cta.contact.required",
