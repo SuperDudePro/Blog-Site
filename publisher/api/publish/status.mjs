@@ -3,16 +3,20 @@ import { repoRequest } from '../../lib/github.mjs';
 import { json, method, readJson } from '../../lib/http.mjs';
 import { validateRepository } from '../../lib/validation.mjs';
 import { getSiteProfile } from '../../siteProfiles.mjs';
-import { deployedCommitIsReady, findVercelUrl, inspectPublishedHtml, missingStatusFields, normalizeStatusRequest } from '../../lib/publishStatus.mjs';
+import { deployedCommitIsReady, findVercelUrl, inspectPublishedHtml, inspectPublishedUrl, missingStatusFields, normalizeStatusRequest } from '../../lib/publishStatus.mjs';
 
 const failedConclusions = new Set(['failure', 'cancelled', 'timed_out', 'action_required', 'stale', 'startup_failure']);
 
 async function fetchText(url) {
+  const bypassSecret = String(process.env.VERCEL_AUTOMATION_BYPASS_SECRET || '').trim();
   const result = await fetch(url, {
     cache: 'no-store',
     redirect: 'follow',
     signal: AbortSignal.timeout(25000),
-    headers: { 'cache-control': 'no-cache' },
+    headers: {
+      'cache-control': 'no-cache',
+      ...(bypassSecret ? { 'x-vercel-protection-bypass': bypassSecret } : {}),
+    },
   });
   return { result, body: await result.text() };
 }
@@ -85,17 +89,23 @@ export default async function handler(request, response) {
     const failed = items.some((item) => failedConclusions.has(item.conclusion) || ['failure', 'error'].includes(item.status));
     const complete = items.length > 0 && items.every((item) => item.conclusion === 'success' || item.status === 'success');
     const checks = { state: failed ? 'failed' : complete ? 'success' : 'pending', items };
-    const deploymentUrl = findVercelUrl(comments);
+    const deploymentUrl = findVercelUrl(comments, profile.deploymentProject);
     let smoke = { state: 'pending', ok: false };
     if (deploymentUrl) {
       const pathname = new URL(canonicalUrl).pathname;
       const smokeUrl = new URL(pathname, deploymentUrl).toString();
       try {
-        const { result, body } = await fetchText(smokeUrl);
-        const inspection = inspectPublishedHtml(body, canonicalUrl, title);
-        smoke = result.ok && inspection.ok
-          ? { state: 'success', ok: true, status: result.status, smokeUrl }
-          : { state: checks.state === 'success' ? 'failed' : 'pending', ok: false, status: result.status, smokeUrl, error: result.ok ? inspection.error : `Preview route returned HTTP ${result.status}.` };
+        const verification = await inspectPublishedUrl({
+          url: smokeUrl,
+          canonicalUrl,
+          title,
+          fetchText,
+          attempts: 3,
+          wait: () => new Promise((resolve) => setTimeout(resolve, 1500)),
+        });
+        smoke = verification.ok
+          ? { state: 'success', ok: true, status: verification.status, smokeUrl }
+          : { state: checks.state === 'success' ? 'failed' : 'pending', ok: false, status: verification.status, smokeUrl, error: verification.error };
       } catch (error) {
         smoke = { state: checks.state === 'success' ? 'failed' : 'pending', ok: false, smokeUrl, error: error.message };
       }
