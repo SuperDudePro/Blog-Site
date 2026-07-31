@@ -1,6 +1,13 @@
 import assert from 'node:assert/strict';
 import test from 'node:test';
-import { jobFromPullRequest, newestPublishingJob, publishingJobKey, selectPublishingJob } from '../lib/publishingJobs.mjs';
+import {
+  findPublishingPullRequest,
+  jobFromPullRequest,
+  newestPublishingJob,
+  publishingJobKey,
+  selectRecoverableJob,
+  selectPublishingJob,
+} from '../lib/publishingJobs.mjs';
 
 const pull = (overrides = {}) => ({
   number: 26,
@@ -42,4 +49,54 @@ test('prefers an open job before a more recently updated merged job', () => {
   assert.equal(newestPublishingJob([merged, open]).handoff.prNumber, 70);
   assert.equal(publishingJobKey(merged), 'SuperDudePro/LifeEducationOrg#26');
   assert.equal(selectPublishingJob([open, merged], 'SuperDudePro/LifeEducationOrg#26').handoff.prNumber, 26);
+});
+
+test('recovers one existing open pull request by deterministic branch or legacy slug', () => {
+  const pulls = [
+    {
+      number: 10,
+      state: 'open',
+      head: { ref: 'publisher/adaptive-test' },
+      body: '- Slug: `adaptive-test`',
+    },
+    {
+      number: 9,
+      state: 'open',
+      head: { ref: 'publisher/adaptive-test-1785000000000' },
+      body: '- Slug: `adaptive-test`',
+    },
+  ];
+  assert.equal(findPublishingPullRequest(pulls, {
+    slug: 'adaptive-test',
+    branch: 'publisher/adaptive-test',
+  })?.number, 10);
+  assert.equal(findPublishingPullRequest(pulls.slice(1), {
+    slug: 'adaptive-test',
+    branch: 'publisher/adaptive-test',
+  })?.number, 9);
+});
+
+test('does not recover closed or non-Publisher pull requests', () => {
+  assert.equal(findPublishingPullRequest([
+    { state: 'closed', head: { ref: 'publisher/adaptive-test' }, body: '- Slug: `adaptive-test`' },
+    { state: 'open', head: { ref: 'fix/adaptive-test' }, body: '- Slug: `adaptive-test`' },
+  ], { slug: 'adaptive-test', branch: 'publisher/adaptive-test' }), null);
+});
+
+test('refresh recovery never guesses between active jobs from different sites', () => {
+  const life = jobFromPullRequest('SuperDudePro/LifeEducationOrg', pull({
+    state: 'open',
+    merged_at: null,
+  }));
+  const ood = jobFromPullRequest('SuperDudePro/Blog-Site', pull({
+    number: 70,
+    state: 'open',
+    merged_at: null,
+    head: { ref: 'publisher/ood-post', sha: 'b'.repeat(40) },
+  }));
+  assert.equal(selectRecoverableJob([life, ood], ''), null);
+  assert.equal(
+    selectRecoverableJob([life, ood], 'SuperDudePro/Blog-Site#70')?.handoff.repository,
+    'SuperDudePro/Blog-Site',
+  );
 });

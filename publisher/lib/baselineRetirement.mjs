@@ -1,4 +1,23 @@
 const OOD_REPOSITORY = 'SuperDudePro/Blog-Site';
+const CURRENT_PACKAGE_RULES = new Set([
+  'cta.contact.required',
+  'image.body.alt',
+  'image.body.distinct',
+  'image.body.geometry',
+  'image.body.minimum',
+  'image.body.reference',
+  'image.body.sequence',
+  'image.role.body-reuse',
+  'image.role.card.alt',
+  'image.role.card.filename',
+  'image.role.card.geometry',
+  'image.role.card.missing',
+  'image.role.distinct',
+  'image.role.hero.alt',
+  'image.role.hero.filename',
+  'image.role.hero.geometry',
+  'image.role.hero.missing',
+]);
 
 const issueKey = (entry) => `${entry.ruleId}\u0000${entry.signature}`;
 
@@ -107,6 +126,21 @@ export function retireResolvedBaselineEntries({ baseline, repository, slug, inde
   }
   if (!retired.length) return { baseline, retired, retained, changed: false };
 
+  const next = structuredClone(baseline);
+  if (retained.length) next.entries[slug] = retained;
+  else delete next.entries[slug];
+  return { baseline: next, retired, retained, changed: true };
+}
+
+export function retireValidatedBaselineEntries({ baseline, slug }) {
+  if (!baseline?.entries?.[slug]) return { baseline, retired: [], retained: [], changed: false };
+  const retired = [];
+  const retained = [];
+  for (const entry of baseline.entries[slug]) {
+    if (CURRENT_PACKAGE_RULES.has(entry.ruleId)) retired.push(entry);
+    else retained.push(entry);
+  }
+  if (!retired.length) return { baseline, retired, retained, changed: false };
   const next = structuredClone(baseline);
   if (retained.length) next.entries[slug] = retained;
   else delete next.entries[slug];

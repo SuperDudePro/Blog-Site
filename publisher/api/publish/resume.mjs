@@ -1,7 +1,7 @@
 import { requirePublisher } from '../../lib/auth.mjs';
 import { repoRequest } from '../../lib/github.mjs';
 import { json, method, readJson } from '../../lib/http.mjs';
-import { jobFromPullRequest, publishingJobKey, selectPublishingJob } from '../../lib/publishingJobs.mjs';
+import { jobFromPullRequest, publishingJobKey, selectRecoverableJob } from '../../lib/publishingJobs.mjs';
 import { SITE_PROFILES } from '../../siteProfiles.mjs';
 
 export default async function handler(request, response) {
@@ -15,11 +15,16 @@ export default async function handler(request, response) {
       return pulls.map((pullRequest) => jobFromPullRequest(repository, pullRequest)).filter(Boolean);
     }));
     const jobs = results.flat();
-    const job = selectPublishingJob(jobs, requestedJob);
+    const activeJobs = jobs.filter((candidate) => candidate.state === 'open');
+    const job = selectRecoverableJob(jobs, requestedJob);
+    const recoveryError = !requestedJob && activeJobs.length > 1
+      ? 'Multiple active publishing jobs exist. Resume from the job-specific Publisher URL instead of guessing which site or post is active.'
+      : '';
     return json(response, 200, {
       ok: true,
       job,
       jobKey: publishingJobKey(job),
+      recoveryError,
       recoverableJobs: jobs.map((candidate) => ({
         jobKey: publishingJobKey(candidate),
         title: candidate.manifest.title,

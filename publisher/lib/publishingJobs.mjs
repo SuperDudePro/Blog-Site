@@ -67,3 +67,22 @@ export function selectPublishingJob(jobs, key) {
   }
   return newestPublishingJob(jobs);
 }
+
+export function selectRecoverableJob(jobs, key) {
+  const requested = text(key);
+  if (requested) return jobs.find((job) => publishingJobKey(job) === requested) || null;
+  const active = jobs.filter((job) => job?.state === 'open');
+  return active.length === 1 ? active[0] : null;
+}
+
+export function findPublishingPullRequest(pullRequests, { slug, branch } = {}) {
+  const expectedSlug = text(slug);
+  const expectedBranch = text(branch);
+  return (Array.isArray(pullRequests) ? pullRequests : []).find((pullRequest) => {
+    if (text(pullRequest?.state) !== 'open') return false;
+    const currentBranch = text(pullRequest?.head?.ref);
+    if (!currentBranch.startsWith('publisher/')) return false;
+    if (expectedBranch && currentBranch === expectedBranch) return true;
+    return expectedSlug && codeField(pullRequest?.body, 'Slug') === expectedSlug;
+  }) || null;
+}

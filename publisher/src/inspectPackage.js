@@ -1,5 +1,6 @@
 import JSZip from 'jszip';
 import { allowedProductionPaths, getSiteProfile, imageManifestErrors } from '../siteProfiles.mjs';
+import { expectedGeometry, inspectImageBytes } from '../lib/imageMetadata.mjs';
 import { captionMatchesSource } from './inspectionText.js';
 import { extractField, normalizePackageManifest } from './packageManifest.js';
 
@@ -33,6 +34,7 @@ export async function inspectPackage(file) {
   const dropPrefix = `${root}/drop-in/${initialManifest.slug}/`;
   const sourceEntries = profile.sourceFiles.map((name) => zip.file(`${dropPrefix}${name}`));
   const sourceTexts = await Promise.all(sourceEntries.map((entry) => entry ? entry.async('text') : ''));
+  const sourceFiles = Object.fromEntries(profile.sourceFiles.map((name, index) => [name, sourceTexts[index]]));
   const source = sourceTexts.join('\n');
   const manifest = normalizePackageManifest(rawManifest, source);
   const checks = [];
@@ -67,12 +69,24 @@ export async function inspectPackage(file) {
     contactCta ? 'Linked to the site contact page' : `${profile.targetSite} posts must include a reader-facing CTA linked to the site contact page`,
   );
 
-  for (const message of imageManifestErrors(profile, manifest.images)) add('Images', 'Role contract', false, message);
-  if (!imageManifestErrors(profile, manifest.images).length) add('Images', 'Role contract', true, `${manifest.images.length - 2} approved body images`);
+  const roleErrors = imageManifestErrors(profile, manifest.images);
+  for (const message of roleErrors) add('Images', 'Role contract', false, message);
+  if (!roleErrors.length) add('Images', 'Role contract', true, `${manifest.images.length - 2} approved body images`);
 
+  const imageMetadata = [];
   const images = await Promise.all((manifest.images || []).map(async (image) => {
     const entry = zip.file(`${dropPrefix}${image.file}`);
-    const blob = entry ? await entry.async('blob') : null;
+    const bytes = entry ? await entry.async('uint8array') : null;
+    const blob = bytes ? new Blob([bytes]) : null;
+    let metadata = { file: image.file, role: image.role, readable: false, width: 0, height: 0, bytes: bytes?.length || 0 };
+    if (bytes) {
+      try {
+        metadata = { file: image.file, role: image.role, readable: true, ...inspectImageBytes(bytes) };
+      } catch {
+        // The validation result below reports unreadable image data.
+      }
+    }
+    imageMetadata.push(metadata);
     const view = {
       ...image,
       url: blob ? URL.createObjectURL(blob) : '',
@@ -85,11 +99,24 @@ export async function inspectPackage(file) {
     add('Images', `${image.file}: import`, view.imported, view.imported ? 'Referenced' : 'Not referenced');
     add('Images', `${image.file}: alt`, view.altMatches, view.altMatches ? 'Matches' : 'Does not match');
     if (image.caption) add('Images', `${image.file}: caption`, view.captionMatches, view.captionMatches ? 'Matches' : 'Does not match');
+    const expected = expectedGeometry(image.role);
+    const geometryOk = Boolean(metadata.readable && expected && metadata.width === expected.width && metadata.height === expected.height);
+    add(
+      'Images',
+      `${image.file}: geometry`,
+      geometryOk,
+      !metadata.readable
+        ? 'Unreadable PNG, JPEG, or WebP data'
+        : expected
+          ? `${metadata.width}x${metadata.height}; expected ${expected.width}x${expected.height}`
+          : `Unsupported image role: ${image.role}`,
+    );
     return view;
   }));
 
   const productionFiles = files.filter((name) => name.startsWith(dropPrefix));
   const relativeProductionFiles = productionFiles.map((name) => name.slice(dropPrefix.length));
+  imageMetadata.sort((a, b) => a.file.localeCompare(b.file));
   const allowed = allowedProductionPaths(profile, manifest.images);
   const unexpected = relativeProductionFiles.filter((name) => !allowed.has(name));
   add('Package', 'Production file allowlist', unexpected.length === 0, unexpected.length ? `Unexpected: ${unexpected.join(', ')}` : 'Only intended production files found');
@@ -101,5 +128,19 @@ export async function inspectPackage(file) {
     add('Playlist', 'Links rendered', source.includes(playlist.youtube) && source.includes(playlist.youtubeMusic), playlist.playlistId);
   }
 
-  return { root, dropPrefix, manifest, profile, files, productionFiles, checks, images };
+  return {
+    root,
+    dropPrefix,
+    manifest,
+    profile,
+    files,
+    productionFiles,
+    checks,
+    images,
+    preflight: {
+      productionPaths: relativeProductionFiles,
+      sourceFiles,
+      imageMetadata,
+    },
+  };
 }

@@ -2,6 +2,7 @@ import assert from 'node:assert/strict';
 import test from 'node:test';
 import JSZip from 'jszip';
 import { hasRequiredContactCta, inspectPackage } from '../src/inspectPackage.js';
+import { imageFixture } from '../test-support/fixtures.mjs';
 
 test('requires the correct site contact CTA for both publishing profiles', () => {
   assert.equal(hasRequiredContactCta('lifeeducation', '<a href="/contact">Send it.</a>'), true);
@@ -68,7 +69,7 @@ import heroImage from "./images/hero-image.webp";
   zip.file(`${root}/source/package-manifest.json`, JSON.stringify(manifest));
   zip.file(`${drop}meta.ts`, meta);
   zip.file(`${drop}index.tsx`, index);
-  images.forEach((image) => zip.file(`${drop}${image.file}`, new Uint8Array([1, 2, 3])));
+  images.forEach((image) => zip.file(`${drop}${image.file}`, imageFixture(image.role)));
 
   const inspection = await inspectPackage(await zip.generateAsync({ type: 'uint8array' }));
   assert.equal(inspection.profile.id, 'lifeeducation');
@@ -131,7 +132,7 @@ import heroImage from "./images/hero-image.webp";
   zip.file(`${root}/source/package-manifest.json`, JSON.stringify(manifest));
   zip.file(`${drop}meta.ts`, meta);
   zip.file(`${drop}index.tsx`, `${bodyImports}\nconst post = { ...metadata, body: <>${figures}</> };`);
-  images.forEach((image) => zip.file(`${drop}${image.file}`, new Uint8Array([1, 2, 3])));
+  images.forEach((image) => zip.file(`${drop}${image.file}`, imageFixture(image.role)));
 
   const inspection = await inspectPackage(await zip.generateAsync({ type: 'uint8array' }));
   const ctaCheck = inspection.checks.find((check) => check.label === 'Reader CTA and contact path');
