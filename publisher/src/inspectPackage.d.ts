@@ -18,6 +18,19 @@ export type Inspection = {
   productionFiles: string[];
   checks: Check[];
   images: ImageView[];
+  preflight: {
+    productionPaths: string[];
+    sourceFiles: Record<string, string>;
+    imageMetadata: Array<{
+      file: string;
+      role: string;
+      readable: boolean;
+      width: number;
+      height: number;
+      bytes: number;
+      format?: string;
+    }>;
+  };
 };
 
 export function inspectPackage(file: Blob | ArrayBuffer | Uint8Array): Promise<Inspection>;

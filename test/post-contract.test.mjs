@@ -186,6 +186,25 @@ test('retrofit queue is newest-first and exposes the exact reviewed findings', (
   ]);
 });
 
+test('failed retrofit does not advance next and confirmed baseline retirement does', () => {
+  const scan = {
+    posts: [
+      { slug: 'first', title: 'First', publishedAt: '2026-07-01', priority: 'P2 image completion' },
+      { slug: 'second', title: 'Second', publishedAt: '2026-06-01', priority: 'P3 finish and cleanup' },
+    ],
+  };
+  const baseline = {
+    entries: {
+      first: [{ ruleId: 'image.body.geometry', signature: 'wrong-size' }],
+      second: [{ ruleId: 'cta.contact.required', signature: '/contact' }],
+    },
+  };
+  assert.equal(retrofitQueue(scan, baseline)[0].slug, 'first');
+  assert.equal(retrofitQueue(scan, structuredClone(baseline))[0].slug, 'first');
+  delete baseline.entries.first;
+  assert.equal(retrofitQueue(scan, baseline)[0].slug, 'second');
+});
+
 test('only the exact reviewed legacy defect is allowed', () => {
   const root = createRepo({ count: 3 });
   const first = scanOurOldDad(root);

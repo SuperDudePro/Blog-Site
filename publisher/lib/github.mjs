@@ -1,12 +1,12 @@
 import { githubToken } from './auth.mjs';
 
-const API = 'https://api.github.com';
+const apiBase = () => String(process.env.GITHUB_API_URL || 'https://api.github.com').replace(/\/+$/, '');
 
 export async function github(path, options = {}) {
   const body = options.body && typeof options.body === 'object' && !(options.body instanceof Uint8Array)
     ? JSON.stringify(options.body)
     : options.body;
-  const response = await fetch(`${API}${path}`, {
+  const response = await fetch(`${apiBase()}${path}`, {
     ...options,
     body,
     headers: {

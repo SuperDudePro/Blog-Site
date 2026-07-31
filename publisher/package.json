@@ -6,6 +6,7 @@
   "scripts": {
     "dev": "vite",
     "test": "node --test",
+    "test:journey": "node --test test/journeyMatrix.test.mjs",
     "build": "npm test && tsc --noEmit && vite build",
     "preview": "vite preview"
   },

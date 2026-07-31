@@ -99,18 +99,17 @@ export function inspectPublishedHtml(body, canonicalUrl, title) {
   });
   if (!canonicalMatches) return { ok: false, error: 'The route does not declare the expected canonical URL.' };
 
-  const normalizedHtml = normalizeText(html);
   const normalizedTitle = normalizeText(title);
-  if (normalizedTitle && !normalizedHtml.includes(normalizedTitle)) {
-    const documentTitle = decodeHtml(html.match(/<title\b[^>]*>([\s\S]*?)<\/title>/i)?.[1] || '').trim();
-    const articleHeadline = decodeHtml(
-      html.match(/["']headline["']\s*:\s*["']([^"']+)["']/i)?.[1]
-      || html.match(/<meta\b[^>]*(?:property|name)=["'](?:og|twitter):title["'][^>]*content=["']([^"']+)["']/i)?.[1]
-      || '',
-    ).trim();
-    if (!documentTitle && !articleHeadline) {
-      return { ok: false, error: 'The canonical post route does not declare a page title.' };
-    }
+  const declaredTitles = [
+    decodeHtml(html.match(/<title\b[^>]*>([\s\S]*?)<\/title>/i)?.[1] || '').trim(),
+    decodeHtml(html.match(/["']headline["']\s*:\s*["']([^"']+)["']/i)?.[1] || '').trim(),
+    decodeHtml(html.match(/<meta\b[^>]*(?:property|name)=["'](?:og|twitter):title["'][^>]*content=["']([^"']+)["']/i)?.[1] || '').trim(),
+  ].filter(Boolean);
+  if (!declaredTitles.length) {
+    return { ok: false, error: 'The canonical post route does not declare a page title.' };
+  }
+  if (normalizedTitle && !declaredTitles.some((candidate) => normalizeText(candidate).includes(normalizedTitle))) {
+    return { ok: false, error: 'The route does not declare the expected post title.' };
   }
 
   return { ok: true };

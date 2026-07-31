@@ -4,6 +4,7 @@ import { inspectPackage } from './inspectPackage.js';
 import type { ImageView, Inspection } from './inspectPackage.js';
 import type { NormalizedManifest as Manifest } from './packageManifest.js';
 import { clearPublisherJob, loadPublisherJob, savePublisherJob } from './jobPersistence.js';
+import { resetPipelineForStatusCheck } from './pipelineState.js';
 type Session = { repository: string; slug: string; title: string; destinationPath: string; canonicalUrl: string; baseBranch: string; baseCommitSha: string; baseTreeSha: string; branch?: string; operation?: 'create'|'replace'; existingFiles?: Array<{path:string;sha:string;size?:number}> };
 type Handoff = { repository: string; branch: string; commit: string; prNumber: number; prUrl: string; baseBranch: string; canonicalUrl?: string; title?: string };
 type ResumeJob = { handoff:Handoff; manifest:Manifest; state:'open'|'closed'|'merged'; updatedAt:string };
@@ -80,6 +81,11 @@ export default function App(){
       checks: [{ group:'Recovery', label:'Publishing job restored from GitHub', ok:true, detail:`PR #${job.handoff.prNumber}` }],
       images: [],
       productionFiles: [],
+      preflight: {
+        productionPaths: [],
+        sourceFiles: {},
+        imageMetadata: [],
+      },
       root: '',
       dropPrefix: '',
     };
@@ -91,8 +97,9 @@ export default function App(){
     if(!authenticated||restoredJob||handoff||inspection||busy)return;
     setBusy(true);
     const requestedJob=new URL(window.location.href).searchParams.get('job')||'';
-    void api<{job:ResumeJob|null;jobKey:string}>('/api/publish/resume',key,{job:requestedJob})
-      .then(({job})=>{
+    void api<{job:ResumeJob|null;jobKey:string;recoveryError?:string}>('/api/publish/resume',key,{job:requestedJob})
+      .then(({job,recoveryError})=>{
+        if(recoveryError)setError(recoveryError);
         if(!job)return;
         const recovered=resumeInspection(job);
         setInspection(recovered);
@@ -131,7 +138,7 @@ export default function App(){
 
   function checkStatus(h:Handoff,m:Manifest){
     setError('');
-    update(7,'active','Rechecking the target site preview');
+    setPipeline(current=>resetPipelineForStatusCheck(current));
     setBusy(true);
     void poll(h,m)
       .catch(e=>setError(e instanceof Error?e.message:'Status check failed.'))
@@ -159,7 +166,7 @@ export default function App(){
     if(!file||!inspection||!ready)return;setApproval(false);setBusy(true);setError('');setPipeline(steps());setHandoff(null);setStatus(null);update(0,'complete','Explicit approval received.');
     try{
       update(1,'active','Reading main from GitHub');
-      const start=await api<{session:Session}>('/api/publish/start',key,{manifest:inspection.manifest});update(1,'complete',`${start.session.baseBranch} @ ${start.session.baseCommitSha.slice(0,7)}`);
+      const start=await api<{session:Session}>('/api/publish/start',key,{manifest:inspection.manifest,preflight:inspection.preflight});update(1,'complete',`${start.session.baseBranch} @ ${start.session.baseCommitSha.slice(0,7)}`);
       const zip=await JSZip.loadAsync(file);const entries=Object.values(zip.files).filter(e=>!e.dir&&normalize(e.name).startsWith(inspection.dropPrefix));const blobs:Array<{path:string;sha:string;size:number}>=[];
       update(2,'active',`0/${entries.length} files`);
       for(let i=0;i<entries.length;i++){const entry=entries[i];const path=normalize(entry.name).slice(inspection.dropPrefix.length);const bytes=await entry.async('uint8array');const result=await api<{sha:string;size:number}>('/api/publish/blob',key,{repository:inspection.manifest.repository,encoding:'base64',content:toBase64(bytes)});blobs.push({path,sha:result.sha,size:bytes.length});update(2,'active',`${i+1}/${entries.length}: ${path}`);}
