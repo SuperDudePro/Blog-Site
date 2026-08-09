@@ -26,9 +26,28 @@ function escapeAttribute(value) {
     .replaceAll('>', '&gt;');
 }
 
+function escapeText(value) {
+  return String(value)
+    .replaceAll('&', '&amp;')
+    .replaceAll('<', '&lt;')
+    .replaceAll('>', '&gt;');
+}
+
 function replaceMetadata(html, name, value, attribute = 'name') {
   const pattern = new RegExp(`<meta ${attribute}="${name}" content="[^"]*" \\/>`);
   return html.replace(pattern, `<meta ${attribute}="${name}" content="${escapeAttribute(value)}" />`);
+}
+
+function staticPostBody(post) {
+  return post.bodyHtml
+    .replace(/<script\b[\s\S]*?<\/script>/gi, '')
+    .replace(/<img\b[\s\S]*?>/gi, '')
+    .replace(/\$\{[^}]+\}/g, '');
+}
+
+function staticPostMarkup(post) {
+  const body = staticPostBody(post);
+  return `<main data-static-post-shell><article data-static-post><header><h1>${escapeText(post.title)}</h1><p>${escapeText(post.excerpt)}</p><p><time datetime="${escapeAttribute(post.publishedAt)}">${escapeText(post.publishedAt)}</time></p></header>${body}</article></main>`;
 }
 
 const [sitemap, indexHtml] = await Promise.all([
@@ -86,6 +105,7 @@ for (const route of routes) {
       /<script type="application\/ld\+json" data-site-jsonld>[\s\S]*?<\/script>/,
       `<script type="application/ld+json" data-site-jsonld>${jsonLd}</script>`,
     );
+    routeHtml = routeHtml.replace('<div id="root"></div>', `<div id="root">${staticPostMarkup(metadata.post)}</div>`);
   }
 
   await mkdir(routeDir, { recursive: true });
