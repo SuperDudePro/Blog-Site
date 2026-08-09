@@ -25,6 +25,19 @@ function walk(path) {
   );
 }
 
+function visibleText(html) {
+  return html
+    .replace(/<script\b[\s\S]*?<\/script>/gi, ' ')
+    .replace(/<style\b[\s\S]*?<\/style>/gi, ' ')
+    .replace(/<[^>]+>/g, ' ')
+    .replace(/&nbsp;/gi, ' ')
+    .replace(/&amp;/gi, '&')
+    .replace(/&quot;/gi, '"')
+    .replace(/&#39;/gi, "'")
+    .replace(/\s+/g, ' ')
+    .trim();
+}
+
 const sitemapPath = resolve('public/sitemap.xml');
 if (!existsSync(sitemapPath)) fail('public/sitemap.xml', '(missing)', 'sitemap was not generated');
 const sitemap = existsSync(sitemapPath) ? readFileSync(sitemapPath, 'utf8') : '';
@@ -55,8 +68,25 @@ for (const route of routes) {
   if (!routeHtml.includes(`<link rel="canonical" href="${canonical}" />`)) {
     fail(rel(html), 'canonical', `expected ${canonical}`);
   }
-  if (route.startsWith('/post/') && !/<title>.+ \| Our Old Dad<\/title>/.test(routeHtml)) {
-    fail(rel(html), 'title', 'post route is missing its static post title');
+  if (route.startsWith('/post/')) {
+    if (!/<title>.+ \| Our Old Dad<\/title>/.test(routeHtml)) {
+      fail(rel(html), 'title', 'post route is missing its static post title');
+    }
+    const article = routeHtml.match(/<article\s+data-static-post>[\s\S]*?<\/article>/i)?.[0] || '';
+    if (!article) {
+      fail(rel(html), 'article', 'post route is missing crawlable static article markup');
+    } else {
+      if (!/<h1>[\s\S]+?<\/h1>/i.test(article)) {
+        fail(rel(html), 'article', 'static article is missing its h1 title');
+      }
+      const articleText = visibleText(article);
+      if (articleText.length < 300) {
+        fail(rel(html), 'article', `static article text is too short (${articleText.length} characters)`);
+      }
+      if (/\$\{[^}]+\}/.test(article)) {
+        fail(rel(html), 'article', 'static article contains unresolved template interpolation');
+      }
+    }
   }
 }
 
