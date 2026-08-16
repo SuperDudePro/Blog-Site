@@ -21,7 +21,9 @@ async function fetchText(url) {
   return { result, body: await result.text() };
 }
 
-async function productionStatus(repository, canonicalUrl, title, mergeCommit) {
+const requiresStaticMetadata = (profile) => profile?.id !== 'lifeeducation';
+
+async function productionStatus(repository, canonicalUrl, title, mergeCommit, profile) {
   const marker = new URL('/deployment.json', canonicalUrl);
   marker.searchParams.set('publisher_verify', mergeCommit || 'pending');
   const markerUrl = marker.toString();
@@ -56,7 +58,9 @@ async function productionStatus(repository, canonicalUrl, title, mergeCommit) {
     if (!result.ok) {
       return { state: 'failed', ok: false, markerUrl, deployedCommit, mergeCommit, smokeUrl, status: result.status, error: `Production route returned HTTP ${result.status}.` };
     }
-    const inspection = inspectPublishedHtml(body, canonicalUrl, title);
+    const inspection = inspectPublishedHtml(body, canonicalUrl, title, {
+      requireStaticMetadata: requiresStaticMetadata(profile),
+    });
     return inspection.ok
       ? { state: 'success', ok: true, markerUrl, deployedCommit, mergeCommit, smokeUrl: canonicalUrl, status: result.status }
       : { state: 'failed', ok: false, markerUrl, deployedCommit, mergeCommit, smokeUrl: canonicalUrl, status: result.status, error: inspection.error };
@@ -100,6 +104,7 @@ export default async function handler(request, response) {
           canonicalUrl,
           title,
           fetchText,
+          requireStaticMetadata: requiresStaticMetadata(profile),
           attempts: 3,
           wait: () => new Promise((resolve) => setTimeout(resolve, 1500)),
         });
@@ -113,7 +118,7 @@ export default async function handler(request, response) {
     const merged = Boolean(pullRequest.merged || pullRequest.merged_at);
     const mergeCommit = pullRequest.merge_commit_sha || null;
     const production = merged
-      ? await productionStatus(repository, canonicalUrl, title, mergeCommit)
+      ? await productionStatus(repository, canonicalUrl, title, mergeCommit, profile)
       : { state: 'pending', ok: false };
     return json(response, 200, {
       ok: true,

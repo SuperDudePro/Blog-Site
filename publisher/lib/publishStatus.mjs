@@ -65,12 +65,13 @@ export async function inspectPublishedUrl({
   fetchText,
   attempts = 3,
   wait = () => Promise.resolve(),
+  requireStaticMetadata = true,
 }) {
   let last = { ok: false, status: 0, error: 'Preview verification did not run.' };
   for (let attempt = 0; attempt < attempts; attempt += 1) {
     try {
       const { result, body } = await fetchText(url);
-      const inspection = inspectPublishedHtml(body, canonicalUrl, title);
+      const inspection = inspectPublishedHtml(body, canonicalUrl, title, { requireStaticMetadata });
       last = result.ok && inspection.ok
         ? { ok: true, status: result.status }
         : {
@@ -87,9 +88,11 @@ export async function inspectPublishedUrl({
   return last;
 }
 
-export function inspectPublishedHtml(body, canonicalUrl, title) {
+export function inspectPublishedHtml(body, canonicalUrl, title, { requireStaticMetadata = true } = {}) {
   const html = String(body || '');
   if (!/<html[\s>]/i.test(html)) return { ok: false, error: 'The route did not return an HTML document.' };
+
+  if (!requireStaticMetadata) return { ok: true };
 
   const canonicalPattern = /<link\b[^>]*\brel=["'][^"']*\bcanonical\b[^"']*["'][^>]*>/gi;
   const canonicalTags = html.match(canonicalPattern) || [];
