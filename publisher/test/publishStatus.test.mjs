@@ -62,6 +62,28 @@ test('rejects a generic app shell at the expected route', () => {
   assert.match(inspectPublishedHtml(html, 'https://ourolddad.com/post/dads-story', "Dad's Story").error, /canonical URL/);
 });
 
+test('accepts client-rendered SPA shells when static metadata is not required', async () => {
+  const html = '<html><head><title>LifeEducation.org</title><link rel="canonical" href="https://www.lifeeducation.org/"></head><body><div id="root"></div></body></html>';
+  assert.deepEqual(
+    inspectPublishedHtml(
+      html,
+      'https://www.lifeeducation.org/posts/golden-olden-days-denominator-trick',
+      'The Golden Olden Days Were a Denominator Trick',
+      { requireStaticMetadata: false },
+    ),
+    { ok: true },
+  );
+
+  const result = await inspectPublishedUrl({
+    url: 'https://lifeeducation-site2-git-post.vercel.app/posts/golden-olden-days-denominator-trick',
+    canonicalUrl: 'https://www.lifeeducation.org/posts/golden-olden-days-denominator-trick',
+    title: 'The Golden Olden Days Were a Denominator Trick',
+    requireStaticMetadata: false,
+    fetchText: async () => ({ result: { ok: true, status: 200 }, body: html }),
+  });
+  assert.deepEqual(result, { ok: true, status: 200 });
+});
+
 test('rejects a canonical post route when the expected title differs from rendered metadata', () => {
   const html = '<html><head><link rel="canonical" href="https://www.lifeeducation.org/posts/domain-10"><title>Domain 10: Life Skills &amp; Project Execution | LifeEducation.org</title><meta property="og:title" content="Domain 10: Life Skills &amp; Project Execution | LifeEducation.org"></head><body><div id="root"></div></body></html>';
   assert.match(
