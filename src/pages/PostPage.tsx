@@ -1,5 +1,7 @@
+import { useEffect, useState } from 'react';
 import { FeaturedImage } from '../components/FeaturedImage';
 import { PostCard } from '../components/PostCard';
+import { PostResponsePrompt } from '../components/PostResponsePrompt';
 import { SharePost } from '../components/SharePost';
 import { SiteLink } from '../components/SiteLink';
 import { SubscribeForm } from '../components/SubscribeForm';
@@ -74,6 +76,7 @@ export function PostPage({ slug }: Props) {
 
       <article className="post-article">
         <div dangerouslySetInnerHTML={{ __html: post.bodyHtml }} />
+        <PostResponsePrompt slug={post.slug} title={post.title} />
         <SharePost title={post.title} excerpt={post.excerpt} url={shareUrl} {...(shareImage ? { image: shareImage } : {})} />
       </article>
       {related.length > 0 && (
@@ -86,4 +89,3 @@ export function PostPage({ slug }: Props) {
     </div>
   );
 }
-import { useEffect, useState } from 'react';

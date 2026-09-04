@@ -9,7 +9,7 @@ function isPlainLeftClick(event: MouseEvent<HTMLAnchorElement>): boolean {
   return event.button === 0 && !event.metaKey && !event.altKey && !event.ctrlKey && !event.shiftKey;
 }
 
-export function navigateTo(href: string, replace = false) {
+export function navigateTo(href: string, replace = false, state: unknown = null) {
   const url = new URL(href, window.location.origin);
   const nextPath = `${url.pathname}${url.search}${url.hash}`;
   const currentPath = `${window.location.pathname}${window.location.search}${window.location.hash}`;
@@ -19,12 +19,12 @@ export function navigateTo(href: string, replace = false) {
   }
 
   if (replace) {
-    window.history.replaceState(null, '', nextPath);
+    window.history.replaceState(state, '', nextPath);
   } else {
-    window.history.pushState(null, '', nextPath);
+    window.history.pushState(state, '', nextPath);
   }
 
-  window.dispatchEvent(new PopStateEvent('popstate', { state: window.history.state }));
+  window.dispatchEvent(new PopStateEvent('popstate', { state }));
 }
 
 export function SiteLink({ href, children, onClick, target, ...props }: Props) {
