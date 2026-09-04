@@ -76,7 +76,7 @@ export function PostPage({ slug }: Props) {
 
       <article className="post-article">
         <div dangerouslySetInnerHTML={{ __html: post.bodyHtml }} />
-        <PostResponsePrompt slug={post.slug} title={post.title} />
+        <PostResponsePrompt key={post.slug} slug={post.slug} title={post.title} />
         <SharePost title={post.title} excerpt={post.excerpt} url={shareUrl} {...(shareImage ? { image: shareImage } : {})} />
       </article>
       {related.length > 0 && (
