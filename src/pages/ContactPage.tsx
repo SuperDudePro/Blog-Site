@@ -1,4 +1,5 @@
 import { type CSSProperties, type FormEvent, useState } from 'react';
+import { clearPostResponseDraft, readPostResponseDraft } from '../contactDraft';
 
 type FormState = 'idle' | 'sending' | 'sent' | 'error';
 
@@ -100,6 +101,10 @@ const introStyle: CSSProperties = {
 export function ContactPage() {
   const [formState, setFormState] = useState<FormState>('idle');
   const [statusMessage, setStatusMessage] = useState('');
+  const [postResponse] = useState(() => {
+    const replyTo = new URLSearchParams(window.location.search).get('replyTo');
+    return replyTo ? readPostResponseDraft(replyTo) : null;
+  });
 
   async function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
@@ -126,6 +131,14 @@ export function ContactPage() {
       }
 
       form.reset();
+      if (postResponse) {
+        clearPostResponseDraft();
+        const subjectField = form.elements.namedItem('subject');
+        const messageField = form.elements.namedItem('message');
+        if (subjectField instanceof HTMLInputElement) subjectField.value = '';
+        if (messageField instanceof HTMLTextAreaElement) messageField.value = '';
+        window.gtag?.('event', 'post_response_sent', { item_id: postResponse.slug });
+      }
       setFormState('sent');
       setStatusMessage(
         result?.warning ??
@@ -147,7 +160,9 @@ export function ContactPage() {
           <span className="eyebrow">contact</span>
           <h1>Send a Note</h1>
           <p style={introStyle}>
-            Questions, corrections, useful warnings, and slow-travel reality checks can go here.
+            {postResponse
+              ? <>You’re responding to <strong>“{postResponse.title}.”</strong> Your draft is already below. Add your name and email, then send it.</>
+              : 'Questions, corrections, useful warnings, and slow-travel reality checks can go here.'}
           </p>
 
           <form style={formStyle} onSubmit={handleSubmit}>
@@ -168,12 +183,27 @@ export function ContactPage() {
 
             <div style={fieldStyle}>
               <label style={labelStyle} htmlFor="subject">Subject</label>
-              <input id="subject" name="subject" type="text" maxLength={160} style={controlStyle} />
+              <input
+                id="subject"
+                name="subject"
+                type="text"
+                maxLength={160}
+                defaultValue={postResponse ? `Response to: ${postResponse.title}`.slice(0, 160) : ''}
+                style={controlStyle}
+              />
             </div>
 
             <div style={fieldStyle}>
               <label style={labelStyle} htmlFor="message">Message</label>
-              <textarea id="message" name="message" required maxLength={4000} rows={8} style={textareaStyle} />
+              <textarea
+                id="message"
+                name="message"
+                required
+                maxLength={4000}
+                rows={8}
+                defaultValue={postResponse?.message ?? ''}
+                style={textareaStyle}
+              />
             </div>
 
             <label style={checkboxRowStyle} htmlFor="subscribe">

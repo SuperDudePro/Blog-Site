@@ -1,0 +1,88 @@
+.post-response {
+  margin-top: 2.75rem;
+  padding: 1.35rem;
+  border: 4px solid var(--box-border);
+  border-radius: var(--radius);
+  background: var(--accent-soft);
+  box-shadow: 8px 8px 0 rgba(138, 44, 255, 0.18);
+}
+
+.post-response .eyebrow {
+  margin-bottom: 0.45rem;
+}
+
+.post-response h2 {
+  margin-bottom: 0.45rem;
+  font-size: clamp(1.45rem, 3vw, 2rem);
+}
+
+.post-response > p {
+  max-width: 60ch;
+  margin: 0;
+}
+
+.post-response__form {
+  display: grid;
+  gap: 0.65rem;
+  margin-top: 1.15rem;
+}
+
+.post-response__form label {
+  color: var(--text);
+  font-weight: 800;
+}
+
+.post-response__form textarea {
+  width: 100%;
+  min-height: 8rem;
+  padding: 0.8rem 0.9rem;
+  border: 2px solid var(--border);
+  border-radius: 14px;
+  background: var(--surface);
+  color: var(--text);
+  font: inherit;
+  line-height: 1.55;
+  resize: vertical;
+}
+
+.post-response__form textarea:focus-visible {
+  outline: 3px solid var(--focus);
+  outline-offset: 3px;
+  border-color: var(--accent);
+}
+
+.post-response__footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+}
+
+.post-response__footer p {
+  margin: 0;
+  font-size: 0.9rem;
+}
+
+.post-response__footer .button {
+  flex: 0 0 auto;
+}
+
+.post-response__footer .button:disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
+}
+
+@media (max-width: 620px) {
+  .post-response {
+    padding: 1.1rem;
+  }
+
+  .post-response__footer {
+    align-items: stretch;
+    flex-direction: column;
+  }
+
+  .post-response__footer .button {
+    width: 100%;
+  }
+}
