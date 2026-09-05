@@ -6,11 +6,11 @@ export function normalizeComparableText(value) {
     .replace(/&rdquo;|&#8221;|&#x201d;/gi, '"')
     .replace(/&mdash;|&#8212;|&#x2014;/gi, '-')
     .replace(/&ndash;|&#8211;|&#x2013;/gi, '-')
-    .replace(/&amp;/gi, '&')
     .replace(/&nbsp;|&#160;/gi, ' ')
-    .replace(/[\u2018\u2019]/g, "'")
-    .replace(/[\u201c\u201d]/g, '"')
-    .replace(/[\u2013\u2014]/g, '-')
+    .replace(/[‘’]/g, "'")
+    .replace(/[“”]/g, '"')
+    .replace(/[–—]/g, '-')
+    .replace(/&amp;/gi, '&')
     .replace(/\s+/g, ' ')
     .trim();
 }
