@@ -91,6 +91,7 @@ try {
         const headings = await page.locator('h1').count();
         if (landmarks !== 1 || headings !== 1) failures.push(`${path}: expected one main and one h1 (got ${landmarks}, ${headings})`);
         await page.keyboard.press('Tab');
+        await page.waitForTimeout(300); // Let the skip-link focus animation finish.
         const keyboard = await page.evaluate(() => {
           const el = document.activeElement;
           const rect = el?.getBoundingClientRect();
