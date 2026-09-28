@@ -1,151 +1,373 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
   <url>
-    <loc>https://www.ourolddad.com/</loc>
-    <lastmod>2026-05-30</lastmod>
+    <loc>https://ourolddad.com/</loc>
+    <lastmod>2026-09-04</lastmod>
     <changefreq>weekly</changefreq>
     <priority>1.0</priority>
   </url>
   <url>
-    <loc>https://www.ourolddad.com/section/everything</loc>
-    <lastmod>2026-05-30</lastmod>
+    <loc>https://ourolddad.com/categories</loc>
+    <lastmod>2026-09-04</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.9</priority>
   </url>
   <url>
-    <loc>https://www.ourolddad.com/section/diary</loc>
-    <lastmod>2026-05-30</lastmod>
+    <loc>https://ourolddad.com/archive</loc>
+    <lastmod>2026-09-04</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.9</priority>
+  </url>
+  <url>
+    <loc>https://ourolddad.com/section/everything</loc>
+    <lastmod>2026-09-04</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.9</priority>
+  </url>
+  <url>
+    <loc>https://ourolddad.com/section/diary</loc>
+    <lastmod>2026-09-04</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
-    <loc>https://www.ourolddad.com/section/life-education</loc>
-    <lastmod>2026-05-30</lastmod>
+    <loc>https://ourolddad.com/section/life-education</loc>
+    <lastmod>2026-07-19</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
-    <loc>https://www.ourolddad.com/section/music-playlists</loc>
-    <lastmod>2026-05-25</lastmod>
+    <loc>https://ourolddad.com/section/music-playlists</loc>
+    <lastmod>2026-08-23</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
-    <loc>https://www.ourolddad.com/section/slow-travel</loc>
-    <lastmod>2026-05-09</lastmod>
+    <loc>https://ourolddad.com/section/slow-travel</loc>
+    <lastmod>2026-07-10</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
-    <loc>https://www.ourolddad.com/section/advice</loc>
+    <loc>https://ourolddad.com/section/advice</loc>
     <lastmod>2026-04-27</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
-    <loc>https://www.ourolddad.com/about</loc>
-    <lastmod>2026-05-30</lastmod>
+    <loc>https://ourolddad.com/about</loc>
+    <lastmod>2026-09-04</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.5</priority>
   </url>
   <url>
-    <loc>https://www.ourolddad.com/post/the-math-isnt-good</loc>
+    <loc>https://ourolddad.com/contact</loc>
+    <lastmod>2026-09-04</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.5</priority>
+  </url>
+  <url>
+    <loc>https://ourolddad.com/post/i-hate-everything-but-i-need-the-money</loc>
+    <lastmod>2026-09-04</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://ourolddad.com/post/dont-shoot-me-these-handcuffs-keep-falling-off</loc>
+    <lastmod>2026-08-29</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://ourolddad.com/post/five-years-before-i-was-born</loc>
+    <lastmod>2026-08-23</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://ourolddad.com/post/straight-greats-5-rolling-stones-six-straight</loc>
+    <lastmod>2026-08-03</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://ourolddad.com/post/how-the-straight-greats-scorecard-works</loc>
+    <lastmod>2026-08-02</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://ourolddad.com/post/the-cult-three-great-reincarnations-before-they-fucked-it-up</loc>
+    <lastmod>2026-07-27</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://ourolddad.com/post/3-straight-rem-green-out-of-time-automatic-for-the-people</loc>
+    <lastmod>2026-07-26</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://ourolddad.com/post/three-straight-2-aerosmith</loc>
+    <lastmod>2026-07-25</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://ourolddad.com/post/one-senior-one-child-and-a-two-year-old</loc>
+    <lastmod>2026-07-23</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://ourolddad.com/post/three-straight-1-radiohead</loc>
+    <lastmod>2026-07-23</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://ourolddad.com/post/we-werent-going-to-tell-her-so-soon</loc>
+    <lastmod>2026-07-23</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://ourolddad.com/post/did-i-shit-myself</loc>
+    <lastmod>2026-07-22</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://ourolddad.com/post/there-was-no-ned</loc>
+    <lastmod>2026-07-20</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://ourolddad.com/post/not-everyone-should-teach</loc>
+    <lastmod>2026-07-19</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://ourolddad.com/post/a-message-for-louis</loc>
+    <lastmod>2026-07-12</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://ourolddad.com/post/joe-walsh-34-songs-and-a-familiar-kind-of-crazy</loc>
+    <lastmod>2026-07-12</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://ourolddad.com/post/my-friends-had-oregano</loc>
+    <lastmod>2026-07-12</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://ourolddad.com/post/the-83-hawaii-playlist</loc>
+    <lastmod>2026-07-12</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://ourolddad.com/post/not-satisfied</loc>
+    <lastmod>2026-07-11</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://ourolddad.com/post/supporting-characters</loc>
+    <lastmod>2026-07-11</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://ourolddad.com/post/closer-to-nomadland-than-i-want-to-admit</loc>
+    <lastmod>2026-07-10</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://ourolddad.com/post/google-almost-killed-us</loc>
+    <lastmod>2026-07-07</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://ourolddad.com/post/the-pace-rule-we-are-not-dragging-two-kids-through-the-world</loc>
+    <lastmod>2026-06-27</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://ourolddad.com/post/none-of-those-roads</loc>
+    <lastmod>2026-06-22</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://ourolddad.com/post/slow-travel-weather-filter</loc>
+    <lastmod>2026-06-20</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://ourolddad.com/post/the-constraint-system-that-will-pick-our-next-places</loc>
+    <lastmod>2026-06-20</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://ourolddad.com/post/slow-travel-the-mission</loc>
+    <lastmod>2026-06-19</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://ourolddad.com/post/everything-is-not-yet-lost</loc>
+    <lastmod>2026-06-17</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://ourolddad.com/post/what-if-i-dont</loc>
+    <lastmod>2026-06-17</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://ourolddad.com/post/sure-you-will</loc>
+    <lastmod>2026-06-16</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://ourolddad.com/post/the-purple-scooter-walk</loc>
+    <lastmod>2026-06-14</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://ourolddad.com/post/1985-the-wrong-algorithm</loc>
+    <lastmod>2026-06-12</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://ourolddad.com/post/little-tommy</loc>
+    <lastmod>2026-06-06</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://ourolddad.com/post/the-zam-coup</loc>
+    <lastmod>2026-06-05</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://ourolddad.com/post/the-math-isnt-good</loc>
     <lastmod>2026-05-30</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
-    <loc>https://www.ourolddad.com/post/1993-the-year-everything-was-right-in-front-of-me</loc>
+    <loc>https://ourolddad.com/post/1993-the-year-everything-was-right-in-front-of-me</loc>
     <lastmod>2026-05-25</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
-    <loc>https://www.ourolddad.com/post/within-a-listen</loc>
+    <loc>https://ourolddad.com/post/within-a-listen</loc>
     <lastmod>2026-05-23</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
-    <loc>https://www.ourolddad.com/post/a-room-from-1983</loc>
+    <loc>https://ourolddad.com/post/a-room-from-1983</loc>
     <lastmod>2026-05-10</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
-    <loc>https://www.ourolddad.com/post/the-funk-that-forgot-about-me</loc>
+    <loc>https://ourolddad.com/post/the-funk-that-forgot-about-me</loc>
     <lastmod>2026-05-10</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
-    <loc>https://www.ourolddad.com/post/i-got-another-round</loc>
+    <loc>https://ourolddad.com/post/i-got-another-round</loc>
     <lastmod>2026-05-09</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
-    <loc>https://www.ourolddad.com/post/im-almost-5-dad</loc>
+    <loc>https://ourolddad.com/post/im-almost-5-dad</loc>
     <lastmod>2026-05-09</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
-    <loc>https://www.ourolddad.com/post/1977-the-year-that-wouldnt-pick-a-lane</loc>
+    <loc>https://ourolddad.com/post/1977-the-year-that-wouldnt-pick-a-lane</loc>
     <lastmod>2026-05-04</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
-    <loc>https://www.ourolddad.com/post/dad-do-you-love-me-enough-to-protect-me</loc>
+    <loc>https://ourolddad.com/post/dad-do-you-love-me-enough-to-protect-me</loc>
     <lastmod>2026-05-01</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
-    <loc>https://www.ourolddad.com/post/running-away-running-true</loc>
+    <loc>https://ourolddad.com/post/running-away-running-true</loc>
     <lastmod>2026-04-28</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
-    <loc>https://www.ourolddad.com/post/the-wrong-ruler</loc>
+    <loc>https://ourolddad.com/post/the-wrong-ruler</loc>
     <lastmod>2026-04-28</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
-    <loc>https://www.ourolddad.com/post/advice-1-dont-be-a-dick</loc>
+    <loc>https://ourolddad.com/post/advice-1-dont-be-a-dick</loc>
     <lastmod>2026-04-27</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
-    <loc>https://www.ourolddad.com/post/be-like-mr-walker</loc>
+    <loc>https://ourolddad.com/post/be-like-mr-walker</loc>
     <lastmod>2026-04-27</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
-    <loc>https://www.ourolddad.com/post/reasons-to-reconsider-the-80s</loc>
+    <loc>https://ourolddad.com/post/reasons-to-reconsider-the-80s</loc>
     <lastmod>2026-04-26</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
-    <loc>https://www.ourolddad.com/post/earlines-mom</loc>
+    <loc>https://ourolddad.com/post/earlines-mom</loc>
     <lastmod>2026-04-24</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
-    <loc>https://www.ourolddad.com/post/bad-company-40-songs-worth-burning-through</loc>
+    <loc>https://ourolddad.com/post/bad-company-40-songs-worth-burning-through</loc>
     <lastmod>2026-04-23</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
-    <loc>https://www.ourolddad.com/post/journey-40-songs-and-a-time-machine</loc>
+    <loc>https://ourolddad.com/post/journey-40-songs-and-a-time-machine</loc>
     <lastmod>2026-04-22</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
