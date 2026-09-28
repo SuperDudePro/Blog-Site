@@ -23,8 +23,10 @@
     "test:post-loading": "node --test test/post-loading.test.mjs",
     "validate:post-contract": "node scripts/validate-post-contract.mjs --enforce",
     "validate:bundle-size": "node scripts/validate-bundle-size.mjs",
-    "build": "npm run validate:redirects && npm run generate:sitemap && npm run generate:rss && npm run generate:deployment && npm run generate:post-metadata && npm run validate:content && npm run test:post-contract && npm run test:post-loading && npm run validate:post-contract && tsc --noEmit -p tsconfig.app.json && tsc --noEmit -p tsconfig.node.json && vite build && npm run validate:bundle-size && npm run generate:routes && npm run validate:site",
-    "preview": "vite preview"
+    "build": "npm run validate:redirects && npm run validate:sitemap && npm run generate:rss && npm run generate:deployment && npm run generate:post-metadata && npm run validate:content && npm run test:post-contract && npm run test:post-loading && npm run validate:post-contract && tsc --noEmit -p tsconfig.app.json && tsc --noEmit -p tsconfig.node.json && vite build && npm run validate:bundle-size && npm run generate:routes && npm run validate:site && npm run validate:discovery",
+    "preview": "vite preview",
+    "validate:sitemap": "node scripts/validate-discovery.mjs https://ourolddad.com --sitemap scripts/generate-sitemap.mjs",
+    "validate:discovery": "node scripts/validate-discovery.mjs https://ourolddad.com --built"
   },
   "dependencies": {
     "react": "^18.3.1",
