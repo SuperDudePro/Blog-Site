@@ -95,7 +95,7 @@ export function SubscribeForm({ compact = false }: Props) {
   };
 
   return (
-    <section style={sectionStyle} aria-labelledby={headingId}>
+    <section style={sectionStyle} aria-label={isFooter ? 'Footer email subscription' : 'Email subscription'}>
       <span className="eyebrow" style={isFooter ? { color: 'var(--accent-light)' } : undefined}>new posts</span>
       <h2 id={headingId} style={headingStyle}>Get the new ones by email.</h2>
       <p style={copyStyle}>New stories, playlists, travel notes, and old-dad advice when they appear.</p>

@@ -26,7 +26,9 @@
     "build": "npm run validate:redirects && npm run validate:sitemap && npm run generate:rss && npm run generate:deployment && npm run generate:post-metadata && npm run validate:content && npm run test:post-contract && npm run test:post-loading && npm run validate:post-contract && tsc --noEmit -p tsconfig.app.json && tsc --noEmit -p tsconfig.node.json && vite build && npm run validate:bundle-size && npm run generate:routes && npm run validate:site && npm run validate:discovery",
     "preview": "vite preview",
     "validate:sitemap": "node scripts/validate-discovery.mjs https://ourolddad.com --sitemap scripts/generate-sitemap.mjs",
-    "validate:discovery": "node scripts/validate-discovery.mjs https://ourolddad.com --built"
+    "validate:discovery": "node scripts/validate-discovery.mjs https://ourolddad.com --built",
+    "audit:quality": "node scripts/quality-audit.mjs --check",
+    "baseline:quality": "node scripts/quality-audit.mjs --record"
   },
   "dependencies": {
     "react": "^18.3.1",
@@ -36,6 +38,7 @@
     "@types/react": "^18.3.29",
     "@types/react-dom": "^18.3.1",
     "@vitejs/plugin-react": "^6.0.2",
+    "axe-core": "^4.13.0",
     "playwright-core": "^1.63.0",
     "typescript": "^5.9.3",
     "vite": "^8.0.14"
