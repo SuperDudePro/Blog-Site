@@ -1,0 +1,14 @@
+{
+  "origin": "https://ourolddad.com",
+  "alternateOrigin": "https://www.ourolddad.com",
+  "alternatePath": "/archive",
+  "alternateMustRedirect": true,
+  "minimumSitemapUrls": 50,
+  "routes": [
+    "/",
+    "/archive",
+    "/categories"
+  ],
+  "articlePrefix": "/post/",
+  "browser": "archive"
+}
