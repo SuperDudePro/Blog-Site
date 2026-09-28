@@ -8,6 +8,18 @@ const sitemapPath = path.join(rootDir, 'public', 'sitemap.xml');
 const distDir = path.join(rootDir, 'dist');
 const indexPath = path.join(distDir, 'index.html');
 const canonicalHost = 'https://ourolddad.com';
+const staticRouteMetadata = new Map([
+  ['/categories', { title: 'Categories | Our Old Dad', description: 'Browse every Our Old Dad category and find the latest post in each one.' }],
+  ['/archive', { title: 'Archive | Our Old Dad', description: 'Search every published Our Old Dad post by words, section, or year.' }],
+  ['/about', { title: 'About | Our Old Dad', description: 'Notes on fatherhood, music, memory, learning, and the attempt to build a bigger life while time is still on the clock.' }],
+  ['/contact', { title: 'Contact | Our Old Dad', description: 'Send a note to Our Old Dad without exposing a public email address.' }],
+  ['/section/everything', { title: 'Everything | Our Old Dad', description: 'All posts in one place.' }],
+  ['/section/diary', { title: 'Diary of an Old Dad | Our Old Dad', description: 'Scenes, memory, family life, and the day-to-day absurdity of being an old dad.' }],
+  ['/section/life-education', { title: 'Life Education | Our Old Dad', description: 'What is worth learning, how kids grow, and what makes a life feel real.' }],
+  ['/section/music-playlists', { title: 'Music Playlists | Our Old Dad', description: 'Songs, seasons, road soundtracks, memory triggers, and what to put on next.' }],
+  ['/section/slow-travel', { title: 'Slow Travel | Our Old Dad', description: 'Building the trip, building the life, and learning how to move more slowly on purpose.' }],
+  ['/section/advice', { title: "An Old Dad's Advice | Our Old Dad", description: 'Direct pieces, sharper takes, hard-earned advice, and a little fatherly bluntness.' }],
+]);
 const postMetadata = new Map(
   readPosts()
     .filter((post) => !post.missingIndex && post.slug)
@@ -72,13 +84,13 @@ for (const route of routes) {
     .replace(/<link rel="canonical" href="[^"]*" \/>/, `<link rel="canonical" href="${canonicalUrl}" />`);
   routeHtml = replaceMetadata(routeHtml, 'og:url', canonicalUrl, 'property');
 
-  const metadata = postMetadata.get(route);
+  const metadata = postMetadata.get(route) ?? staticRouteMetadata.get(route);
   if (metadata) {
     routeHtml = routeHtml.replace(/<title>[\s\S]*?<\/title>/, `<title>${escapeAttribute(metadata.title)}</title>`);
     routeHtml = replaceMetadata(routeHtml, 'description', metadata.description);
     routeHtml = replaceMetadata(routeHtml, 'og:title', metadata.title, 'property');
     routeHtml = replaceMetadata(routeHtml, 'og:description', metadata.description, 'property');
-    routeHtml = replaceMetadata(routeHtml, 'og:type', 'article', 'property');
+    routeHtml = replaceMetadata(routeHtml, 'og:type', metadata.post ? 'article' : 'website', 'property');
     routeHtml = replaceMetadata(routeHtml, 'twitter:title', metadata.title);
     routeHtml = replaceMetadata(routeHtml, 'twitter:description', metadata.description);
     const jsonLd = JSON.stringify({
@@ -86,7 +98,7 @@ for (const route of routes) {
       '@graph': [
         { '@type': 'Person', '@id': `${canonicalHost}/#author`, name: 'Will Gayhart', url: `${canonicalHost}/about` },
         { '@type': 'WebSite', '@id': `${canonicalHost}/#website`, url: `${canonicalHost}/`, name: 'Our Old Dad', publisher: { '@id': `${canonicalHost}/#author` } },
-        {
+        metadata.post ? {
           '@type': 'BlogPosting',
           '@id': `${canonicalUrl}#article`,
           headline: metadata.post.title,
@@ -98,6 +110,13 @@ for (const route of routes) {
           publisher: { '@id': `${canonicalHost}/#author` },
           isPartOf: { '@id': `${canonicalHost}/#website` },
           articleSection: metadata.post.section,
+        } : {
+          '@type': 'WebPage',
+          '@id': `${canonicalUrl}#webpage`,
+          url: canonicalUrl,
+          name: metadata.title,
+          description: metadata.description,
+          isPartOf: { '@id': `${canonicalHost}/#website` },
         },
       ],
     }).replaceAll('<', '\\u003c');
@@ -105,7 +124,7 @@ for (const route of routes) {
       /<script type="application\/ld\+json" data-site-jsonld>[\s\S]*?<\/script>/,
       `<script type="application/ld+json" data-site-jsonld>${jsonLd}</script>`,
     );
-    routeHtml = routeHtml.replace('<div id="root"></div>', `<div id="root">${staticPostMarkup(metadata.post)}</div>`);
+    if (metadata.post) routeHtml = routeHtml.replace('<div id="root"></div>', `<div id="root">${staticPostMarkup(metadata.post)}</div>`);
   }
 
   await mkdir(routeDir, { recursive: true });
