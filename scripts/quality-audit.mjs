@@ -94,7 +94,7 @@ try {
         const keyboard = await page.evaluate(() => {
           const el = document.activeElement;
           const rect = el?.getBoundingClientRect();
-          return { label: el?.textContent?.trim().slice(0, 80), visible: Boolean(rect && rect.width && rect.height && getComputedStyle(el).visibility !== 'hidden') };
+          return { label: el?.textContent?.trim().slice(0, 80), visible: Boolean(rect && rect.width && rect.height && rect.bottom > 0 && rect.right > 0 && rect.top < innerHeight && rect.left < innerWidth && getComputedStyle(el).visibility !== 'hidden' && getComputedStyle(el).opacity !== '0') };
         });
         if (!keyboard.visible) failures.push(`${path}: first keyboard target is not visible`);
         const violations = result.violations.map((item) => ({ id: item.id, impact: item.impact, nodes: item.nodes.map((node) => node.target) }));
