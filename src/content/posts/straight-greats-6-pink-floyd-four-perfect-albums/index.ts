@@ -38,7 +38,7 @@ const post: BlogPost = {
 <p>It wasn't until later, when I started buying CDs, that I really heard the records straight through. That's when I realized how much I had missed. I knew Pink Floyd songs. I hadn't really understood Pink Floyd albums.</p>
 <p>And the one the radio had given me the least of ended up being the one I liked most.</p>
 <figure class="post-figure">
-<img src="${bodyImageOne}" alt="Hands load a compact disc into a stereo beside several unlabeled jewel cases and headphones." loading="lazy" decoding="async" />
+<img src="${bodyImageOne}" alt="Hands load a compact disc into a stereo beside several unlabeled jewel cases and headphones." width="1200" height="900" loading="lazy" decoding="async" />
 </figure>
 
 <h2>The one I barely knew: Animals</h2>
@@ -51,7 +51,7 @@ const post: BlogPost = {
 <p>I was getting heavily into the Doors around the same time too, so for me there were three different bands that could do that in completely different ways: the Dead, the Doors, and Pink Floyd.</p>
 <p>The Dead crowd, at least around us, wasn't always thrilled with my broad definition of acceptable psychedelic music. We'd be at Dead shows blasting Pink Floyd—especially <em>Animals</em>—and people would get shitty about it. For a scene built around freedom and exploration, some of those people had a remarkably strict playlist. The Dead was good. More Dead was also good. Apparently we had found the available options.</p>
 <figure class="post-figure">
-<img src="${bodyImageTwo}" alt="Music blasts from speakers in an open SUV while nearby Deadheads in a concert parking lot look unimpressed." loading="lazy" decoding="async" />
+<img src="${bodyImageTwo}" alt="Music blasts from speakers in an open SUV while nearby Deadheads in a concert parking lot look unimpressed." width="1200" height="900" loading="lazy" decoding="async" />
 </figure>
 <p>I kept playing <em>Animals</em>.</p>
 
@@ -65,7 +65,7 @@ const post: BlogPost = {
 <p>Maybe he was. Maybe he wasn't. I was fourteen and not remotely qualified to interpret what was happening. But once the idea got into my head, the whole listening session became pretty awkward. So my first experience of one of the greatest albums ever made was partly me trying to hear Pink Floyd and partly me sitting there wondering what exactly this kid thought we were doing.</p>
 <p>The awkwardness eventually passed. The album was pretty amazing.</p>
 <figure class="post-figure">
-<img src="${bodyImageThree}" alt="Two awkward ninth-grade boys sit apart in a late-1970s room listening to a record." loading="lazy" decoding="async" />
+<img src="${bodyImageThree}" alt="Two awkward ninth-grade boys sit apart in a late-1970s room listening to a record." width="1200" height="900" loading="lazy" decoding="async" />
 </figure>
 <p>The education part became funnier later. I didn't understand what Roger Waters was getting at in any deep way when I was fourteen. I understood the part that sounded like school sucked. Then I went on to become a teacher and spend a ridiculous amount of my adult life thinking about what exactly is wrong with education.</p>
 <p>There are worse ways for a song to follow you around.</p>
@@ -78,7 +78,7 @@ const post: BlogPost = {
 <p>I got it too, sort of. I knew the song well enough that we could talk about it. The difference was that I was still pretty excited about getting on the train.</p>
 <p>He was already hearing the machine while I was still impressed by it. It didn't take all that long before I understood what he meant a lot better.</p>
 <figure class="post-figure">
-<img src="${bodyImageFour}" alt="A young professional steps from a car with a briefcase outside a large residential training campus." loading="lazy" decoding="async" />
+<img src="${bodyImageFour}" alt="A young professional steps from a car with a briefcase outside a large residential training campus." width="1200" height="900" loading="lazy" decoding="async" />
 </figure>
 
 <h2>Four records with nowhere to hide</h2>
@@ -98,6 +98,13 @@ const post: BlogPost = {
 <p>I'm mostly leaving it alone to be nice.</p>
 <p>And of those four fucking monsters, I still pick <em>Animals</em>.</p>
 <p>Which one is your favorite? <a href="https://ourolddad.com/contact">Let us know through the contact page.</a></p>
+<h2>Hear the Run</h2>
+<p><a href="https://www.youtube.com/watch?list=PLKg4T8Nimpto" target="_blank" rel="noreferrer">Watch on YouTube</a></p>
+<p><a href="https://music.youtube.com/playlist?list=PLKg4T8Nimpto&amp;si=fS9qLh4QOVyTrgRB" target="_blank" rel="noreferrer">Listen on YouTube Music</a></p>
+<div class="post-links">
+<a class="button button--primary" href="https://www.youtube.com/watch?list=PLKg4T8Nimpto" target="_blank" rel="noreferrer">Watch on YouTube</a>
+<a class="button button--ghost" href="https://music.youtube.com/playlist?list=PLKg4T8Nimpto&amp;si=fS9qLh4QOVyTrgRB" target="_blank" rel="noreferrer">Listen on YouTube Music</a>
+</div>
   `,
 };
 
