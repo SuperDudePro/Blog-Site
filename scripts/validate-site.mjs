@@ -142,7 +142,7 @@ if (existsSync(builtIndex)) {
   const cspValues = vercelHeaders.flatMap((rule) => rule.headers ?? [])
     .filter((header) => /^content-security-policy/i.test(header.key))
     .map((header) => header.value);
-  for (const [, script] of readFileSync(builtIndex, 'utf8').matchAll(/<script>([\s\S]*?)<\/script>/g)) {
+  for (const [, script] of readFileSync(builtIndex, 'utf8').matchAll(/<script>([\s\S]*?)<\/script[^>]*>/gi)) {
     const hash = `'sha256-${createHash('sha256').update(script).digest('base64')}'`;
     if (!cspValues.length || cspValues.some((value) => !value.includes(hash))) {
       fail('vercel.json', hash, 'inline script in dist/index.html is not allowed by the CSP; update the script-src hash');
