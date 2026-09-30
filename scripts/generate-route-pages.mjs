@@ -88,6 +88,46 @@ function staticPostMarkup(post) {
   return `<main data-static-post-shell><article data-static-post><header><h1>${escapeText(post.title)}</h1><p>${escapeText(post.excerpt)}</p><p><time datetime="${escapeAttribute(post.publishedAt)}">${escapeText(post.publishedAt)}</time></p></header>${body}</article></main>`;
 }
 
+// Non-post pages get a crawlable shell (heading, intro, and post links) that the app replaces on load,
+// so crawlers that do not run JavaScript still see content and internal links.
+const publishedPosts = [...postMetadata.values()]
+  .map(({ post }) => post)
+  .filter((post) => post.publishedAt)
+  .sort((a, b) => b.publishedAt.localeCompare(a.publishedAt));
+
+const siteNavMarkup = `<nav aria-label="Site sections"><ul>${[
+  ['/', 'Home'],
+  ['/section/everything', 'Everything'],
+  ...[...sectionNames].map(([key, name]) => [`/section/${key}`, name]),
+  ['/archive', 'Archive'],
+  ['/categories', 'Categories'],
+  ['/about', 'About'],
+  ['/contact', 'Contact'],
+].map(([href, label]) => `<li><a href="${href}">${escapeText(label)}</a></li>`).join('')}</ul></nav>`;
+
+function postListMarkup(posts) {
+  return `<ul>${posts.map((post) => `<li><a href="/post/${escapeAttribute(post.slug)}">${escapeText(post.title)}</a> <time datetime="${escapeAttribute(post.publishedAt)}">${escapeText(post.publishedAt)}</time><p>${escapeText(post.excerpt)}</p></li>`).join('')}</ul>`;
+}
+
+function staticPageMarkup(route, metadata) {
+  const heading = route === '/' ? 'Our Old Dad' : metadata.title.replace(/ \| Our Old Dad$/, '');
+  let body = '';
+  const sectionKey = route.match(/^\/section\/([a-z-]+)$/)?.[1];
+  if (route === '/' ) {
+    body = `<h2>Latest posts</h2>${postListMarkup(publishedPosts.slice(0, 12))}`;
+  } else if (sectionKey) {
+    body = postListMarkup(sectionKey === 'everything' ? publishedPosts : publishedPosts.filter((post) => post.section === sectionKey));
+  } else if (route === '/archive') {
+    body = postListMarkup(publishedPosts);
+  } else if (route === '/categories') {
+    body = `<ul>${[...sectionNames].map(([key, name]) => {
+      const latest = publishedPosts.find((post) => post.section === key);
+      return `<li><a href="/section/${key}">${escapeText(name)}</a>${latest ? ` — latest: <a href="/post/${escapeAttribute(latest.slug)}">${escapeText(latest.title)}</a>` : ''}</li>`;
+    }).join('')}</ul>`;
+  }
+  return `<main data-static-page-shell><header><h1>${escapeText(heading)}</h1><p>${escapeText(metadata.description)}</p></header>${siteNavMarkup}${body}</main>`;
+}
+
 const [sitemap, indexHtml] = await Promise.all([
   readFile(sitemapPath, 'utf8'),
   readFile(indexPath, 'utf8'),
@@ -162,14 +202,21 @@ for (const route of routes) {
       ];
       routeHtml = routeHtml.replace('</head>', `    ${imageTags.join('\n    ')}\n  </head>`);
     }
-    if (metadata.post) routeHtml = routeHtml.replace('<div id="root"></div>', `<div id="root">${staticPostMarkup(metadata.post)}</div>`);
+    const shell = metadata.post ? staticPostMarkup(metadata.post) : staticPageMarkup(route, metadata);
+    routeHtml = routeHtml.replace('<div id="root"></div>', `<div id="root">${shell}</div>`);
   }
 
   await mkdir(routeDir, { recursive: true });
   await writeFile(path.join(routeDir, 'index.html'), routeHtml, 'utf8');
 }
 
+// The home page is dist/index.html itself; add its shell last so the other routes start from the clean template.
+await writeFile(indexPath, indexHtml.replace('<div id="root"></div>', `<div id="root">${staticPageMarkup('/', {
+  title: 'Our Old Dad',
+  description: 'Family life, slow travel, playlists, and advice from an old dad.',
+})}</div>`), 'utf8');
+
 // The manifest is only a build input; do not deploy it.
 await rm(manifestDir, { recursive: true, force: true });
 
-console.log(`Generated static entry pages for ${routes.size} routes.`);
+console.log(`Generated static entry pages for ${routes.size} routes plus the home page shell.`);

@@ -892,11 +892,40 @@ p {
   background: #f7f5f0;
 }
 
+.rotating-gallery__controls {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.9rem;
+  margin-top: 0.9rem;
+}
+
+.rotating-gallery__toggle {
+  min-height: 32px;
+  padding: 0.3rem 0.85rem;
+  border: 2px solid var(--accent);
+  border-radius: 999px;
+  background: var(--surface);
+  color: var(--accent-ink);
+  font: inherit;
+  font-size: 0.85rem;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.rotating-gallery__toggle:hover {
+  background: var(--accent-soft);
+}
+
+.rotating-gallery__toggle:focus-visible {
+  outline: 3px solid var(--accent);
+  outline-offset: 3px;
+}
+
 .rotating-gallery__dots {
   display: flex;
   justify-content: center;
   gap: 0.45rem;
-  margin-top: 0.9rem;
 }
 
 .rotating-gallery__dot {

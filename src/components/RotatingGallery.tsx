@@ -8,18 +8,18 @@ type Props = {
 
 export function RotatingGallery({ images, intervalMs = 6000 }: Props) {
   const [index, setIndex] = useState(0);
+  // Start paused for reduced-motion users; everyone can pause or resume (WCAG 2.2.2).
+  const [paused, setPaused] = useState(() => window.matchMedia('(prefers-reduced-motion: reduce)').matches);
 
   useEffect(() => {
-    if (images.length < 2) return;
-    const media = window.matchMedia('(prefers-reduced-motion: reduce)');
-    if (media.matches) return;
+    if (images.length < 2 || paused) return;
 
     const timer = window.setInterval(() => {
       setIndex((current) => (current + 1) % images.length);
     }, intervalMs);
 
     return () => window.clearInterval(timer);
-  }, [images.length, intervalMs]);
+  }, [images.length, intervalMs, paused]);
 
   const current = images[index];
 
@@ -28,7 +28,7 @@ export function RotatingGallery({ images, intervalMs = 6000 }: Props) {
   }
 
   return (
-    <div className="rotating-gallery" aria-label="Playlist artwork gallery">
+    <div className="rotating-gallery" role="group" aria-label="Playlist artwork gallery">
       <div className="rotating-gallery__frame">
         <img
           key={current.src}
@@ -38,13 +38,22 @@ export function RotatingGallery({ images, intervalMs = 6000 }: Props) {
         />
       </div>
       {images.length > 1 ? (
-        <div className="rotating-gallery__dots" aria-hidden="true">
-          {images.map((image, imageIndex) => (
-            <span
-              key={image.src}
-              className={`rotating-gallery__dot ${imageIndex === index ? 'is-active' : ''}`}
-            />
-          ))}
+        <div className="rotating-gallery__controls">
+          <button
+            type="button"
+            className="rotating-gallery__toggle"
+            onClick={() => setPaused((value) => !value)}
+          >
+            {paused ? 'Play slideshow' : 'Pause slideshow'}
+          </button>
+          <div className="rotating-gallery__dots" aria-hidden="true">
+            {images.map((image, imageIndex) => (
+              <span
+                key={image.src}
+                className={`rotating-gallery__dot ${imageIndex === index ? 'is-active' : ''}`}
+              />
+            ))}
+          </div>
         </div>
       ) : null}
     </div>
