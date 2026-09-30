@@ -8,6 +8,7 @@ type RouteMetadata = {
   canonicalPath: string;
   type: 'article' | 'website';
   image?: string;
+  imageAlt?: string;
 };
 
 type JsonLd = Record<string, unknown>;
@@ -27,7 +28,8 @@ function getRouteMetadata(route: Route): RouteMetadata {
     const post = getPostMetadataBySlug(route.slug);
     if (post) {
       const image = post.cardImage ?? post.heroImage;
-      return { title: titleWithSite(post.title), description: post.excerpt, canonicalPath: route.canonicalPath, type: 'article', ...(image ? { image } : {}) };
+      const imageAlt = post.cardImage ? post.cardAlt : post.heroAlt;
+      return { title: titleWithSite(post.title), description: post.excerpt, canonicalPath: route.canonicalPath, type: 'article', ...(image ? { image } : {}), ...(image && imageAlt ? { imageAlt } : {}) };
     }
   }
   return { title: titleWithSite('Page not found'), description: site.description, canonicalPath: route.canonicalPath, type: 'website' };
@@ -97,5 +99,12 @@ export function applyRouteMetadata(route: Route) {
   } else {
     removeMeta('property', 'og:image');
     removeMeta('name', 'twitter:image');
+  }
+  if (metadata.imageAlt) {
+    setMeta('property', 'og:image:alt', metadata.imageAlt);
+    setMeta('name', 'twitter:image:alt', metadata.imageAlt);
+  } else {
+    removeMeta('property', 'og:image:alt');
+    removeMeta('name', 'twitter:image:alt');
   }
 }

@@ -115,6 +115,7 @@ button:focus-visible,
 .site-brand__title {
   margin: 0;
   font-family: Georgia, 'Times New Roman', serif;
+  line-height: 1.12;
   font-size: 1.3rem;
   font-weight: 700;
   color: var(--accent-light);

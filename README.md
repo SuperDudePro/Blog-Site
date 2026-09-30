@@ -15,7 +15,7 @@ npm run dev
 npm run build
 ```
 
-The build regenerates `public/sitemap.xml`, validates the post catalog, runs TypeScript checks, and creates the Vite production bundle.
+The build regenerates `public/sitemap.xml`, `public/rss.xml`, and `public/llms.txt`, validates the post catalog, runs TypeScript checks, and creates the Vite production bundle.
 
 ## Posts
 
