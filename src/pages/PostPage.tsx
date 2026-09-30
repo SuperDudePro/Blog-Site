@@ -5,12 +5,30 @@ import { PostResponsePrompt } from '../components/PostResponsePrompt';
 import { SharePost } from '../components/SharePost';
 import { SiteLink } from '../components/SiteLink';
 import { SubscribeForm } from '../components/SubscribeForm';
-import { formatPostDate, getRelatedPosts, loadPostBySlug } from '../content/loadPosts';
-import type { BlogPost } from '../content/postTypes';
+import { formatPostDate, getPostMetadataBySlug, getRelatedPosts, loadPostBySlug } from '../content/loadPosts';
+import type { BlogPost, PostMetadata } from '../content/postTypes';
 import { getSectionName, site } from '../data/siteContent';
 import { sectionPath } from '../routes';
 
 type Props = { slug: string };
+
+function PostHero({ post }: { post: PostMetadata }) {
+  return (
+    <section className="page-hero page-hero--post">
+      <div>
+        <span className="eyebrow">{getSectionName(post.section)}</span>
+        <h1>{post.title}</h1>
+        <p className="lead">{post.excerpt}</p>
+        <p className="post-page__meta">{formatPostDate(post)}</p>
+        <div className="hero__actions">
+          <SiteLink className="button button--primary" href={sectionPath(post.section)}>More in this section</SiteLink>
+          <SiteLink className="button button--ghost" href="/archive">Search the archive</SiteLink>
+        </div>
+      </div>
+      <FeaturedImage src={post.heroImage} alt={post.heroAlt} className="feature-image" />
+    </section>
+  );
+}
 
 export function PostPage({ slug }: Props) {
   const [post, setPost] = useState<BlogPost>();
@@ -33,7 +51,18 @@ export function PostPage({ slug }: Props) {
     return () => { active = false; };
   }, [slug]);
 
+  const metadata = getPostMetadataBySlug(slug);
+
   if (loadedSlug !== slug) {
+    // Render the hero from metadata while the body chunk loads so the layout does not jump.
+    if (metadata) {
+      return (
+        <div className="page-wrap">
+          <PostHero post={metadata} />
+          <article className="post-article" aria-busy="true"><p className="lead">Loading post…</p></article>
+        </div>
+      );
+    }
     return <div className="page-wrap"><section className="page-hero"><p className="lead">Loading post…</p></section></div>;
   }
 
@@ -60,19 +89,7 @@ export function PostPage({ slug }: Props) {
 
   return (
     <div className="page-wrap">
-      <section className="page-hero page-hero--post">
-        <div>
-          <span className="eyebrow">{getSectionName(post.section)}</span>
-          <h1>{post.title}</h1>
-          <p className="lead">{post.excerpt}</p>
-          <p className="post-page__meta">{formatPostDate(post)}</p>
-          <div className="hero__actions">
-            <SiteLink className="button button--primary" href={sectionPath(post.section)}>More in this section</SiteLink>
-            <SiteLink className="button button--ghost" href="/archive">Search the archive</SiteLink>
-          </div>
-        </div>
-        <FeaturedImage src={post.heroImage} alt={post.heroAlt} className="feature-image" />
-      </section>
+      <PostHero post={post} />
 
       <article className="post-article">
         <div dangerouslySetInnerHTML={{ __html: post.bodyHtml }} />

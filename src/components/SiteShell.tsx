@@ -38,7 +38,7 @@ export function SiteShell({ children }: Props) {
           <SiteLink className={`site-brand ${homeActive ? 'site-brand--active' : ''}`} href={homePath}>
             <span className="site-brand__row">
               <SmileyMark size={28} />
-              <h2 className="site-brand__title">{site.title}</h2>
+              <span className="site-brand__title">{site.title}</span>
             </span>
             <span className="site-brand__tag">{site.headerTagline ?? site.tagline}</span>
           </SiteLink>

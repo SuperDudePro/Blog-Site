@@ -113,8 +113,10 @@ export function SubscribeForm({ compact = false }: Props) {
         </button>
       </form>
 
-      {formState === 'sent' && <p style={statusStyle}>You are subscribed.</p>}
-      {formState === 'error' && <p style={{ ...statusStyle, color: isFooter ? '#ffd0d0' : '#8b1a1a' }}>{errorMessage}</p>}
+      <div aria-live="polite">
+        {formState === 'sent' && <p style={statusStyle}>You are subscribed.</p>}
+        {formState === 'error' && <p style={{ ...statusStyle, color: isFooter ? '#ffd0d0' : '#8b1a1a' }}>{errorMessage}</p>}
+      </div>
     </section>
   );
 }

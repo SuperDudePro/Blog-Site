@@ -129,6 +129,11 @@ export default async function handler(request, response) {
     return json(response, 400, { ok: false, error: 'Message is too long.' });
   }
 
+  // Mirror the form's maxLength limits; the browser limits are not a server control.
+  if (name.length > 120 || email.length > 180 || subject.length > 160) {
+    return json(response, 400, { ok: false, error: 'One of the fields is too long.' });
+  }
+
   const {
     CONTACT_FROM_EMAIL,
     CONTACT_SUBJECT_PREFIX = 'Our Old Dad',

@@ -115,11 +115,7 @@ export default async function handler(request, response) {
 
   if (missingVariables.length) {
     console.error(`Missing inbound email environment variables: ${missingVariables.join(', ')}`);
-    return json(response, 500, {
-      ok: false,
-      error: 'Inbound email is not configured.',
-      missing: missingVariables,
-    });
+    return json(response, 500, { ok: false, error: 'Inbound email is not configured.' });
   }
 
   const rawBody = await readRawBody(request);

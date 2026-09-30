@@ -215,11 +215,13 @@ export function ContactPage() {
               {isSending ? 'Sending...' : 'Send note'}
             </button>
 
+          </form>
+          <div aria-live="polite" style={{ marginTop: formState === 'sent' || formState === 'error' ? '1rem' : 0 }}>
             {formState === 'sent' && (
               <p style={hasWarning ? warningStatusStyle : statusStyle}>{statusMessage}</p>
             )}
             {formState === 'error' && <p style={errorStatusStyle}>{statusMessage}</p>}
-          </form>
+          </div>
         </div>
       </section>
     </div>

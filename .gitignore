@@ -7,3 +7,6 @@ dist/
 vite.config.js
 vite.config.d.ts
 quality-report.json
+public/rss.xml
+public/llms.txt
+public/deployment.json
