@@ -1,3 +1,4 @@
+import { createHash } from 'node:crypto';
 import { existsSync, readFileSync, readdirSync, statSync } from 'node:fs';
 import { extname, join, relative, resolve, sep } from 'node:path';
 
@@ -131,6 +132,21 @@ for (const file of files) {
   for (const pattern of patterns) for (const match of text.matchAll(pattern)) validateTarget(source, match[1]);
   for (const match of text.matchAll(/\bsrcSet\s*=\s*(?:\{\s*)?["'`]([^"'`]+)["'`]/g)) {
     for (const part of match[1].split(',')) validateTarget(source, part.trim().split(/\s+/)[0]);
+  }
+}
+
+// Every inline script in the built page must be allowed by hash in the vercel.json CSP.
+const builtIndex = join(DIST, 'index.html');
+if (existsSync(builtIndex)) {
+  const vercelHeaders = JSON.parse(readFileSync(resolve('vercel.json'), 'utf8')).headers ?? [];
+  const cspValues = vercelHeaders.flatMap((rule) => rule.headers ?? [])
+    .filter((header) => /^content-security-policy/i.test(header.key))
+    .map((header) => header.value);
+  for (const [, script] of readFileSync(builtIndex, 'utf8').matchAll(/<script>([\s\S]*?)<\/script>/g)) {
+    const hash = `'sha256-${createHash('sha256').update(script).digest('base64')}'`;
+    if (!cspValues.length || cspValues.some((value) => !value.includes(hash))) {
+      fail('vercel.json', hash, 'inline script in dist/index.html is not allowed by the CSP; update the script-src hash');
+    }
   }
 }
 
