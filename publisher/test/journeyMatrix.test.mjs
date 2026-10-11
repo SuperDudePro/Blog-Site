@@ -266,6 +266,10 @@ class FakeServices {
       this.blobs.set(blobSha, content);
       return this.json({ sha: blobSha });
     }
+    if (path.startsWith('/contents/public/sitemap.xml') && this.profile.repository === 'SuperDudePro/Blog-Site') {
+      const sitemap = `<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n  <url><loc>https://ourolddad.com/</loc></url>\n</urlset>\n`;
+      return this.json({ encoding: 'base64', content: Buffer.from(sitemap).toString('base64') });
+    }
     if (path.startsWith('/contents/post-contract-baseline.json')) {
       const ref = url.searchParams.get('ref') || BASE_COMMIT;
       const baseline = this.baselines.get(ref) || this.baselines.get(BASE_COMMIT);
