@@ -3,6 +3,7 @@ import { repoRequest } from '../../lib/github.mjs';
 import { json, method, readJson } from '../../lib/http.mjs';
 import { validateRepository } from '../../lib/validation.mjs';
 import { getSiteProfile } from '../../siteProfiles.mjs';
+import { syncPublishedPost } from '../../lib/postTracker.mjs';
 import { deployedCommitIsReady, findVercelUrl, inspectPublishedHtml, inspectPublishedUrl, missingStatusFields, normalizeStatusRequest } from '../../lib/publishStatus.mjs';
 
 const failedConclusions = new Set(['failure', 'cancelled', 'timed_out', 'action_required', 'stale', 'startup_failure']);
@@ -120,8 +121,18 @@ export default async function handler(request, response) {
     const production = merged
       ? await productionStatus(repository, canonicalUrl, title, mergeCommit, profile)
       : { state: 'pending', ok: false };
+    let tracker = { state: 'pending', reason: 'Waiting for verified production.' };
+    if (merged && production.state === 'success') {
+      try {
+        tracker = await syncPublishedPost({ repository, canonicalUrl, title });
+      } catch (error) {
+        console.error('[publish/status] tracker synchronization failed', { repository, prNumber, message: error.message });
+        tracker = { state: 'failed', reason: error.message };
+      }
+    }
     return json(response, 200, {
       ok: true,
+      tracker,
       checks,
       deploymentUrl,
       smoke,
