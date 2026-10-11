@@ -3,6 +3,7 @@ import { decodeGithubBlob, encodeBaseline, retireValidatedBaselineEntries } from
 import { repoRequest } from '../../lib/github.mjs';
 import { json, method, readJson } from '../../lib/http.mjs';
 import { buildTreeEntries, compareDestination, listDestinationFiles } from '../../lib/repository.mjs';
+import { includeOurOldDadPostInSitemap } from '../../lib/sitemap.mjs';
 import { branchFor, safeRelative, validateManifest, validateProductionPaths } from '../../lib/validation.mjs';
 
 const summaryLine = (label, files) => `- ${label}: ${files.length}${files.length ? ` — ${files.map((file) => `\`${file}\``).join(', ')}` : ''}`;
@@ -148,6 +149,29 @@ export default async function handler(request, response) {
           mode: '100644',
           type: 'blob',
           sha: baselineBlob.sha,
+        });
+      }
+    }
+
+    // The site build compares its committed sitemap with regenerated routes. Stage
+    // the new post route atomically with its source and image files.
+    if (manifest.repository === 'SuperDudePro/Blog-Site') {
+      const sitemapFile = await atStage('load-committed-sitemap', () => repoRequest(
+        manifest.repository,
+        `/contents/public/sitemap.xml?ref=${encodeURIComponent(baseCommitSha)}`,
+      ));
+      const currentSitemap = decodeGithubBlob(sitemapFile);
+      const nextSitemap = includeOurOldDadPostInSitemap(currentSitemap, manifest);
+      if (nextSitemap.changed) {
+        const sitemapBlob = await atStage('create-updated-sitemap', () => repoRequest(manifest.repository, '/git/blobs', {
+          method: 'POST',
+          body: { content: nextSitemap.content, encoding: 'utf-8' },
+        }));
+        tree.push({
+          path: 'public/sitemap.xml',
+          mode: '100644',
+          type: 'blob',
+          sha: sitemapBlob.sha,
         });
       }
     }
