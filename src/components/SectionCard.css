@@ -1,0 +1,18 @@
+/* OOD homepage editorial sketches: one lightweight sprite for all six sections. */
+.section-card__sketch {
+  display: block;
+  width: min(100%, 176px);
+  aspect-ratio: 1 / 1;
+  margin: 0.7rem auto 1rem;
+  border-radius: 10px;
+  background-color: #f7f5f0;
+  background-image: url('../assets/section-sketch-sprite.webp');
+  background-repeat: no-repeat;
+  background-size: 300% 200%;
+}
+.section-card__sketch--everything { background-position: 0% 0%; }
+.section-card__sketch--diary { background-position: 50% 0%; }
+.section-card__sketch--life-education { background-position: 100% 0%; }
+.section-card__sketch--music-playlists { background-position: 0% 100%; }
+.section-card__sketch--slow-travel { background-position: 50% 100%; }
+.section-card__sketch--advice { background-position: 100% 100%; }
