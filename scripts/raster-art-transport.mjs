@@ -79,7 +79,7 @@ export function auditSectionSketches(root) {
     if (metadata.width < 160 || metadata.height < 160 || metadata.width !== metadata.height) {
       throw new Error(`${filename}: expected square raster illustration at least 160px on each side`);
     }
-    if (!css.includes(`url('../assets/${filename}')`)) throw new Error(`${filename}: section card is not using the verified asset`);
+    if (!css.includes(`url('/section-sketches/${key}.webp')`)) throw new Error(`${filename}: section card is not using the verified asset`);
     output.push({ file: filename, ...metadata });
   }
   return output;
