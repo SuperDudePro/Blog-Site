@@ -10,9 +10,9 @@
   background-position: center;
   background-size: contain;
 }
-.section-card__sketch--everything { background-image: url('../assets/section-sketch-everything.svg'); }
-.section-card__sketch--diary { background-image: url('../assets/section-sketch-diary.svg'); }
-.section-card__sketch--life-education { background-image: url('../assets/section-sketch-life-education.svg'); }
-.section-card__sketch--music-playlists { background-image: url('../assets/section-sketch-music-playlists.svg'); }
-.section-card__sketch--slow-travel { background-image: url('../assets/section-sketch-slow-travel.svg'); }
-.section-card__sketch--advice { background-image: url('../assets/section-sketch-advice.svg'); }
+.section-card__sketch--everything { background-image: url('/section-sketches/everything.webp'); }
+.section-card__sketch--diary { background-image: url('/section-sketches/diary.webp'); }
+.section-card__sketch--life-education { background-image: url('/section-sketches/life-education.webp'); }
+.section-card__sketch--music-playlists { background-image: url('/section-sketches/music-playlists.webp'); }
+.section-card__sketch--slow-travel { background-image: url('/section-sketches/slow-travel.webp'); }
+.section-card__sketch--advice { background-image: url('/section-sketches/advice.webp'); }
