@@ -1,18 +1,18 @@
-/* OOD homepage editorial sketches: one lightweight sprite for all six sections. */
+/* Our Old Dad homepage section illustrations. */
 .section-card__sketch {
   display: block;
   width: min(100%, 176px);
   aspect-ratio: 1 / 1;
   margin: 0.7rem auto 1rem;
   border-radius: 10px;
-  background-color: #f7f5f0;
-  background-image: url('../assets/section-sketch-sprite.webp');
+  background-color: #faf7f0;
   background-repeat: no-repeat;
-  background-size: 300% 200%;
+  background-position: center;
+  background-size: contain;
 }
-.section-card__sketch--everything { background-position: 0% 0%; }
-.section-card__sketch--diary { background-position: 50% 0%; }
-.section-card__sketch--life-education { background-position: 100% 0%; }
-.section-card__sketch--music-playlists { background-position: 0% 100%; }
-.section-card__sketch--slow-travel { background-position: 50% 100%; }
-.section-card__sketch--advice { background-position: 100% 100%; }
+.section-card__sketch--everything { background-image: url('../assets/section-sketch-everything.svg'); }
+.section-card__sketch--diary { background-image: url('../assets/section-sketch-diary.svg'); }
+.section-card__sketch--life-education { background-image: url('../assets/section-sketch-life-education.svg'); }
+.section-card__sketch--music-playlists { background-image: url('../assets/section-sketch-music-playlists.svg'); }
+.section-card__sketch--slow-travel { background-image: url('../assets/section-sketch-slow-travel.svg'); }
+.section-card__sketch--advice { background-image: url('../assets/section-sketch-advice.svg'); }
