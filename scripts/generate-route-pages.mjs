@@ -125,7 +125,7 @@ function staticPageMarkup(route, metadata) {
       return `<li><a href="/section/${key}">${escapeText(name)}</a>${latest ? ` — latest: <a href="/post/${escapeAttribute(latest.slug)}">${escapeText(latest.title)}</a>` : ''}</li>`;
     }).join('')}</ul>`;
   }
-  return `<main data-static-page-shell><header><h1>${escapeText(heading)}</h1><p>${escapeText(metadata.description)}</p></header>${siteNavMarkup}${body}</main>`;
+  return `<main data-static-page-shell><header><h1>${escapeText(heading)}</h1><p>${escapeText(metadata.description)}</p></header><p style="padding:0.6rem;background:#fff5d8;color:#151515">If this page appears as plain text, the site's interactive JavaScript has not loaded. In Edge, try Ctrl+Shift+R or open a new InPrivate window. If the problem persists, check whether JavaScript or an extension is blocking this site.</p>${siteNavMarkup}${body}</main>`;
 }
 
 const [sitemap, indexHtml] = await Promise.all([
