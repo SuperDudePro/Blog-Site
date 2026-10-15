@@ -115,6 +115,12 @@ if (!fs.existsSync(postsDir)) {
       seenTitles.set(title, folder);
     }
     if (!value('excerpt')) fail(folder, 'missing excerpt');
+    for (const field of ['seoTitle', 'seoDescription']) {
+      if (!parsed.fields.has(field)) continue;
+      const fieldValue = value(field);
+      if (typeof fieldValue !== 'string' || !fieldValue.trim()) fail(folder, `${field} must be a nonempty static string when provided`);
+      else if (fieldValue.length > (field === 'seoTitle' ? 100 : 300)) fail(folder, `${field} is too long`);
+    }
     if (!isRealIsoDate(value('publishedAt'))) fail(folder, 'publishedAt must be a real YYYY-MM-DD date');
     if (!validSections.has(value('section'))) fail(folder, `invalid or missing section '${value('section') || ''}'`);
     if (!parsed.fields.has('bodyHtml') || !bodyHtml.trim()) fail(folder, 'missing bodyHtml');
