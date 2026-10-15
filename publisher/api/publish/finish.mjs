@@ -30,7 +30,7 @@ async function setBranch(repository, branch, commitSha) {
     await repoRequest(repository, `/git/ref/heads/${encodeURIComponent(branch)}`);
     await repoRequest(repository, `/git/refs/heads/${encodeURIComponent(branch)}`, {
       method: 'PATCH',
-      body: { sha: commitSha, force: true },
+      body: { sha: commitSha, force: false },
     });
     return 'updated';
   } catch (error) {
