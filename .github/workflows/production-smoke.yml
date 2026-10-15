@@ -29,5 +29,5 @@ jobs:
       - name: Check production after deployment
         run: node scripts/smoke-production.mjs
         env:
-          DEPLOY_SHA: ${{ github.event.pull_request.base.sha || github.sha }}
+          DEPLOY_SHA: ${{ github.event_name == 'pull_request' && 'current' || github.sha }}
           SMOKE_BROWSER: '1'
