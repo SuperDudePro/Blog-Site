@@ -1,5 +1,6 @@
 import { ChangeEvent, DragEvent, FormEvent, useEffect, useMemo, useState } from 'react';
 import JSZip from 'jszip';
+import { SiteArtUploader } from './SiteArtUploader';
 import { inspectPackage } from './inspectPackage.js';
 import type { ImageView, Inspection } from './inspectPackage.js';
 import type { NormalizedManifest as Manifest } from './packageManifest.js';
@@ -178,6 +179,7 @@ export default function App(){
   if(!authenticated)return <main className="auth-shell"><form className="auth-card" onSubmit={(e:FormEvent)=>{e.preventDefault();void login(keyInput.trim());}}><p className="eyebrow">Wilbert Publisher</p><h1>Private publishing control.</h1><p>Enter the publisher access key. The GitHub token stays on the server.</p><input type="password" value={keyInput} onChange={e=>setKeyInput(e.target.value)} placeholder="Publisher access key" />{authError&&<div className="error-banner">{authError}</div>}<button disabled={!keyInput.trim()}>Open publisher</button></form></main>;
 
   return <main className="app-shell">
+    <SiteArtUploader publisherKey={key} />
     <header className="masthead"><div><p className="eyebrow">Wilbert Publisher</p><h1>Package in. Verified publishing out.</h1><p className="intro">Inspect the ZIP, create one controlled commit, verify the preview, leave the merge decision to you, then confirm the merged post reaches production.</p></div><button className="ghost" onClick={()=>{sessionStorage.removeItem(KEY);setAuthenticated(false);}}>Lock</button></header>
     <label className={`drop-zone ${drag?'active':''}`} onDragOver={e=>{e.preventDefault();setDrag(true)}} onDragLeave={()=>setDrag(false)} onDrop={(e:DragEvent)=>{e.preventDefault();setDrag(false);void load(e.dataTransfer.files?.[0])}}><input type="file" accept=".zip" onChange={(e:ChangeEvent<HTMLInputElement>)=>void load(e.target.files?.[0])}/><strong>{busy&&!inspection?'Reading package…':'Drop a finished post ZIP here'}</strong><span>or click to choose one</span></label>
     {error&&<div className="error-banner">{error}</div>}
