@@ -1,10 +1,16 @@
 /* Our Old Dad homepage section illustrations. */
+.section-card {
+  /* The transparent artwork should not be clipped by its card. */
+  overflow: visible;
+}
+
 .section-card__sketch {
   display: block;
   width: min(100%, 176px);
-  aspect-ratio: 1 / 1;
-  margin: 0.7rem auto 1rem;
-  border-radius: 10px;
   height: auto;
+  margin: 0.7rem auto 1rem;
+  /* Preserve the irregular transparent silhouette, not a rounded square mask. */
+  border-radius: 0;
   object-fit: contain;
+  overflow: visible;
 }
