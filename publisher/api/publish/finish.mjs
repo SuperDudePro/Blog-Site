@@ -79,10 +79,23 @@ export default async function handler(request, response) {
 
     const comparison = compareDestination(existingFiles, uploadedFiles);
     const operation = existingFiles.length ? 'replace' : 'create';
-    const branch = String(session.branch || branchFor(manifest.slug));
-    if (!branch.startsWith('publisher/')) throw new Error('The publishing branch is invalid.');
+    const branch = branchFor(manifest.slug);
+    if (session.branch !== branch) throw new Error('The publishing session branch does not match this package.');
+    let verifiedPullRequest = null;
+    if (session.existingPullRequest?.number) {
+      verifiedPullRequest = await atStage('verify-existing-pull-request', () => repoRequest(
+        manifest.repository, `/pulls/${Number(session.existingPullRequest.number)}`,
+      ));
+      if (
+        verifiedPullRequest.state !== 'open'
+        || verifiedPullRequest.head?.ref !== branch
+        || verifiedPullRequest.head?.sha !== session.existingPullRequest.commit
+        || verifiedPullRequest.base?.ref !== baseBranch
+        || verifiedPullRequest.head?.repo?.full_name && verifiedPullRequest.head.repo.full_name !== manifest.repository
+      ) throw new Error('The existing pull request does not belong to this publishing job.');
+    }
 
-    if (session.existingPullRequest?.number && session.existingPullRequest?.commit) {
+    if (verifiedPullRequest) {
       const existingCommit = await atStage('load-existing-pull-request-commit', () => repoRequest(
         manifest.repository,
         `/git/commits/${session.existingPullRequest.commit}`,
@@ -203,10 +216,10 @@ export default async function handler(request, response) {
       : '';
 
     const pullBody = `## What changed\n\n${operation === 'replace' ? 'Replaces the complete existing post folder' : 'Publishes a new post folder'} for **${manifest.title}** from an approved Wilbert Publisher package.\n\n- Site profile: **${manifest.targetSite}**\n- Operation: **${operation === 'replace' ? 'Update existing post' : 'Publish new post'}**\n- Slug: \`${manifest.slug}\`\n- Destination: \`${manifest.destinationPath}\`\n- Canonical URL: ${manifest.canonicalUrl}\n- Repository check: \`${manifest.buildCommand}\`\n\n## Folder comparison\n\n${changeSummary}${retiredBaselineSummary}\n\n## Publisher controls\n\n- Complete package preflight passed before GitHub production blobs were created\n- Resolved legacy exceptions were staged atomically with the post repair\n- Unresolved and unsupported legacy exceptions were preserved\n- The uploaded drop-in folder was treated as authoritative for this destination only\n- Stale files were deleted only from \`${manifest.destinationPath}\`\n- Production assets were committed atomically through the GitHub API\n- GitHub Actions and Vercel must pass before merge\n- Production merge remains manual\n`;
-    const pullRequest = session.existingPullRequest?.number
+    const pullRequest = verifiedPullRequest
       ? await atStage('update-pull-request', () => repoRequest(
           manifest.repository,
-          `/pulls/${session.existingPullRequest.number}`,
+          `/pulls/${verifiedPullRequest.number}`,
           { method: 'PATCH', body: { title: message, body: pullBody, base: baseBranch } },
         ))
       : await atStage('create-pull-request', () => repoRequest(manifest.repository, '/pulls', {
