@@ -88,8 +88,8 @@ function staticPostBody(post) {
     if (built) replacements.set(identifier, `/${built}`);
   }
   return post.bodyHtml
-    .replace(/<script\\b[\\s\\S]*?<\\/script>/gi, '')
-    .replace(/\\$\\{([A-Za-z_$][\\w$]*)\\}/g, (match, identifier) => replacements.get(identifier) ?? match);
+    .replace(/<script\b[\s\S]*?<\/script>/gi, '')
+    .replace(/\$\{([A-Za-z_$][\w$]*)\}/g, (match, identifier) => replacements.get(identifier) ?? match);
 }
 
 function staticPostMarkup(post) {
