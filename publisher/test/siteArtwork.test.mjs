@@ -8,3 +8,5 @@ test('accept unchanged PNG in allowlisted site-art directory',()=>{const result=
 test('reject mismatched digest',()=>assert.throws(()=>validateSiteArtwork({...data,sha256:'0'.repeat(64)}),/SHA-256/));
 test('reject traversal and unrelated source paths',()=>{for(const path of ['src/App.tsx','public/site-art/../index.html','/public/site-art/a.png'])assert.throws(()=>validateSiteArtwork({...data,path}));});
 test('reject unsupported repositories and fake extensions',()=>{assert.throws(()=>validateSiteArtwork({...data,repository:'someone/else'}));assert.throws(()=>validateSiteArtwork({...data,path:'public/site-art/fake.svg'}));});
+test('accept image replacement for each named homepage section',()=>{ for (const key of ['everything','diary','life-education','music-playlists','slow-travel','advice']) { assert.throws(()=>validateSiteArtwork({...data,path:`public/section-sketches/${key}.png`}),/Invalid homepage section image path/); } });
+test('reject arbitrary paths in section-sketches',()=>assert.throws(()=>validateSiteArtwork({...data,path:'public/section-sketches/unknown.png'})));
