@@ -72,9 +72,20 @@ function readPostSource(slug) {
   }
 }
 
-function urlsForPush(files) {
+export function urlsForPush(files) {
   const urls = new Set();
   let fullSite = false;
+  // Discovery, route generation, and layout scripts can alter every public URL
+  // without modifying a post file. Publish those changes to IndexNow too.
+  const globalGenerators = new Set([
+    'scripts/generate-route-pages.mjs',
+    'scripts/generate-sitemap.mjs',
+    'scripts/generate-rss.mjs',
+    'scripts/generate-llms.mjs',
+    'scripts/generate-post-metadata.mjs',
+    'scripts/read-posts.mjs',
+    'scripts/post-parser.mjs',
+  ]);
 
   for (const file of files) {
     const postMatch = file.match(/^src\/content\/posts\/([^/]+)\//);
@@ -91,6 +102,7 @@ function urlsForPush(files) {
       continue;
     }
 
+    if (globalGenerators.has(file)) fullSite = true;
     if (file === 'src/pages/AboutPage.tsx') addUrl(urls, '/about');
     else if (file === 'src/pages/ContactPage.tsx') addUrl(urls, '/contact');
     else if (file === 'src/pages/ArchivePage.tsx') addUrl(urls, '/archive');
@@ -101,6 +113,7 @@ function urlsForPush(files) {
   return { urls: [...urls], fullSite };
 }
 
+if (process.env.INDEXNOW_TEST_MODE !== '1') {
 await waitForDeployment();
 
 let urlList;
@@ -145,3 +158,5 @@ if (![200, 202].includes(response.status)) {
 }
 
 console.log(`Submitted ${urlList.length} URL${urlList.length === 1 ? '' : 's'} to IndexNow: ${urlList.join(', ')}`);
+
+}

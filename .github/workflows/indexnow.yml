@@ -23,6 +23,8 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: 22
+      - name: Test affected URL selection
+        run: node --test test/indexnow-selection.test.mjs
       - name: Wait for production and submit changed URLs
         run: node scripts/submit-indexnow.mjs
         env:
