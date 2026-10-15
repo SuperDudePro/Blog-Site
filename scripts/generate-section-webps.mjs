@@ -12,8 +12,14 @@ const output = path.join(root, 'public', 'section-sketches');
 fs.mkdirSync(output, { recursive: true });
 for (const key of SECTION_KEYS) {
   const source = path.join(root, 'src', 'assets', `section-sketch-${key}.svg`);
-  const bytes = unwrapWebp(fs.readFileSync(source, 'utf8'));
   const target = path.join(output, `${key}.webp`);
+  if (fs.existsSync(target)) {
+    const existing = fs.readFileSync(target);
+    if (existing.toString('ascii', 0, 4) !== 'RIFF' || existing.toString('ascii', 8, 12) !== 'WEBP') throw new Error(`Invalid section WebP: ${key}`);
+    console.log(`${key}: using uploaded WebP, ${existing.length} bytes, SHA-256 ${sha256(existing)}`);
+    continue;
+  }
+  const bytes = unwrapWebp(fs.readFileSync(source, 'utf8'));
   fs.writeFileSync(target, bytes);
   if (!fs.readFileSync(target).equals(bytes)) throw new Error(`WebP fidelity mismatch: ${key}`);
   console.log(`${key}: native WebP, ${bytes.length} bytes, SHA-256 ${sha256(bytes)}`);

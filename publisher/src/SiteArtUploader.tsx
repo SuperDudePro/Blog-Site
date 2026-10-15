@@ -11,6 +11,7 @@ function base64(bytes: Uint8Array): string {
 }
 export function SiteArtUploader({ publisherKey }: { publisherKey: string }) {
   const [file, setFile] = useState<File | null>(null);
+  const [section, setSection] = useState('');
   const [repo, setRepo] = useState('SuperDudePro/Blog-Site');
   const [path, setPath] = useState('public/site-art/');
   const [working, setWorking] = useState(false);
@@ -22,6 +23,7 @@ export function SiteArtUploader({ publisherKey }: { publisherKey: string }) {
     try {
       const bytes = new Uint8Array(await file.arrayBuffer());
       if (bytes.byteLength > 6_000_000) throw new Error('Image is larger than 6 MB.');
+      if (section && (repo !== 'SuperDudePro/Blog-Site' || !file.name.toLowerCase().endsWith('.webp'))) throw new Error('Homepage section images require an Our Old Dad WebP file.');
       const request = { repository: repo, path, content: base64(bytes), sha256: await sha256(bytes) };
       const response = await fetch('/api/publish/site-artwork', { method: 'POST', headers: { 'content-type': 'application/json', 'x-publisher-key': publisherKey }, body: JSON.stringify(request), cache: 'no-store' });
       const result = await response.json();
@@ -35,9 +37,10 @@ export function SiteArtUploader({ publisherKey }: { publisherKey: string }) {
   return <section className="panel" style={{ marginBlock: '1.5rem' }}>
     <p className="eyebrow">Site artwork (not a blog post)</p>
     <h2>Upload original website image</h2>
-    <p>Stages the exact PNG, JPEG, or WebP bytes in a draft GitHub PR. This does not publish to production.</p>
+    <p>Stages original image bytes in a draft GitHub PR. Choose a homepage section to replace its image; merge the PR to publish after deployment.</p>
     <label>Site <select value={repo} onChange={e => setRepo(e.target.value)}><option value="SuperDudePro/Blog-Site">Our Old Dad</option><option value="SuperDudePro/LifeEducationOrg">LifeEducation</option></select></label>
-    <label>File <input type="file" accept="image/png,image/jpeg,image/webp" onChange={e => { const selected = e.target.files?.[0] || null; setFile(selected); if (selected) setPath(`public/site-art/${selected.name.toLowerCase().replace(/[^a-z0-9._-]/g, '-')}`); }} /></label>
+    <label>Homepage section <select value={section} onChange={e => { const sectionKey = e.target.value; setSection(sectionKey); if (sectionKey) { setRepo('SuperDudePro/Blog-Site'); setPath(`public/section-sketches/${sectionKey}.webp`); } else { setPath('public/site-art/'); } }}><option value="">General site artwork</option><option value="everything">Everything</option><option value="diary">Diary</option><option value="life-education">Life Education</option><option value="music-playlists">Music &amp; Playlists</option><option value="slow-travel">Slow Travel</option><option value="advice">Advice</option></select></label>
+    <label>File <input type="file" accept="image/png,image/jpeg,image/webp" onChange={e => { const selected = e.target.files?.[0] || null; setFile(selected); if (selected && !section) setPath(`public/site-art/${selected.name.toLowerCase().replace(/[^a-z0-9._-]/g, '-')}`); }} /></label>
     <label>Destination <input type="text" value={path} onChange={e => setPath(e.target.value)} /></label>
     <button disabled={!file || working} onClick={() => void upload()}>{working ? 'Uploading…' : 'Upload to draft PR'}</button>
     {message && <p role="status">{message}</p>}
