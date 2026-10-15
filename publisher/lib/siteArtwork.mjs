@@ -2,7 +2,7 @@ import { createHash } from 'node:crypto';
 import { inspectImageBytes } from './imageMetadata.mjs';
 
 const targets = Object.freeze({
-  'SuperDudePro/Blog-Site': ['src/assets/site-art/', 'public/site-art/'],
+  'SuperDudePro/Blog-Site': ['src/assets/site-art/', 'public/site-art/', 'public/section-sketches/'],
   'SuperDudePro/LifeEducationOrg': ['src/assets/site-art/', 'public/site-art/'],
 });
 
@@ -10,6 +10,7 @@ export function validateSiteArtwork({ repository, path, content, sha256 }) {
   if (!Object.hasOwn(targets, repository)) throw new Error('Site artwork repository is not permitted.');
   if (typeof path !== 'string' || !/^[a-zA-Z0-9_./-]+$/.test(path) || path.includes('..') || path.startsWith('/')) throw new Error('Unsafe artwork path.');
   if (!targets[repository].some(prefix => path.startsWith(prefix))) throw new Error('Artwork path must be in an approved site-art directory.');
+  if (path.startsWith('public/section-sketches/') && !/^public\/section-sketches\/(everything|diary|life-education|music-playlists|slow-travel|advice)\.webp$/.test(path)) throw new Error('Invalid homepage section image path.');
   const extension = path.match(/\.(png|jpe?g|webp)$/i)?.[1]?.toLowerCase();
   if (!extension) throw new Error('Artwork must be PNG, JPEG, or WebP.');
   if (typeof content !== 'string' || content.length > 8_000_000 || !/^(?:[A-Za-z0-9+/]{4})*(?:[A-Za-z0-9+/]{2}==|[A-Za-z0-9+/]{3}=)?$/.test(content)) throw new Error('Invalid or oversized base64 image.');
