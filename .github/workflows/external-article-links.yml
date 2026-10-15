@@ -1,0 +1,28 @@
+name: External article link inventory
+on:
+  pull_request:
+    paths-ignore: ['publisher/**']
+  push:
+    branches: [main]
+    paths-ignore: ['publisher/**']
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  link-inventory:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 12
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci
+      - run: node scripts/audit-external-links.mjs
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: external-article-link-report
+          path: external-link-report.json
+          if-no-files-found: ignore
