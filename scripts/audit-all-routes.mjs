@@ -59,6 +59,29 @@ try {
         results.push({ route, status: 'fail', message: error.message });
       } finally { await page.close(); }
     }
+    // Exercise native form constraints without clicking submit or calling any API.
+    const formPage = await browser.newPage({ viewport: { width: 390, height: 844 } });
+    try {
+      await formPage.goto(origin + '/contact', { waitUntil: 'domcontentloaded' });
+      await formPage.locator('form input[name="email"]').first().waitFor();
+      const contact = formPage.locator('main form').first();
+      assert.equal(await contact.evaluate(form => form.checkValidity()), false, 'empty contact form should be invalid');
+      await contact.locator('[name="name"]').fill('Audit');
+      await contact.locator('[name="email"]').fill('not-an-email');
+      await contact.locator('[name="message"]').fill('Validation only; do not send');
+      assert.equal(await contact.evaluate(form => form.checkValidity()), false, 'invalid contact email accepted');
+      await contact.locator('[name="email"]').fill('audit@example.com');
+      assert.equal(await contact.evaluate(form => form.checkValidity()), true, 'valid contact inputs rejected');
+      const subscription = formPage.locator('footer form').first();
+      assert.equal(await subscription.evaluate(form => form.checkValidity()), false, 'empty subscription accepted');
+      await subscription.locator('input[name="email"]').fill('bad-email');
+      assert.equal(await subscription.evaluate(form => form.checkValidity()), false, 'malformed subscription email accepted');
+      await subscription.locator('input[name="email"]').fill('audit@example.com');
+      assert.equal(await subscription.evaluate(form => form.checkValidity()), true, 'valid subscription email rejected');
+      results.push({ route: '/contact#validation-only', status: 'pass', submitted: false });
+    } catch (error) {
+      errors.push({ route: '/contact#validation-only', message: error.message });
+    } finally { await formPage.close(); }
   } finally { await browser.close(); }
 } finally {
   try { process.kill(-server.pid); } catch {}
