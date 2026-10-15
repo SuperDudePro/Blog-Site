@@ -6,13 +6,6 @@
   margin: 0.7rem auto 1rem;
   border-radius: 10px;
   background-color: #faf7f0;
-  background-repeat: no-repeat;
-  background-position: center;
-  background-size: contain;
+  height: auto;
+  object-fit: contain;
 }
-.section-card__sketch--everything { background-image: url('/section-sketches/everything.webp'); }
-.section-card__sketch--diary { background-image: url('/section-sketches/diary.webp'); }
-.section-card__sketch--life-education { background-image: url('/section-sketches/life-education.webp'); }
-.section-card__sketch--music-playlists { background-image: url('/section-sketches/music-playlists.webp'); }
-.section-card__sketch--slow-travel { background-image: url('/section-sketches/slow-travel.webp'); }
-.section-card__sketch--advice { background-image: url('/section-sketches/advice.webp'); }
