@@ -63,6 +63,8 @@ export function readPosts() {
         slug: stringField(source, 'slug'),
         title: stringField(source, 'title'),
         excerpt: stringField(source, 'excerpt') || capture(source, /excerpt:\s*`([\s\S]*?)`,/).replace(/\s+/g, ' '),
+        seoTitle: stringField(source, 'seoTitle'),
+        seoDescription: stringField(source, 'seoDescription'),
         section: stringField(source, 'section'),
         publishedAt: stringField(source, 'publishedAt'),
         hasBodyHtml: hasField(source, 'bodyHtml'),

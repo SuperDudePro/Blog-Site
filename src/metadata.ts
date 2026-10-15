@@ -29,7 +29,7 @@ function getRouteMetadata(route: Route): RouteMetadata {
     if (post) {
       const image = post.cardImage ?? post.heroImage;
       const imageAlt = post.cardImage ? post.cardAlt : post.heroAlt;
-      return { title: titleWithSite(post.title), description: post.excerpt, canonicalPath: route.canonicalPath, type: 'article', ...(image ? { image } : {}), ...(image && imageAlt ? { imageAlt } : {}) };
+      return { title: titleWithSite(post.seoTitle || post.title), description: post.seoDescription || post.excerpt, canonicalPath: route.canonicalPath, type: 'article', ...(image ? { image } : {}), ...(image && imageAlt ? { imageAlt } : {}) };
     }
   }
   return { title: titleWithSite('Page not found'), description: site.description, canonicalPath: route.canonicalPath, type: 'website' };
@@ -50,7 +50,7 @@ function getStructuredData(route: Route, metadata: RouteMetadata): JsonLd {
     const post = getPostMetadataBySlug(route.slug);
     if (post) {
       const image = post.cardImage ?? post.heroImage;
-      graph.push({ '@type': 'BlogPosting', '@id': `${canonicalUrl}#article`, headline: post.title, description: post.excerpt, url: canonicalUrl, mainEntityOfPage: canonicalUrl, datePublished: post.publishedAt, ...(post.modifiedAt ? { dateModified: post.modifiedAt } : {}), author: { '@id': authorId }, publisher: { '@id': authorId }, isPartOf: { '@id': websiteId }, articleSection: getSectionName(post.section), ...(image ? { image: absoluteUrl(image) } : {}) });
+      graph.push({ '@type': 'BlogPosting', '@id': `${canonicalUrl}#article`, headline: post.title, description: post.seoDescription || post.excerpt, url: canonicalUrl, mainEntityOfPage: canonicalUrl, datePublished: post.publishedAt, ...(post.modifiedAt ? { dateModified: post.modifiedAt } : {}), author: { '@id': authorId }, publisher: { '@id': authorId }, isPartOf: { '@id': websiteId }, articleSection: getSectionName(post.section), ...(image ? { image: absoluteUrl(image) } : {}) });
       graph.push(breadcrumb([{ name: 'Home', path: '/' }, { name: getSectionName(post.section), path: `/section/${post.section}` }, { name: post.title, path: route.canonicalPath }]));
     }
   } else if (route.page === 'section') {

@@ -50,8 +50,8 @@ const postMetadata = new Map(
   readPosts()
     .filter((post) => !post.missingIndex && post.slug)
     .map((post) => [`/post/${post.slug}`, {
-      title: `${post.title} | Our Old Dad`,
-      description: post.excerpt,
+      title: `${post.seoTitle || post.title} | Our Old Dad`,
+      description: post.seoDescription || post.excerpt,
       post,
       modifiedAt: parsePostSource(post.source, post.indexPath).values.get('modifiedAt'),
       image: shareImage(post),
@@ -177,7 +177,7 @@ for (const route of routes) {
           '@type': 'BlogPosting',
           '@id': `${canonicalUrl}#article`,
           headline: metadata.post.title,
-          description: metadata.post.excerpt,
+          description: metadata.post.seoDescription || metadata.post.excerpt,
           url: canonicalUrl,
           mainEntityOfPage: canonicalUrl,
           datePublished: metadata.post.publishedAt,

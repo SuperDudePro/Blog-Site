@@ -6,7 +6,7 @@ const ts = require('typescript');
 
 const IMAGE_EXTENSIONS = new Set(['.webp', '.png', '.jpg', '.jpeg']);
 const ALLOWED_FIELDS = new Set([
-  'slug', 'title', 'excerpt', 'section', 'publishedAt', 'modifiedAt', 'displayDate',
+  'slug', 'title', 'excerpt', 'seoTitle', 'seoDescription', 'section', 'publishedAt', 'modifiedAt', 'displayDate',
   'status', 'heroImage', 'heroAlt', 'cardImage', 'cardAlt', 'bodyHtml',
 ]);
 
