@@ -404,6 +404,13 @@ async function exerciseJourney(kind, existing) {
     assert.equal(start.session.existingPullRequest, null);
 
     const blobs = await uploadProduction(inspection.manifest.repository, fixture.production);
+    const tamperedBranch = await callRaw(finishHandler, {
+      manifest: inspection.manifest,
+      session: { ...start.session, branch: 'publisher/not-this-post' },
+      blobs,
+    });
+    assert.equal(tamperedBranch.status, 400);
+    assert.equal(services.refs.size, 0);
     const finish = await call(finishHandler, {
       manifest: inspection.manifest,
       session: start.session,
@@ -432,6 +439,13 @@ async function exerciseJourney(kind, existing) {
     });
     assert.equal(repeatStart.session.existingPullRequest.number, services.nextPr);
     const repeatBlobs = await uploadProduction(inspection.manifest.repository, fixture.production);
+    const tamperedPr = await callRaw(finishHandler, {
+      manifest: inspection.manifest,
+      session: { ...repeatStart.session, existingPullRequest: { ...repeatStart.session.existingPullRequest, number: 1234567 } },
+      blobs: repeatBlobs,
+    });
+    assert.notEqual(tamperedPr.status, 200);
+    assert.equal(services.pulls.length, 1);
     const repeatFinish = await call(finishHandler, {
       manifest: inspection.manifest,
       session: repeatStart.session,
