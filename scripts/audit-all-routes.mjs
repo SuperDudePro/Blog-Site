@@ -40,6 +40,17 @@ try {
         if (route.startsWith('/post/')) {
           assert.ok(info.postImageCount >= 1, route + ' missing body images');
           assert.ok(info.images.every(i => i.src && i.alt !== null), route + ' image src/alt missing');
+          // Force lazy inline images to load and verify decoded bytes, not just DOM tags.
+          const decoded = await page.locator('article.post-article img').evaluateAll(async (images) =>
+            Promise.all(images.map(async (img) => {
+              img.loading = 'eager';
+              const timeout = new Promise(resolve => setTimeout(() => resolve(false), 12000));
+              const loaded = img.decode().then(() => true).catch(() => false);
+              return { src: img.getAttribute('src'), ok: await Promise.race([loaded, timeout]) && img.naturalWidth > 0 };
+            }))
+          );
+          const broken = decoded.filter(image => !image.ok);
+          assert.deepEqual(broken, [], route + ' broken decoded body images');
         }
         assert.equal(info.invalidInternalLinks, 0, route + ' invalid post links');
         results.push({ route, status: 'pass', ...info });
