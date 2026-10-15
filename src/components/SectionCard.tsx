@@ -21,7 +21,7 @@ export function SectionCard({ section }: Props) {
       <h3>{section.name}</h3>
       <img
         className={`section-card__sketch section-card__sketch--${section.key}`}
-        src={`/section-sketches/${section.key}.webp?v=20261015-hq`}
+        src={`/section-sketches/${section.key}.webp?v=20261015-replacement`}
         alt={sectionSketchAlt[section.key]}
         width={320}
         height={320}

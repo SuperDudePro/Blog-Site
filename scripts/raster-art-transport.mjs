@@ -71,7 +71,7 @@ export function verifyWrapper(svgPath, sourcePath) {
 
 export function auditSectionSketches(root) {
   const component = fs.readFileSync(path.join(root, 'src/components/SectionCard.tsx'), 'utf8');
-  if (!component.includes('src={`/section-sketches/${section.key}.webp?v=20261015-hq`}')) {
+  if (!component.includes('src={`/section-sketches/${section.key}.webp?v=20261015-replacement`}')) {
     throw new Error('SectionCard must load the versioned native WebP illustrations');
   }
   const output = [];
