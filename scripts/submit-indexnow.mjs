@@ -72,7 +72,7 @@ function readPostSource(slug) {
   }
 }
 
-function urlsForPush(files) {
+export function urlsForPush(files) {
   const urls = new Set();
   let fullSite = false;
   // Discovery, route generation, and layout scripts can alter every public URL
@@ -113,6 +113,7 @@ function urlsForPush(files) {
   return { urls: [...urls], fullSite };
 }
 
+if (process.env.INDEXNOW_TEST_MODE !== '1') {
 await waitForDeployment();
 
 let urlList;
@@ -157,3 +158,5 @@ if (![200, 202].includes(response.status)) {
 }
 
 console.log(`Submitted ${urlList.length} URL${urlList.length === 1 ? '' : 's'} to IndexNow: ${urlList.join(', ')}`);
+
+}
