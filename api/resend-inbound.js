@@ -86,7 +86,8 @@ async function resendRequest(path, apiKey, options = {}) {
 async function getRawAttachment(email) {
   if (!email.raw?.download_url) return undefined;
 
-  const rawResponse = await fetchWithTimeout(email.raw.download_url);
+  // Keep the abort signal active while the attachment body streams, not only until headers arrive.
+  const rawResponse = await fetch(email.raw.download_url, { signal: AbortSignal.timeout(12_000) });
   if (!rawResponse.ok || Number(rawResponse.headers.get('content-length') || 0) > MAX_RAW_ATTACHMENT_BYTES) return undefined;
 
   const chunks = [];
