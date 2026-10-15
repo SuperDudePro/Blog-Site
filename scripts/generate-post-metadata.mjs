@@ -15,7 +15,7 @@ for (const folder of fs.readdirSync(postsDir).sort()) {
   if (parsed.errors.length) throw new Error(`${folder}: ${parsed.errors.join('; ')}`);
 
   const record = {};
-  for (const field of ['slug', 'title', 'excerpt', 'section', 'publishedAt', 'modifiedAt', 'displayDate', 'status', 'heroAlt', 'cardAlt']) {
+  for (const field of ['slug', 'title', 'excerpt', 'seoTitle', 'seoDescription', 'section', 'publishedAt', 'modifiedAt', 'displayDate', 'status', 'heroAlt', 'cardAlt']) {
     const value = parsed.values.get(field);
     if (value !== undefined) record[field] = value;
   }
