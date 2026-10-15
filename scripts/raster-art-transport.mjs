@@ -70,17 +70,23 @@ export function verifyWrapper(svgPath, sourcePath) {
 }
 
 export function auditSectionSketches(root) {
-  const css = fs.readFileSync(path.join(root, 'src/components/SectionCard.css'), 'utf8');
+  const component = fs.readFileSync(path.join(root, 'src/components/SectionCard.tsx'), 'utf8');
+  if (!component.includes('src={`/section-sketches/${section.key}.webp?v=20261015-hq`}')) {
+    throw new Error('SectionCard must load the versioned native WebP illustrations');
+  }
   const output = [];
   for (const key of SECTION_KEYS) {
-    const filename = `section-sketch-${key}.svg`;
-    const file = path.join(root, 'src/assets', filename);
-    const metadata = verifyWrapper(file);
-    if (metadata.width < 160 || metadata.height < 160 || metadata.width !== metadata.height) {
-      throw new Error(`${filename}: expected square raster illustration at least 160px on each side`);
+    const filename = `${key}.webp`;
+    const file = path.join(root, 'public/section-sketches', filename);
+    const bytes = fs.readFileSync(file);
+    const { width, height } = webpGeometry(bytes);
+    if (width < 320 || height < 320 || width !== height) {
+      throw new Error(`${filename}: expected detailed square WebP at least 320px on each side`);
     }
-    if (!css.includes(`url('/section-sketches/${key}.webp')`)) throw new Error(`${filename}: section card is not using the verified asset`);
-    output.push({ file: filename, ...metadata });
+    if (bytes.length < 15000) {
+      throw new Error(`${filename}: suspiciously small WebP; protect full-detail artwork`);
+    }
+    output.push({ file: filename, width, height, bytes: bytes.length, sha256: sha256(bytes) });
   }
   return output;
 }
