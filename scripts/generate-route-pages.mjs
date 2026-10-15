@@ -177,7 +177,7 @@ for (const route of routes) {
           '@type': 'BlogPosting',
           '@id': `${canonicalUrl}#article`,
           headline: metadata.post.title,
-          description: metadata.post.excerpt,
+          description: metadata.post.seoDescription || metadata.post.excerpt,
           url: canonicalUrl,
           mainEntityOfPage: canonicalUrl,
           datePublished: metadata.post.publishedAt,
