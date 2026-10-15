@@ -73,6 +73,20 @@ async function waitForDeployment() {
 
 await waitForDeployment();
 
+const securityResponse = await get(`${origin}/archive`);
+assert.equal(securityResponse.status, 200, 'archive must be available for security-header audit');
+for (const [header, expected] of [
+  ['x-content-type-options', 'nosniff'],
+  ['x-frame-options', 'DENY'],
+  ['referrer-policy', 'strict-origin-when-cross-origin'],
+]) {
+  assert.equal(securityResponse.headers.get(header), expected, `production missing ${header}`);
+}
+const reportOnlyPolicy = securityResponse.headers.get('content-security-policy-report-only') || '';
+assert.ok(reportOnlyPolicy.includes("default-src 'self'"), 'report-only CSP not served');
+assert.ok(reportOnlyPolicy.includes('https://analytics.google.com'), 'observed analytics host missing from CSP');
+assert.ok(reportOnlyPolicy.includes('https://stats.g.doubleclick.net'), 'observed doubleclick host missing from CSP');
+assert.equal(securityResponse.headers.get('content-security-policy'), null, 'CSP must remain report-only pending review');
 const robotsResponse = await get(`${origin}/robots.txt`);
 assert.equal(robotsResponse.status, 200, 'robots.txt must be available');
 assert.ok((await robotsResponse.text()).split(/\r?\n/).some((line) => line.trim() === `Sitemap: ${origin}/sitemap.xml`), 'robots.txt must name the canonical sitemap');
