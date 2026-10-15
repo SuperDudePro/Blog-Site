@@ -87,6 +87,16 @@ for (const route of routes) {
       if (/\$\{[^}]+\}/.test(article)) {
         fail(rel(html), 'article', 'static article contains unresolved template interpolation');
       }
+      // A static HTML post must preserve any inline images and reference available built files.
+      for (const [, imageUrl] of article.matchAll(/<img\\b[^>]*\\bsrc=["']([^"']+)["'][^>]*>/gi)) {
+        if (imageUrl.startsWith('/assets/')) {
+          const builtAsset = join(DIST, ...imageUrl.slice(1).split('/'));
+          if (!existsSync(builtAsset)) fail(rel(html), imageUrl, 'static post references missing image');
+        } else if (!/^https:\\/\\//i.test(imageUrl)) {
+          fail(rel(html), imageUrl, 'static image URL must be built asset or HTTPS');
+        }
+      }
+
     }
   }
 }
