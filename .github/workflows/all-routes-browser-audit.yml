@@ -1,0 +1,30 @@
+name: All routes mobile browser audit
+on:
+  pull_request:
+    paths-ignore: ['publisher/**']
+  push:
+    branches: [main]
+    paths-ignore: ['publisher/**']
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  browser-audit:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci
+      - run: npm run build
+      - name: Audit every sitemap route at mobile width
+        run: node scripts/audit-all-routes.mjs
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: all-route-browser-report
+          path: route-browser-report.json
+          if-no-files-found: ignore
