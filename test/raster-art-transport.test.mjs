@@ -8,7 +8,7 @@ import { SECTION_KEYS, auditSectionSketches, sha256, unwrapWebp, verifyWrapper, 
 
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 
-test('every homepage sketch contains an embedded WebP, never traced vector paths', () => {
+test('homepage section cards use six full-resolution native WebPs', () => {
   const results = auditSectionSketches(root);
   assert.equal(results.length, SECTION_KEYS.length);
   for (const item of results) assert.match(item.sha256, /^[0-9a-f]{64}$/);
