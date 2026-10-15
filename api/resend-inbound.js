@@ -1,4 +1,8 @@
 import { createHmac, timingSafeEqual } from 'node:crypto';
+import { fetchWithTimeout } from './_security.mjs';
+
+const MAX_WEBHOOK_BYTES = 1_048_576;
+const MAX_RAW_ATTACHMENT_BYTES = 15 * 1024 * 1024;
 
 export const config = { api: { bodyParser: false } };
 
@@ -13,8 +17,12 @@ function getHeader(request, name) {
 
 async function readRawBody(request) {
   const chunks = [];
+  let bytes = 0;
   for await (const chunk of request) {
-    chunks.push(Buffer.isBuffer(chunk) ? chunk : Buffer.from(chunk));
+    const buffer = Buffer.isBuffer(chunk) ? chunk : Buffer.from(chunk);
+    bytes += buffer.length;
+    if (bytes > MAX_WEBHOOK_BYTES) throw new RangeError('Webhook payload exceeds limit.');
+    chunks.push(buffer);
   }
   return Buffer.concat(chunks).toString('utf8');
 }
@@ -65,7 +73,7 @@ function addressOnly(value) {
 }
 
 async function resendRequest(path, apiKey, options = {}) {
-  return fetch(`https://api.resend.com${path}`, {
+  return fetchWithTimeout(`https://api.resend.com${path}`, {
     ...options,
     headers: {
       Authorization: `Bearer ${apiKey}`,
@@ -78,11 +86,21 @@ async function resendRequest(path, apiKey, options = {}) {
 async function getRawAttachment(email) {
   if (!email.raw?.download_url) return undefined;
 
-  const rawResponse = await fetch(email.raw.download_url);
-  if (!rawResponse.ok) return undefined;
+  const rawResponse = await fetchWithTimeout(email.raw.download_url);
+  if (!rawResponse.ok || Number(rawResponse.headers.get('content-length') || 0) > MAX_RAW_ATTACHMENT_BYTES) return undefined;
 
-  const content = Buffer.from(await rawResponse.arrayBuffer());
-  if (content.length > 15 * 1024 * 1024) return undefined;
+  const chunks = [];
+  let bytes = 0;
+  for await (const chunk of rawResponse.body ?? []) {
+    const buffer = Buffer.from(chunk);
+    bytes += buffer.length;
+    if (bytes > MAX_RAW_ATTACHMENT_BYTES) {
+      await rawResponse.body?.cancel().catch(() => {});
+      return undefined;
+    }
+    chunks.push(buffer);
+  }
+  const content = Buffer.concat(chunks);
 
   return {
     filename: 'original-message.eml',
@@ -118,7 +136,14 @@ export default async function handler(request, response) {
     return json(response, 500, { ok: false, error: 'Inbound email is not configured.' });
   }
 
-  const rawBody = await readRawBody(request);
+  let rawBody;
+  try {
+    rawBody = await readRawBody(request);
+  } catch (error) {
+    if (error instanceof RangeError) return json(response, 413, { ok: false, error: 'Webhook payload is too large.' });
+    console.error('Inbound webhook body could not be read:', error);
+    return json(response, 400, { ok: false, error: 'Invalid webhook body.' });
+  }
   if (!verifyWebhook(rawBody, request, RESEND_WEBHOOK_SECRET)) {
     return json(response, 400, { ok: false, error: 'Invalid webhook signature.' });
   }
