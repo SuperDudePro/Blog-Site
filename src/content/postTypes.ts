@@ -7,6 +7,8 @@ export type BlogPost = {
   slug: string;
   title: string;
   excerpt: string;
+  seoTitle?: string;
+  seoDescription?: string;
   section: PublicSectionKey;
   publishedAt: string;
   modifiedAt?: string;
