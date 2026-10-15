@@ -57,6 +57,14 @@ async function get(url, options = {}) {
 }
 
 async function waitForDeployment() {
+  if (expectedCommit === 'current') {
+    const response = await get(`${origin}/deployment.json?t=${Date.now()}`);
+    assert.equal(response.status, 200, 'production deployment marker unavailable');
+    const marker = await response.json();
+    assert.match(marker.commit || '', /^[0-9a-f]{40}$/i, 'production deployment marker invalid');
+    console.log(`PR smoke uses currently served production commit ${marker.commit}.`);
+    return;
+  }
   assert.match(expectedCommit || '', /^[0-9a-f]{40}$/i, 'DEPLOY_SHA must be a full commit SHA');
   for (let attempt = 1; attempt <= 30; attempt++) {
     try {
