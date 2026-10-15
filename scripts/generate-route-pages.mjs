@@ -40,6 +40,8 @@ function shareImage(post) {
     const filename = parsed.imageImports.get(parsed.identifiers.get(imageField));
     const built = filename && assetManifest[`src/content/posts/${post.folder}/${filename}`]?.file;
     if (built) return { url: `${canonicalHost}/${built}`, alt: parsed.values.get(altField) || '' };
+    const external = parsed.values.get(imageField);
+    if (typeof external === 'string' && /^https:\/\//.test(external)) return { url: external, alt: parsed.values.get(altField) || '' };
   }
   return undefined;
 }
@@ -77,10 +79,17 @@ function replaceMetadata(html, name, value, attribute = 'name') {
 }
 
 function staticPostBody(post) {
+  // Resolve only approved local image imports using Vite's emitted asset manifest.
+  // Never alter the approved article markup or image ordering.
+  const parsed = parsePostSource(post.source, post.indexPath);
+  const replacements = new Map();
+  for (const [identifier, filename] of parsed.imageImports) {
+    const built = assetManifest[`src/content/posts/${post.folder}/${filename}`]?.file;
+    if (built) replacements.set(identifier, `/${built}`);
+  }
   return post.bodyHtml
-    .replace(/<script\b[\s\S]*?<\/script>/gi, '')
-    .replace(/<img\b[\s\S]*?>/gi, '')
-    .replace(/\$\{[^}]+\}/g, '');
+    .replace(/<script\\b[\\s\\S]*?<\\/script>/gi, '')
+    .replace(/\\$\\{([A-Za-z_$][\\w$]*)\\}/g, (match, identifier) => replacements.get(identifier) ?? match);
 }
 
 function staticPostMarkup(post) {
