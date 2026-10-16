@@ -11,6 +11,8 @@ const post: BlogPost = {
   title: 'Straight Greats No. 4: The Cult — Three Great Reincarnations Before They Fucked It Up',
   excerpt:
     'The Cult made three nearly perfect albums by becoming a different band each time—then Kurt slept through their peak from the front row.',
+  seoTitle: "Straight Greats: The Cult's Three Album Reinventions",
+  seoDescription: "The Cult made three nearly perfect records by reinventing themselves each time, before a front-row concert memory took its own turn.",
   section: 'music-playlists',
   publishedAt: '2026-07-27',
   status: 'Recent',
