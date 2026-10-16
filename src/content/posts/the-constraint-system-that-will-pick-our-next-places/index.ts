@@ -9,6 +9,8 @@ const post: BlogPost = {
   title: 'The Constraint System That Will Pick Our Next Places',
   excerpt:
     'A slow-travel plan only works if the places survive real constraints: weather, housing, safety, pacing, internet, visas, money, and kids.',
+  seoTitle: "Our Family Slow-Travel Constraints: How We Choose Places",
+  seoDescription: "Weather, housing, safety, internet, visas, money, children, and pace determine which slow-travel destinations actually work for our family.",
   section: 'slow-travel',
   publishedAt: '2026-06-20',
   status: 'Recent',
