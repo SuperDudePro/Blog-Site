@@ -11,6 +11,8 @@ const post: BlogPost = {
   title: "Earline's Mom",
   excerpt:
     "A child’s memory, a train fantasy, and the realization that I’m a lot closer to the old woman’s chair than to being young on Pearl Street.",
+  seoTitle: "Earline's Mom: A Childhood Memory of Pearl Street",
+  seoDescription: "A child's train fantasy and an older woman's chair return in a memory that feels different now that I'm closer to her age.",
   section: 'diary',
   publishedAt: '2026-04-24',
   status: 'Recent',
