@@ -11,6 +11,8 @@ const post: BlogPost = {
   title: 'Joe Walsh: 34 Songs and a Familiar Kind of Crazy',
   excerpt:
     'A Joe Walsh playlist brought back a strange stretch of Chicago radio, Caribou Ranch, and a catalog whose writing gets better the closer I listen.',
+  seoTitle: "Joe Walsh Playlist: 34 Songs, Caribou Ranch and Chicago Radio",
+  seoDescription: "A 34-song Joe Walsh playlist with James Gang, Barnstorm, solo deep cuts, a Caribou Ranch memory, and an odd stretch of Chicago radio.",
   section: 'music-playlists',
   publishedAt: '2026-07-12',
   status: 'Recent',

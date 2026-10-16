@@ -10,6 +10,8 @@ const post: BlogPost = {
   slug: 'ode-to-assholes',
   title: 'Ode to Assholes',
   excerpt: 'Sometimes an asshole does you a favor by making you leave. I only had to cross a couple of ball fields to find somewhere better.',
+  seoTitle: "Ode to Assholes: When Bad Coworkers Push You Somewhere Better",
+  seoDescription: "Sometimes the assholes in one place do you a favor by making you leave. This time, the better place was only a couple of ball fields away.",
   section: 'diary',
   publishedAt: '2026-10-14',
   status: 'Recent',

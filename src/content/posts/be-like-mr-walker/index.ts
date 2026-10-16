@@ -11,6 +11,8 @@ const post: BlogPost = {
   title: 'Hey, Dudes! Advice for life from an old dad, No. 2',
   excerpt:
     'A nearly-ninety-year-old neighbor shoveling my sidewalk one December morning, an insult disguised as a compliment, and the kind of person I keep wanting to become.',
+  seoTitle: "Be Like Mr. Walker: Advice From an Old Dad",
+  seoDescription: "A nearly ninety-year-old neighbor shoveling my sidewalk taught me more about the person I wanted to become than he probably realized.",
   section: 'advice',
   publishedAt: '2026-04-27',
   status: 'Recent',

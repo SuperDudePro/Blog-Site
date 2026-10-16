@@ -10,6 +10,8 @@ const post: BlogPost = {
   title: 'Closer to Nomadland Than I Want to Admit',
   excerpt:
     'Watching Nomadland again exposed the fear beneath our slow-travel plan: not the van or the road, but being stranded when luck runs out.',
+  seoTitle: "Nomadland and the Fear Behind Our Family Slow-Travel Plan",
+  seoDescription: "Watching Nomadland again uncovered the fear beneath our family's slow-travel plan: being stranded when the luck runs out.",
   section: 'slow-travel',
   publishedAt: '2026-07-10',
   status: 'Recent',

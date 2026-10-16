@@ -9,6 +9,8 @@ const post: BlogPost = {
   title: 'Slow Travel: The Mission',
   excerpt:
     'An old dad, a seven-year runway, two young kids, and the plan to build a slow-travel life instead of rushing through the world.',
+  seoTitle: "Slow Travel With Kids: An Old Dad's Seven-Year Plan",
+  seoDescription: "An older father maps a seven-year path toward slow travel with two young children, building a life instead of rushing through destinations.",
   section: 'slow-travel',
   publishedAt: '2026-06-19',
   status: 'Recent',

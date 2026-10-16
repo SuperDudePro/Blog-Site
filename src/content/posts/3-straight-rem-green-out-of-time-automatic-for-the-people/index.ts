@@ -11,6 +11,8 @@ const post: BlogPost = {
   title: 'Straight Greats No. 3: R.E.M. and the Years I Was Lost',
   excerpt:
     'Three R.E.M. albums arrived at three moments when I was lost. Two clear the line clean; one survives a single strange, irritating detour.',
+  seoTitle: "Straight Greats: R.E.M.'s Green, Out of Time and Automatic for the People",
+  seoDescription: "Three consecutive R.E.M. albums accompanied three lost years. Two clear the Straight Greats standard; one has a single irritating detour.",
   section: 'music-playlists',
   publishedAt: '2026-07-26',
   status: 'Recent',

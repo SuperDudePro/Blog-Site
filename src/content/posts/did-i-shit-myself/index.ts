@@ -10,6 +10,8 @@ const post: BlogPost = {
   slug: 'did-i-shit-myself',
   title: 'Did I Shit Myself?',
   excerpt: 'A suspicious smell follows an old dad and two kids into the library, where a diaper investigation, two staring babies, and one attractive mother prove almost nothing.',
+  seoTitle: "Did I Shit Myself? A Library Trip With Two Kids",
+  seoDescription: "A suspicious smell follows an old dad and two kids to the library, where a diaper investigation and two staring babies settle almost nothing.",
   section: 'diary',
   publishedAt: '2026-07-22',
   status: 'Recent',

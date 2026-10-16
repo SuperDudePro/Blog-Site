@@ -8,6 +8,8 @@ const post: BlogPost = {
   slug: 'slow-travel-weather-filter',
   title: 'The Weather Filter: Why Most Great Destinations Fail Before We Even Pack',
   excerpt: 'A slow-travel weather filter for choosing places where daily life works instead of fighting heat, cold, rain, smoke, and the wrong road setup.',
+  seoTitle: "Slow Travel Weather Filter: Heat, Smoke and Daily Life",
+  seoDescription: "How we filter slow-travel destinations for manageable heat, cooler nights, clean air, rain, and everyday family routines before choosing where to stay.",
   section: 'slow-travel',
   publishedAt: '2026-06-20',
   status: 'Recent',

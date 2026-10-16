@@ -11,6 +11,8 @@ const post: BlogPost = {
   title: "1977: The Year That Wouldn't Pick a Lane",
   excerpt:
     'My favorite songs that make 1977 sound like 1977 to me, thrown together the way I still like to hear them: on random play, like FM radio is still in charge.',
+  seoTitle: "1977 Music Playlist: The Year FM Radio Wouldn't Pick a Lane",
+  seoDescription: "A personal 1977 playlist built for random play, with the strange genre mix that made FM radio feel like radio.",
   section: 'music-playlists',
   publishedAt: '2026-05-04',
   status: 'Recent',

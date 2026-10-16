@@ -11,6 +11,8 @@ const post: BlogPost = {
   title: '1993: The Year Everything Was Right in Front of Me',
   excerpt:
     "The songs from my musical home year — and the year I had everything right in front of me and didn't reach for it.",
+  seoTitle: "1993 Music Playlist: The Year Everything Was Right in Front of Me",
+  seoDescription: "Songs from 1993, my musical home year, and the things I had right in front of me without knowing what to do with them.",
   section: 'music-playlists',
   publishedAt: '2026-05-25',
   status: 'Recent',

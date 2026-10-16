@@ -10,6 +10,8 @@ const post: BlogPost = {
   slug: 'whose-garden-is-it-anyway',
   title: 'Whose Garden Is It, Anyway?',
   excerpt: "I built a tropical garden, gave two Rottweilers the perimeter, and spent months trying to keep them out of the beds I'd put there.",
+  seoTitle: "Whose Garden Is It, Anyway? Two Rottweilers and a Tropical Garden",
+  seoDescription: "I built a tropical garden in the Philippines, gave two Rottweilers the perimeter, and spent months trying to protect the beds from the dogs.",
   section: 'diary',
   publishedAt: '2026-10-10',
   status: 'Recent',

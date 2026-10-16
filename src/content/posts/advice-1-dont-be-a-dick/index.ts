@@ -11,6 +11,8 @@ const post: BlogPost = {
   title: 'Hey, Dudes! Advice From an Old Dad, No. 1: Don’t Be a Dick',
   excerpt:
     "The first rule is not elegant or fancy, but it covers a surprising amount of ground: don’t be a dick.",
+  seoTitle: "Hey Dudes, Advice No. 1: Don't Be a Dick",
+  seoDescription: "An old dad's first rule for life is not elegant, but it covers an awful lot: don't be a dick.",
   section: 'advice',
   publishedAt: '2026-04-27',
   status: 'Recent',

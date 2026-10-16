@@ -11,6 +11,8 @@ const post: BlogPost = {
   title: 'Reasons to Reconsider the 80s',
   excerpt:
     'I have spent a lot of years being annoyed by 80s music. This playlist is my reminder that the decade was not all shoulder pads, gated drums, and songs built for shopping malls.',
+  seoTitle: "1980s Music Playlist: Reasons to Reconsider the Decade",
+  seoDescription: "A playlist for reconsidering 1980s music beyond gated drums, shoulder pads, and the songs that sounded built for shopping malls.",
   section: 'music-playlists',
   publishedAt: '2026-04-26',
   status: 'Recent',

@@ -11,6 +11,8 @@ const post: BlogPost = {
   title: 'The Funk That Forgot About Me',
   excerpt:
     'Teachers know this funk, even when they pretend they don’t. A field guide to twenty years of end-of-winter-break dread, the avoidance hobbies that came with it, and the year I learned more about Desi Arnaz than any reasonable person should.',
+  seoTitle: "The End-of-Winter-Break Funk: A Teacher's Field Guide",
+  seoDescription: "Twenty years of back-to-school dread, avoidance hobbies, and the year I somehow learned far too much about Desi Arnaz.",
   section: 'diary',
   publishedAt: '2026-05-10',
   modifiedAt: '2026-07-28',

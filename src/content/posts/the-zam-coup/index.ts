@@ -9,6 +9,8 @@ const post: BlogPost = {
   title: 'The Zam Coup',
   excerpt:
     'A baby-name negotiation, one accidental assist from Alexa, and the quiet family coup that produced two Zams.',
+  seoTitle: "The Zam Coup: How Two Kids Got Their Family Names",
+  seoDescription: "A baby-name negotiation, an unexpected assist from Alexa, and the quiet family coup that gave two children their Zam names.",
   section: 'diary',
   publishedAt: '2026-06-05',
   status: 'Recent',

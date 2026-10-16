@@ -10,6 +10,8 @@ const post: BlogPost = {
   title: 'We Weren\'t Going to Tell Her So Soon',
   excerpt:
     'Raven recognized me in an old classroom photo. Then she pointed at the twelve-year-old Korean boy beside me and asked if that was her.',
+  seoTitle: "We Weren't Going to Tell Her So Soon: An Old Classroom Photo",
+  seoDescription: "Raven found me in an old classroom photograph, then pointed to the twelve-year-old Korean boy next to me and asked if that was her.",
   section: 'diary',
   publishedAt: '2026-07-23',
   status: 'Recent',

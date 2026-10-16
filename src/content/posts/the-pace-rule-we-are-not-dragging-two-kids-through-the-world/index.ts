@@ -9,6 +9,8 @@ const post: BlogPost = {
   title: 'The Pace Rule: We Are Not Dragging Two Kids Through the World',
   excerpt:
     'Slow travel only works if the pace protects the family: long bases, limited move days, local rhythms, and enough slack for kids to stay steady.',
+  seoTitle: "Slow Travel With Kids: The Pace Rule",
+  seoDescription: "Long bases, fewer moving days, local routines, and enough slack to keep young children steady: the family rule behind our slow-travel pace.",
   section: 'slow-travel',
   publishedAt: '2026-06-27',
   status: 'Recent',

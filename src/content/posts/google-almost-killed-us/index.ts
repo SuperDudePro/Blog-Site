@@ -8,6 +8,8 @@ const post: BlogPost = {
   title: 'Google Almost Killed Us',
   excerpt:
     'A wildfire closure, a phone route toward Black Bear Pass, and a family pickup learning that possible and reasonable are not the same thing.',
+  seoTitle: "Google Almost Killed Us: Ouray and Black Bear Pass",
+  seoDescription: "A wildfire closure on Colorado's Highway 550 sent our family pickup toward Black Bear Pass near Telluride. Not every GPS detour is a road worth taking.",
   section: 'diary',
   publishedAt: '2026-07-07',
   status: 'Recent',

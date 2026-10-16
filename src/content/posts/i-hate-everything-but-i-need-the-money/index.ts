@@ -10,6 +10,8 @@ const post: BlogPost = {
   slug: 'i-hate-everything-but-i-need-the-money',
   title: 'I Hate Everything but I Need the Money',
   excerpt: 'Forty years after cheering for overtime at Andersen Consulting, I’m staring at the same old bargain: I hate what success seems to require, but I still need the money.',
+  seoTitle: "I Hate Everything but I Need the Money: Work and the Bargain",
+  seoDescription: "Forty years after cheering for overtime at Andersen Consulting, I'm still examining the bargain between earning money and tolerating work.",
   section: 'diary',
   publishedAt: '2026-09-04',
   status: 'Recent',

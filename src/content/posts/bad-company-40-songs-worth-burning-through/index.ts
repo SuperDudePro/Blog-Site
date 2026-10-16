@@ -11,6 +11,8 @@ const post: BlogPost = {
   title: 'Bad Company: 40 Songs Worth Burning Through',
   excerpt:
     'A Bad Company playlist brought back eighth-grade graduation money, a record-store splurge, and a band that still hits harder than I remember.',
+  seoTitle: "Bad Company Playlist: 40 Songs Worth Burning Through",
+  seoDescription: "Forty Bad Company songs bring back eighth-grade graduation money, a record-store purchase, and a band that still hits hard.",
   section: 'music-playlists',
   publishedAt: '2026-04-23',
   status: 'Recent',

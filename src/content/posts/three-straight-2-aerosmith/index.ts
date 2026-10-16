@@ -11,6 +11,8 @@ const post: BlogPost = {
   title: 'Straight Greats No. 2: Aerosmith Had Six',
   excerpt:
     "Aerosmith's first six albums all clear the line. The last two only felt like letdowns because the first four had made the band an eleven-year-old's main connection to rock and roll.",
+  seoTitle: "Straight Greats: Aerosmith's First Six Albums",
+  seoDescription: "Why Aerosmith's first six albums count as a great consecutive run, and how the first four shaped an eleven-year-old's idea of rock and roll.",
   section: 'music-playlists',
   publishedAt: '2026-07-25',
   status: 'Recent',
