@@ -10,6 +10,8 @@ const post: BlogPost = {
   title: 'The Purple Scooter Walk',
   excerpt:
     'Xander is two. The plan was a few minutes of scooter practice in front of the house. He had a different plan, and it ended a mile away at the park.',
+  seoTitle: "The Purple Scooter Walk: A Two-Year-Old's Mile to the Park",
+  seoDescription: "Xander was two, and scooter practice was supposed to last a few minutes. He took the plan a mile down the road to the park.",
   section: 'life-education',
   publishedAt: '2026-06-14',
   status: 'Recent',
