@@ -10,6 +10,8 @@ const post: BlogPost = {
   slug: 'the-83-hawaii-playlist',
   title: 'The ’83 Hawaii Playlist',
   excerpt: 'Forty-five songs from a 1983 senior-class trip to Honolulu. They still do not sound like 1983 to me. They sound like Hawaii.',
+  seoTitle: "1983 Hawaii Playlist: 45 Songs from a Honolulu Senior Trip",
+  seoDescription: "Forty-five songs tied to a 1983 senior-class trip to Honolulu, from Come On Eileen to Electric Avenue—and why they still sound like Hawaii.",
   section: 'music-playlists',
   publishedAt: '2026-07-12',
   status: 'Recent',
