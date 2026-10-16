@@ -11,6 +11,8 @@ const post: BlogPost = {
   title: 'Straight Greats No. 5: The Rolling Stones Had Six — and the Weird One Counts',
   excerpt:
     'The Rolling Stones made six straight great albums from Their Satanic Majesties Request through Goats Head Soup: five Certified, one On the Edge, and the weird one counts.',
+  seoTitle: "Rolling Stones Straight Greats: Six Albums in a Row",
+  seoDescription: "Why the Rolling Stones' six-album run from Their Satanic Majesties Request through Goats Head Soup includes five Certified records and one On the Edge.",
   section: 'music-playlists',
   publishedAt: '2026-08-03',
   status: 'Recent',
