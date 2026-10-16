@@ -9,6 +9,8 @@ const post: BlogPost = {
   slug: 'my-friends-had-oregano',
   title: 'My Friends Had Oregano',
   excerpt: 'In 1983, I flew to Hawaii with a fake Kentucky license, handed a hundred dollars to two strangers, and somehow ended the week with the stash. My friends had oregano.',
+  seoTitle: "My Friends Had Oregano: Hawaii, 1983, and a Fake ID",
+  seoDescription: "In 1983 I flew to Hawaii with a fake Kentucky license, gave a hundred dollars to strangers, and ended up holding the stash. My friends had oregano.",
   section: 'diary',
   publishedAt: '2026-07-12',
   status: 'Recent',
