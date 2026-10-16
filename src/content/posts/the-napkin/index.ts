@@ -10,6 +10,8 @@ const post: BlogPost = {
   slug: 'the-napkin',
   title: 'The Napkin',
   excerpt: "A fictionalized story from the early '80s, when a fraternity road trip became an exercise in terrible decisions, bad explanations, and trying not to laugh.",
+  seoTitle: "The Napkin: An Early-1980s Fraternity Road Trip Story",
+  seoDescription: "An early-1980s fraternity trip to Miami University in Ohio turns into a story of terrible decisions, dark hallways, and an explanation nobody wants to believe.",
   section: 'diary',
   publishedAt: '2026-10-11',
   status: 'Recent',
