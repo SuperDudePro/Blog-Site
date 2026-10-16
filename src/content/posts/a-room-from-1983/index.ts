@@ -11,6 +11,8 @@ const post: BlogPost = {
   title: 'A Room From 1983',
   excerpt:
     'The five years I spent at Purdue still take up more room in my head than decades that came after. A small dorm room, a TA who blew my tiny mind, and a memory I am no longer sure I can trust.',
+  seoTitle: "A Room From 1983: Purdue, College Memories and Doubt",
+  seoDescription: "A Purdue dorm room, a teaching assistant, and a college memory that still occupies more space than decades that followed.",
   section: 'diary',
   publishedAt: '2026-05-10',
   status: 'Recent',
