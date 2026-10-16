@@ -11,6 +11,8 @@ const post: BlogPost = {
   title: 'Straight Greats No. 6: Pink Floyd Had Four Perfect Albums in a Row',
   excerpt:
     'Pink Floyd made four perfect albums in a row from The Dark Side of the Moon through The Wall. Of those four monsters, Animals is still the one I pick.',
+  seoTitle: "Pink Floyd's Four Perfect Albums: Dark Side to The Wall",
+  seoDescription: "A Straight Greats case for Pink Floyd's run from The Dark Side of the Moon through The Wall, including Wish You Were Here, Animals, and why Animals wins.",
   section: 'music-playlists',
   publishedAt: '2026-09-27',
   status: 'Recent',
