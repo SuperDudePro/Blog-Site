@@ -11,6 +11,8 @@ const post: BlogPost = {
   title: 'Journey: 40 Songs and a Time Machine',
   excerpt:
     'A Journey playlist turned into a map of memory, bad timing, school dances, and the Steve Perry years.',
+  seoTitle: "Journey Playlist: 40 Songs and a Time Machine",
+  seoDescription: "A 40-song Journey playlist brings back school dances, bad timing, memory, and the Steve Perry years.",
   section: 'music-playlists',
   publishedAt: '2026-04-22',
   status: 'Recent',
