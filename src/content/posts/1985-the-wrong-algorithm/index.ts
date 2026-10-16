@@ -10,6 +10,8 @@ const post: BlogPost = {
   slug: '1985-the-wrong-algorithm',
   title: '1985: The Wrong Algorithm',
   excerpt: 'A 1985 playlist becomes a Purdue time capsule about analog college life, wrong lessons learned well, and the scattered music of a young man getting good at a game he did not respect.',
+  seoTitle: "1985 Purdue Playlist: Analog College Life and Wrong Lessons",
+  seoDescription: "A 1985 playlist opens a time capsule of Purdue, analog college life, and the lessons I got good at learning for the wrong reasons.",
   section: 'music-playlists',
   publishedAt: '2026-06-12',
   status: 'Recent',
