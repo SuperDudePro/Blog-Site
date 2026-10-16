@@ -11,6 +11,8 @@ const post: BlogPost = {
   title: 'The Wrong Ruler',
   excerpt:
     'Ross Perot had enough money to stop forever. The fact that he kept going forced me to notice what kind of life I thought money was supposed to buy.',
+  seoTitle: "The Wrong Ruler: Ross Perot, Money and What Counts as Enough",
+  seoDescription: "Ross Perot had more than enough money to stop working. The fact that he kept going made me question what I thought money was for.",
   section: 'diary',
   publishedAt: '2026-04-28',
   status: 'Recent',
