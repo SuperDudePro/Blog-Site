@@ -10,6 +10,8 @@ const post: BlogPost = {
   slug: "why-arent-you-complaining",
   title: "Why Aren't You Complaining?",
   excerpt: "I've been called a complainer for most of my life. But I've also fixed a lot of problems. Why aren't more people complaining about what doesn't work?",
+  seoTitle: "Why Aren't You Complaining? When Complaints Fix Bad Systems",
+  seoDescription: "From a Purdue fraternity to years of teaching, I've learned that complaining can be the first step toward fixing systems everybody else tolerates.",
   section: "advice",
   publishedAt: "2026-10-14",
   status: "Recent",
