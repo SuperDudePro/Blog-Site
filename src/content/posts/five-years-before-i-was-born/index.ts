@@ -10,6 +10,8 @@ const post: BlogPost = {
   slug: "five-years-before-i-was-born",
   title: "The Five Years Before I Was Born",
   excerpt: "A five-year musical constraint turned into 150 songs, a classroom math idea, and proof that old music was never one genre.",
+  seoTitle: "The Five Years Before I Was Born: A 150-Song Playlist",
+  seoDescription: "A five-year musical constraint turned into 150 songs, an idea for classroom mathematics, and a reminder that older music wasn't one genre.",
   section: "music-playlists",
   publishedAt: "2026-08-23",
   status: "Recent",
