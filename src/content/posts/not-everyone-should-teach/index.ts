@@ -8,6 +8,8 @@ const post: BlogPost = {
   slug: 'not-everyone-should-teach',
   title: 'Not Everyone Should Teach',
   excerpt: "You can't coach a kid past your own ceiling. Grad school showed me the uncomfortable part: the profession will defend people who can't clear its own basic tests.",
+  seoTitle: "Not Everyone Should Teach: Teacher Expertise and Standards",
+  seoDescription: "A teacher's argument about professional competence, the limits of coaching, and why a profession ought to enforce its own basic standards.",
   section: 'life-education',
   publishedAt: '2026-07-19',
   status: 'Recent',
