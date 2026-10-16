@@ -11,6 +11,8 @@ const post: BlogPost = {
   title: 'Within a Listen',
   excerpt:
     'Thirty-six years is an ocean. Then a record starts and the distance folds down to the length of a listen.',
+  seoTitle: "Within a Listen: How Music Collapses Thirty-Six Years",
+  seoDescription: "Thirty-six years can feel like an ocean until a record starts playing and an old life returns within a listen.",
   section: 'music-playlists',
   publishedAt: '2026-05-23',
   displayDate: 'May 23, 2026',
