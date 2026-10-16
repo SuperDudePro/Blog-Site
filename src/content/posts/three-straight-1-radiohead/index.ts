@@ -11,6 +11,8 @@ const post: BlogPost = {
   title: 'Straight Greats No. 1: Radiohead',
   excerpt:
     'Radiohead opens Straight Greats with The Bends, OK Computer, and Kid A: three consecutive albums, three different versions of the band, and three Certified skulls.',
+  seoTitle: "Straight Greats: Radiohead's The Bends, OK Computer and Kid A",
+  seoDescription: "Three consecutive Radiohead albums, three versions of the band, and three Certified skulls in the opening Straight Greats entry.",
   section: 'music-playlists',
   publishedAt: '2026-07-23',
   status: 'Recent',
