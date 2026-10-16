@@ -11,6 +11,8 @@ const post: BlogPost = {
   title: 'Dad, Do You Love Me Enough to Protect Me?',
   excerpt:
     'The sales pitch will not look like tyranny. It will look like parental love with a subscription plan.',
+  seoTitle: "Dad, Do You Love Me Enough to Protect Me? A Parenting Warning",
+  seoDescription: "The next bad bargain for parents may arrive dressed up as love, protection, and a convenient subscription plan.",
   section: 'diary',
   publishedAt: '2026-05-01',
   status: 'Recent',
