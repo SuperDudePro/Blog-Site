@@ -11,6 +11,8 @@ const post: BlogPost = {
   title: 'How the Straight Greats Scorecard Works',
   excerpt:
     'The rules behind Straight Greats: what counts as a skip, how the three badges work, where a streak begins and ends, and why the argument belongs at track level.',
+  seoTitle: "Straight Greats Scorecard: How Album Runs Get Rated",
+  seoDescription: "How Straight Greats judges consecutive album runs, track skips, Certified skulls, On the Edge, and No Fucking Way.",
   section: 'music-playlists',
   publishedAt: '2026-08-02',
   status: 'Recent',
