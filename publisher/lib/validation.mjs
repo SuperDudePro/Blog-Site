@@ -94,7 +94,8 @@ export function collectManifestErrors(manifest) {
     }
   }
 
-  if (profile) errors.push(...imageManifestErrors(profile, manifest.images));
+  if (manifest.format && !(profile?.id === 'our-old-dad' && manifest.format === 'junk-drawer')) errors.push('Unsupported post format.');
+  if (profile) errors.push(...imageManifestErrors(profile, manifest.images, manifest.format));
   return unique(errors);
 }
 
@@ -160,6 +161,7 @@ export function collectPackagePreflightErrors({ manifest, productionPaths = [], 
     const actual = extractField(source, field);
     if (actual !== expected) errors.push(`${field} does not match source (manifest: ${expected || 'missing'}; source: ${actual || 'missing'}).`);
   }
+  if (manifest.format && extractField(source, 'format') !== manifest.format) errors.push('Post format does not match production source.');
   if (profile.id === 'lifeeducation') {
     for (const tag of Array.isArray(manifest.tags) ? manifest.tags : []) {
       if (!source.includes(`"${tag}"`) && !source.includes(`'${tag}'`)) errors.push(`LifeEducation tag is missing from meta.ts: ${tag}`);
