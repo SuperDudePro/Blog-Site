@@ -31,3 +31,9 @@ test('optional SEO fields parse separately from literary title and excerpt', () 
   assert.equal(parsed.values.get('title'), 'The Original Title');
   assert.equal(parsed.values.get('excerpt'), 'The original excerpt.');
 });
+
+test('Junk Drawer format is accepted as explicitly tagged post metadata', () => {
+  const parsed = parsePostSource(source("format: 'junk-drawer',"));
+  assert.deepEqual(parsed.errors, []);
+  assert.equal(parsed.values.get('format'), 'junk-drawer');
+});
