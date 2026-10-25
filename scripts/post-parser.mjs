@@ -7,7 +7,7 @@ const ts = require('typescript');
 const IMAGE_EXTENSIONS = new Set(['.webp', '.png', '.jpg', '.jpeg']);
 const ALLOWED_FIELDS = new Set([
   'slug', 'title', 'excerpt', 'seoTitle', 'seoDescription', 'section', 'publishedAt', 'modifiedAt', 'displayDate',
-  'status', 'heroImage', 'heroAlt', 'cardImage', 'cardAlt', 'bodyHtml',
+  'status', 'format', 'heroImage', 'heroAlt', 'cardImage', 'cardAlt', 'bodyHtml',
 ]);
 
 function text(node, sourceFile) {
