@@ -80,11 +80,12 @@ export default async function handler(request, response) {
     const missing = missingStatusFields(statusRequest);
     if (missing.length) throw new Error(`Publisher handoff is missing: ${missing.join(', ')}.`);
     if (!canonicalUrl.startsWith(profile.canonicalPrefix)) throw new Error('Canonical URL does not match the selected site profile.');
-    const [checkRuns, combinedStatus, comments, pullRequest] = await Promise.all([
-      repoRequest(repository, `/commits/${commit}/check-runs?per_page=100`, { headers: { accept: 'application/vnd.github+json' } }),
-      repoRequest(repository, `/commits/${commit}/status`),
+    const pullRequest = await repoRequest(repository, `/pulls/${prNumber}`);
+    const currentCommit = String(pullRequest.head?.sha || commit);
+    const [checkRuns, combinedStatus, comments] = await Promise.all([
+      repoRequest(repository, `/commits/${currentCommit}/check-runs?per_page=100`, { headers: { accept: 'application/vnd.github+json' } }),
+      repoRequest(repository, `/commits/${currentCommit}/status`),
       repoRequest(repository, `/issues/${prNumber}/comments?per_page=100`),
-      repoRequest(repository, `/pulls/${prNumber}`),
     ]);
     const items = [
       ...(checkRuns.check_runs || []).map((item) => ({ name: item.name, source: item.app?.name || 'GitHub', status: item.status, conclusion: item.conclusion, url: item.html_url })),
@@ -122,6 +123,7 @@ export default async function handler(request, response) {
       : { state: 'pending', ok: false };
     return json(response, 200, {
       ok: true,
+      currentCommit,
       checks,
       deploymentUrl,
       smoke,
