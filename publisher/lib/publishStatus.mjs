@@ -176,3 +176,7 @@ export function missingStatusFields(request) {
     !request.title && 'title',
   ].filter(Boolean);
 }
+
+export function activePullRequestCommit(pullRequest, handoffCommit) {
+  return String(pullRequest?.head?.sha || handoffCommit || '');
+}

@@ -1,6 +1,6 @@
 import assert from 'node:assert/strict';
 import test from 'node:test';
-import { canonicalUrlsMatch, deployedCommitIsReady, findVercelUrl, inspectPublishedHtml, inspectPublishedUrl, missingStatusFields, normalizeStatusRequest } from '../lib/publishStatus.mjs';
+import { activePullRequestCommit, canonicalUrlsMatch, deployedCommitIsReady, findVercelUrl, inspectPublishedHtml, inspectPublishedUrl, missingStatusFields, normalizeStatusRequest } from '../lib/publishStatus.mjs';
 
 test('finds a deployable Vercel preview URL and ignores toolbar URLs', () => {
   const comments = [{ body: 'Toolbar https://example.vercel.live then preview https://blog-git-post-example.vercel.app' }];
@@ -146,4 +146,11 @@ test('reports the exact missing publisher handoff fields', () => {
     prNumber: 26,
   });
   assert.deepEqual(missingStatusFields(request), ['commit', 'canonical URL', 'title']);
+});
+
+test('Publisher checks the latest PR revision instead of the failed original handoff', () => {
+  const original = 'a'.repeat(40);
+  const corrected = 'b'.repeat(40);
+  assert.equal(activePullRequestCommit({ head: { sha: corrected } }, original), corrected);
+  assert.equal(activePullRequestCommit({ head: {} }, original), original);
 });
