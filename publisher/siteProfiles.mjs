@@ -55,11 +55,12 @@ export function expectedImageRecords(profile, bodyCount) {
   ];
 }
 
-export function imageManifestErrors(profile, images) {
+export function imageManifestErrors(profile, images, format = '') {
   if (!Array.isArray(images)) return ['Manifest images must be an array.'];
   const errors = [];
   const bodyRecords = images.filter((image) => /^body-\d+$/.test(String(image?.role || '')));
-  if (bodyRecords.length < 4) errors.push('At least four body images are required.');
+  const minimum = profile.id === 'our-old-dad' && format === 'junk-drawer' ? 1 : 4;
+  if (bodyRecords.length < minimum) errors.push(`At least ${minimum} body images are required.`);
   const expected = expectedImageRecords(profile, bodyRecords.length);
   if (images.length !== expected.length) errors.push(`Expected card, hero, and ${bodyRecords.length} body image records.`);
   expected.forEach((record, index) => {

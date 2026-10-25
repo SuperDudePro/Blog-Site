@@ -226,8 +226,11 @@ export function scanOurOldDad(root = process.cwd()) {
     }
 
     const uniqueBodyFiles = [...new Set(bodyFiles)];
-    if (uniqueBodyFiles.length < 4) {
-      add('image.body.minimum', `count=${uniqueBodyFiles.length}`, `Only ${uniqueBodyFiles.length} distinct body images; current minimum is 4.`);
+    const shortForm = value('format') === 'junk-drawer';
+    if (value('format') && !shortForm) add('metadata.format.allowed', value('format'), 'Unsupported post format.');
+    const minBodyCount = shortForm ? 1 : 4;
+    if (uniqueBodyFiles.length < minBodyCount) {
+      add('image.body.minimum', `count=${uniqueBodyFiles.length}`, `Only ${uniqueBodyFiles.length} distinct body images; current minimum is ${minBodyCount}.`);
     }
     if (bodyFiles.length !== uniqueBodyFiles.length) {
       add('image.body.distinct', `files=${bodyFiles.join(',')}`, 'One or more body images are rendered more than once.');

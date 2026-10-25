@@ -74,6 +74,7 @@ export function normalizePackageManifest(raw, source = '') {
     publishedAt: asString(raw.publishedAt) || extractField(source, 'publishedAt'),
     status: asString(raw.status) || extractField(source, 'status'),
     section: asString(raw.section) || extractField(source, 'section'),
+    format: asString(raw.format) || extractField(source, 'format'),
     topic: asString(raw.topic) || extractField(source, 'topic'),
     tags: Array.isArray(raw.tags) ? raw.tags.map(asString).filter(Boolean) : [],
     excerpt: asString(raw.excerpt) || extractField(source, 'excerpt'),

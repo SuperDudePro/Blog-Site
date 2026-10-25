@@ -174,3 +174,16 @@ test('uses one deterministic branch for repeat uploads', () => {
   assert.equal(branchFor('adaptive-test'), 'publisher/adaptive-test');
   assert.equal(branchFor('adaptive-test'), 'publisher/adaptive-test');
 });
+
+test('Junk Drawer exception is explicit and source-matched', () => {
+  const base = {
+    targetSite: 'Our Old Dad', repository: 'SuperDudePro/Blog-Site',
+    title: 'Short', slug: 'short', excerpt: 'Excerpt', publishedAt: '2026-10-25',
+    status: 'Recent', section: 'diary', destinationPath: 'src/content/posts/short/',
+    canonicalUrl: 'https://ourolddad.com/post/short', buildCommand: 'npm run build',
+    images: images('', 1),
+  };
+  assert.throws(() => validateManifest(base), /At least 4/);
+  assert.equal(validateManifest({ ...base, format: 'junk-drawer' }).format, 'junk-drawer');
+  assert.throws(() => validateManifest({ ...base, format: 'other' }), /Unsupported post format/);
+});

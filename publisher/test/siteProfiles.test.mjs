@@ -29,3 +29,11 @@ test('rejects gaps and target-specific path drift', () => {
   images[4] = { ...images[4], file: 'images/body-image-9.webp' };
   assert.match(imageManifestErrors(profile, images).join(' '), /body-image-3/);
 });
+
+test('Junk Drawer requires one body image while ordinary posts still require four', () => {
+  const profile = getSiteProfile({ targetSite: 'Our Old Dad' });
+  assert.deepEqual(imageManifestErrors(profile, records('', 1), 'junk-drawer'), []);
+  assert.match(imageManifestErrors(profile, records('', 0), 'junk-drawer').join(' '), /At least 1/);
+  assert.match(imageManifestErrors(profile, records('', 1)).join(' '), /At least four|At least 4/);
+  assert.match(imageManifestErrors(getSiteProfile({ targetSite: 'LifeEducation' }), records('images/', 1), 'junk-drawer').join(' '), /At least 4/);
+});

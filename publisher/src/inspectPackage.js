@@ -69,7 +69,8 @@ export async function inspectPackage(file) {
     contactCta ? 'Linked to the site contact page' : `${profile.targetSite} posts must include a reader-facing CTA linked to the site contact page`,
   );
 
-  const roleErrors = imageManifestErrors(profile, manifest.images);
+  const roleErrors = imageManifestErrors(profile, manifest.images, manifest.format);
+  if (manifest.format) add('Metadata', 'format', extractField(source, 'format') === manifest.format, manifest.format);
   for (const message of roleErrors) add('Images', 'Role contract', false, message);
   if (!roleErrors.length) add('Images', 'Role contract', true, `${manifest.images.length - 2} approved body images`);
 
