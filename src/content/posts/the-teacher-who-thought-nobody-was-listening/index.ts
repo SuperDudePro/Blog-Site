@@ -24,16 +24,16 @@ const post: BlogPost = {
       <p>Teacher loses family in tragic accident or crime.</p>
       <p>Starts making lesson videos for class during blended learning<br />
       In the videos, he rambles a bit, but has a Mr. Rogers quality.<br />
-      Kids start to listen and watch even outside of his class.<br />
-      Teacher has been simultaneously making videos for his kids<br />
-      Life lessons, birthdays, telling them how he is, wondering about them, regret…<br />
-      Someone finds out and because of how kids shared their YouTube, are able to copy the videos and post them.<br />
+      Kids start to listen and watch even outside of his class.</p>
+      <p>Teacher has been simultaneously making videos for his kids<br />
+      Life lessons, birthdays, telling them how he is, wondering about them, regret…</p>
+      <p>Someone finds out and because of how kids shared their YouTube, are able to copy the videos and post them.<br />
       Videos gain a following without teacher knowing.<br />
       People are somehow struck with kindness because of the pain, loss, love that they see, so they don’t torment him, or tell him that everyone is watching.</p>
-      <p>Suddenly, someone does a prank or outs him.<br />
-      The channel goes off.<br />
-      If my pain is this entertaining to you, then I’d be an asshole to withhold it from you.<br />
-      Channel goes back on.</p>
+      <p>Suddenly, someone does a prank or outs him.</p>
+      <p>The channel goes off.</p>
+      <p>If my pain is this entertaining to you, then I’d be an asshole to withhold it from you.</p>
+      <p>Channel goes back on.</p>
     </blockquote>
     <hr />
     <h2>Where this came from</h2>
