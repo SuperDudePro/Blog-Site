@@ -10,6 +10,7 @@ export type BlogPost = {
   seoTitle?: string;
   seoDescription?: string;
   section: PublicSectionKey;
+  format?: 'junk-drawer';
   publishedAt: string;
   modifiedAt?: string;
   displayDate?: string;
