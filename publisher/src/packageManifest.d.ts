@@ -13,6 +13,7 @@ export type NormalizedManifest = {
   publishedAt: string;
   status: string;
   section: string;
+  format: string;
   topic: string;
   tags: string[];
   excerpt: string;
