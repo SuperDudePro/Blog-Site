@@ -3,7 +3,7 @@ import { repoRequest } from '../../lib/github.mjs';
 import { json, method, readJson } from '../../lib/http.mjs';
 import { validateRepository } from '../../lib/validation.mjs';
 import { getSiteProfile } from '../../siteProfiles.mjs';
-import { deployedCommitIsReady, findVercelUrl, inspectPublishedHtml, inspectPublishedUrl, missingStatusFields, normalizeStatusRequest } from '../../lib/publishStatus.mjs';
+import { activePullRequestCommit, deployedCommitIsReady, findVercelUrl, inspectPublishedHtml, inspectPublishedUrl, missingStatusFields, normalizeStatusRequest } from '../../lib/publishStatus.mjs';
 
 const failedConclusions = new Set(['failure', 'cancelled', 'timed_out', 'action_required', 'stale', 'startup_failure']);
 
@@ -81,7 +81,7 @@ export default async function handler(request, response) {
     if (missing.length) throw new Error(`Publisher handoff is missing: ${missing.join(', ')}.`);
     if (!canonicalUrl.startsWith(profile.canonicalPrefix)) throw new Error('Canonical URL does not match the selected site profile.');
     const pullRequest = await repoRequest(repository, `/pulls/${prNumber}`);
-    const currentCommit = String(pullRequest.head?.sha || commit);
+    const currentCommit = activePullRequestCommit(pullRequest, commit);
     const [checkRuns, combinedStatus, comments] = await Promise.all([
       repoRequest(repository, `/commits/${currentCommit}/check-runs?per_page=100`, { headers: { accept: 'application/vnd.github+json' } }),
       repoRequest(repository, `/commits/${currentCommit}/status`),
