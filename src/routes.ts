@@ -6,6 +6,7 @@ export type Route =
   | { page: 'home'; canonicalPath: string; replacePath?: string }
   | { page: 'categories'; canonicalPath: string; replacePath?: string }
   | { page: 'archive'; canonicalPath: string; replacePath?: string }
+  | { page: 'playlists'; canonicalPath: string; replacePath?: string }
   | { page: 'about'; canonicalPath: string; replacePath?: string }
   | { page: 'contact'; canonicalPath: string; replacePath?: string }
   | {
@@ -21,6 +22,7 @@ export type Route =
 export const homePath = '/';
 export const categoriesPath = '/categories';
 export const archivePath = '/archive';
+export const playlistsPath = '/playlists';
 export const aboutPath = '/about';
 export const contactPath = '/contact';
 
@@ -54,6 +56,7 @@ export function routeFromPath(pathname: string): Route {
   if (cleanPath === homePath || cleanPath === '/index.html') return { page: 'home', canonicalPath: homePath };
   if (cleanPath === categoriesPath) return { page: 'categories', canonicalPath: categoriesPath };
   if (cleanPath === archivePath) return { page: 'archive', canonicalPath: archivePath };
+  if (cleanPath === playlistsPath) return { page: 'playlists', canonicalPath: playlistsPath };
   if (cleanPath === aboutPath) return { page: 'about', canonicalPath: aboutPath };
   if (cleanPath === contactPath) return { page: 'contact', canonicalPath: contactPath };
 
