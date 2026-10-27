@@ -22,7 +22,7 @@ function PostHero({ post }: { post: PostMetadata }) {
         <p className="post-page__meta">{formatPostDate(post)}</p>
         <div className="hero__actions">
           <SiteLink className="button button--primary" href={sectionPath(post.section)}>More in this section</SiteLink>
-          <SiteLink className="button button--ghost" href="/archive">Search the archive</SiteLink>
+          {post.section === "music-playlists" ? <SiteLink className="button button--ghost" href="/playlists">All playlists</SiteLink> : <SiteLink className="button button--ghost" href="/archive">Search the archive</SiteLink>}
         </div>
       </div>
       <FeaturedImage src={post.heroImage} alt={post.heroAlt} className="feature-image" />
@@ -91,6 +91,7 @@ export function PostPage({ slug }: Props) {
     <div className="page-wrap">
       <PostHero post={post} />
 
+      {post.section === "music-playlists" ? <nav className="content-band" aria-label="Playlist directory"><SiteLink className="button button--ghost" href="/playlists">Browse all playlists by year, era, artist, Straight Greats, or miscellaneous</SiteLink></nav> : null}
       <article className="post-article">
         <div dangerouslySetInnerHTML={{ __html: post.bodyHtml }} />
         <PostResponsePrompt key={post.slug} slug={post.slug} title={post.title} />
