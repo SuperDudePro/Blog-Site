@@ -42,6 +42,7 @@ export const navigation = [
   { label: 'Home', href: '/' },
   { label: 'Everything', href: '/section/everything' },
   { label: 'Archive', href: '/archive' },
+  { label: 'Playlists', href: '/playlists' },
   { label: 'Categories', href: '/categories' },
   { label: 'About', href: '/about' },
   { label: 'Contact', href: '/contact' },
