@@ -33,7 +33,7 @@ function getPlaylists(post: BlogPost): Entry {
     const raw = anchor.getAttribute('href');
     if (!raw) continue;
     try {
-      const url = new URL(raw.replaceAll('&amp;', '&'), 'https://ourolddad.com');
+      const url = new URL(raw.replace(/&amp;/g, '&'), 'https://ourolddad.com');
       if (!['www.youtube.com', 'youtube.com', 'music.youtube.com'].includes(url.hostname)) continue;
       const id = url.searchParams.get('list');
       if (!id) continue;
