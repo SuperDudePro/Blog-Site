@@ -17,7 +17,7 @@ const artistNames: Record<string, string> = {
 };
 const groups: Category[] = ['Year', 'Era', 'Artist', 'Straight Greats', 'Misc'];
 function isStraightGreat(post: BlogPost) {
-  return /straight-greats|three-straight|the-cult-three-great/i.test(post.slug);
+  return /straight-greats|three-straight|3-straight|the-cult-three-great/i.test(post.slug) || /^Straight Greats No\.\s*\d+:/i.test(post.title);
 }
 function classify(post: BlogPost): Category {
   if (isStraightGreat(post)) return 'Straight Greats';
@@ -61,6 +61,7 @@ function getPlaylists(post: BlogPost): Entry {
   return { post, playlists: [...results.values()], category: classify(post), artists: getArtists(post) };
 }
 function PlaylistCard({ entry }: { entry: Entry }) {
+  const [playing, setPlaying] = useState<string[]>([]);
   const { post, playlists } = entry;
   return <article className="playlist-directory__card">
     <div className="playlist-directory__card-heading">
@@ -72,7 +73,7 @@ function PlaylistCard({ entry }: { entry: Entry }) {
       const id = source ? new URL(source).searchParams.get('list') : null;
       return <div className="playlist-directory__player" key={playlist.key}>
         {playlist.label || playlists.length > 1 ? <p className="playlist-directory__player-label">{playlist.label || `Playlist ${index + 1}`}</p> : null}
-        {id ? <iframe loading="lazy" title={`${post.title}: ${playlist.label || 'playlist'}`} src={`https://www.youtube-nocookie.com/embed/videoseries?list=${encodeURIComponent(id)}`} allow="accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture; web-share" allowFullScreen referrerPolicy="strict-origin-when-cross-origin" /> : null}
+        {id ? playing.includes(playlist.key) ? <iframe loading="lazy" title={`${post.title}: ${playlist.label || 'playlist'}`} src={`https://www.youtube-nocookie.com/embed/videoseries?list=${encodeURIComponent(id)}`} allow="accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture; web-share" allowFullScreen referrerPolicy="strict-origin-when-cross-origin" /> : <button className="playlist-directory__preview" type="button" onClick={() => setPlaying(prev => [...prev, playlist.key])} aria-label={`Load player for ${playlist.label || post.title}`}><span aria-hidden="true" className="playlist-directory__play-icon">▶</span><span>Play playlist here</span></button> : null}
         <div className="playlist-directory__actions">
           {playlist.youtube ? <a href={playlist.youtube} target="_blank" rel="noreferrer">YouTube</a> : null}
           {playlist.music ? <a href={playlist.music} target="_blank" rel="noreferrer">YouTube Music</a> : null}
