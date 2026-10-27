@@ -1,6 +1,7 @@
 import { FeaturedImage } from '../components/FeaturedImage';
 import { PostCard } from '../components/PostCard';
 import { RotatingGallery } from '../components/RotatingGallery';
+import { SiteLink } from '../components/SiteLink';
 import { getPostsForSection } from '../content/loadPosts';
 import { sections, type SectionKey } from '../data/siteContent';
 
@@ -30,6 +31,7 @@ export function SectionPage({ sectionKey, oldLinkNotice = false }: Props) {
           <span className="eyebrow">section</span>
           <h1>{section.name}</h1>
           <p className="lead">{section.intro}</p>
+          {isPlaylistPage ? <SiteLink className="button button--primary" href="/playlists">Play all playlists by category</SiteLink> : null}
         </div>
 
         {!isPlaylistPage && section.imageSrc ? (
