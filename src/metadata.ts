@@ -20,6 +20,7 @@ const getSectionDescription = (key: string) => sections.find((section) => sectio
 function getRouteMetadata(route: Route): RouteMetadata {
   if (route.page === 'home') return { title: site.title, description: site.description, canonicalPath: route.canonicalPath, type: 'website' };
   if (route.page === 'categories') return { title: titleWithSite('Categories'), description: 'Browse every Our Old Dad category and find the latest post in each one.', canonicalPath: route.canonicalPath, type: 'website' };
+  if (route.page === 'playlists') return { title: titleWithSite('All Playlists'), description: 'Listen to Our Old Dad playlists by year, era, artist, Straight Greats series, or miscellaneous collections without opening each post.', canonicalPath: route.canonicalPath, type: 'website' };
   if (route.page === 'archive') return { title: titleWithSite('Archive'), description: 'Search every published Our Old Dad post by words, section, or year.', canonicalPath: route.canonicalPath, type: 'website' };
   if (route.page === 'about') return { title: titleWithSite('About'), description: site.intro, canonicalPath: route.canonicalPath, type: 'website' };
   if (route.page === 'contact') return { title: titleWithSite('Contact'), description: 'Send a note to Our Old Dad without exposing a public email address.', canonicalPath: route.canonicalPath, type: 'website' };

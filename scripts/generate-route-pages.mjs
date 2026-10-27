@@ -14,6 +14,7 @@ const manifestPath = path.join(manifestDir, 'manifest.json');
 const canonicalHost = 'https://ourolddad.com';
 const staticRouteMetadata = new Map([
   ['/categories', { title: 'Categories | Our Old Dad', description: 'Browse every Our Old Dad category and find the latest post in each one.' }],
+  ['/playlists', { title: 'All Playlists | Our Old Dad', description: 'Play Our Old Dad playlists by year, era, artist, Straight Greats, and miscellaneous collections.' }],
   ['/archive', { title: 'Archive | Our Old Dad', description: 'Search every published Our Old Dad post by words, section, or year.' }],
   ['/about', { title: 'About | Our Old Dad', description: 'Notes on fatherhood, music, memory, learning, and the attempt to build a bigger life while time is still on the clock.' }],
   ['/contact', { title: 'Contact | Our Old Dad', description: 'Send a note to Our Old Dad without exposing a public email address.' }],
@@ -108,6 +109,7 @@ const siteNavMarkup = `<nav aria-label="Site sections"><ul>${[
   ['/', 'Home'],
   ['/section/everything', 'Everything'],
   ...[...sectionNames].map(([key, name]) => [`/section/${key}`, name]),
+  ['/playlists', 'All playlists'],
   ['/archive', 'Archive'],
   ['/categories', 'Categories'],
   ['/about', 'About'],
@@ -126,6 +128,8 @@ function staticPageMarkup(route, metadata) {
     body = `<h2>Latest posts</h2>${postListMarkup(publishedPosts.slice(0, 12))}`;
   } else if (sectionKey) {
     body = postListMarkup(sectionKey === 'everything' ? publishedPosts : publishedPosts.filter((post) => post.section === sectionKey));
+  } else if (route === '/playlists') {
+    body = '<h2>Listen by year, era, artist, Straight Greats, or miscellaneous</h2>' + postListMarkup(publishedPosts.filter(post => post.section === 'music-playlists'));
   } else if (route === '/archive') {
     body = postListMarkup(publishedPosts);
   } else if (route === '/categories') {

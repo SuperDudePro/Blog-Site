@@ -20,6 +20,7 @@ function escapeXml(value) {
 const urls = [
   { loc: `${siteUrl}/`, lastmod: latestPostDate, changefreq: 'weekly', priority: '1.0' },
   { loc: `${siteUrl}/categories`, lastmod: latestPostDate, changefreq: 'weekly', priority: '0.9' },
+  { loc: `${siteUrl}/playlists`, lastmod: latestPostDate, changefreq: "weekly", priority: "0.9" },
   { loc: `${siteUrl}/archive`, lastmod: latestPostDate, changefreq: 'weekly', priority: '0.9' },
   ...sections.map((section) => ({ loc: `${siteUrl}/section/${section}`, lastmod: sectionLastmod(section), changefreq: 'weekly', priority: section === 'everything' ? '0.9' : '0.8' })),
   { loc: `${siteUrl}/about`, changefreq: 'monthly', priority: '0.5' },

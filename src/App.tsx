@@ -8,6 +8,7 @@ import { CategoriesPage } from './pages/CategoriesPage';
 import { ContactPage } from './pages/ContactPage';
 import { HomePage } from './pages/HomePage';
 import { PostPage } from './pages/PostPage';
+import { PlaylistDirectoryPage } from './pages/PlaylistDirectoryPage';
 import { SectionPage } from './pages/SectionPage';
 import { getCurrentRoute, type Route } from './routes';
 
@@ -48,6 +49,7 @@ export default function App() {
       {route.page === 'contact' && <ContactPage />}
       {route.page === 'section' && <SectionPage sectionKey={route.sectionKey} oldLinkNotice={route.oldLinkNotice} />}
       {route.page === 'post' && <PostPage slug={route.slug} />}
+      {route.page === 'playlists' && <PlaylistDirectoryPage />}
       {route.page === 'not-found' && <SectionPage sectionKey="everything" oldLinkNotice />}
       <LongPostNav homeHref="/" postsHref="/archive" postsLabel="All posts" />
     </SiteShell>
