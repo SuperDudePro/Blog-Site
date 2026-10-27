@@ -17,7 +17,7 @@ const artistNames: Record<string, string> = {
 };
 const groups: Category[] = ['Year', 'Era', 'Artist', 'Straight Greats', 'Misc'];
 function isStraightGreat(post: BlogPost) {
-  return /straight-greats|three-straight|the-cult-three-great/i.test(post.slug);
+  return /straight-greats|three-straight|3-straight|the-cult-three-great/i.test(post.slug) || /^Straight Greats No\.\s*\d+:/i.test(post.title);
 }
 function classify(post: BlogPost): Category {
   if (isStraightGreat(post)) return 'Straight Greats';
@@ -72,7 +72,7 @@ function PlaylistCard({ entry }: { entry: Entry }) {
       const id = source ? new URL(source).searchParams.get('list') : null;
       return <div className="playlist-directory__player" key={playlist.key}>
         {playlist.label || playlists.length > 1 ? <p className="playlist-directory__player-label">{playlist.label || `Playlist ${index + 1}`}</p> : null}
-        {id ? <iframe loading="lazy" title={`${post.title}: ${playlist.label || 'playlist'}`} src={`https://www.youtube-nocookie.com/embed/videoseries?list=${encodeURIComponent(id)}`} allow="accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture; web-share" allowFullScreen referrerPolicy="strict-origin-when-cross-origin" /> : null}
+        {id ? <div className="playlist-directory__preview"><a href={playlist.youtube || playlist.music} target="_blank" rel="noreferrer" aria-label={`Play ${playlist.label || post.title} on YouTube`}><img src={`https://i.ytimg.com/vi/${encodeURIComponent(id)}/hqdefault.jpg`} alt="" loading="lazy" onError={(event) => { event.currentTarget.style.display = 'none'; }} /><span className="playlist-directory__play-icon" aria-hidden="true">▶</span></a></div> : null}
         <div className="playlist-directory__actions">
           {playlist.youtube ? <a href={playlist.youtube} target="_blank" rel="noreferrer">YouTube</a> : null}
           {playlist.music ? <a href={playlist.music} target="_blank" rel="noreferrer">YouTube Music</a> : null}
