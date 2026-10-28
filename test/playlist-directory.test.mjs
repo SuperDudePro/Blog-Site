@@ -4,7 +4,7 @@ import { readPosts } from '../scripts/read-posts.mjs';
 
 const music = readPosts().filter(post => post.section === 'music-playlists');
 const numbered = music.filter(post => /^Straight Greats No\.\s*\d+:/i.test(post.title));
-const youtubeLinks = post => [...post.bodyHtml.matchAll(/href="(https?:\/\/(?:music\.)?(?:www\.)?youtube\.com\/playlist\?list=[^"]+)"/g)].map(m => new URL(m[1].replaceAll('&amp;', '&')));
+const youtubeLinks = post => [...post.bodyHtml.matchAll(/href="(https?:\/\/[^"]+)"/g)].map(m => new URL(m[1].replaceAll('&amp;', '&'))).filter(url => ['youtube.com', 'www.youtube.com', 'music.youtube.com'].includes(url.hostname) && url.searchParams.has('list'));
 const group = post => /straight-greats|three-straight|3-straight|the-cult-three-great/i.test(post.slug) || /^Straight Greats No\.\s*\d+:/i.test(post.title);
 
 test('all six numbered Straight Greats posts are recognized, not misfiled under Misc', () => {
