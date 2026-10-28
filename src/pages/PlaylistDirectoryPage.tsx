@@ -89,8 +89,17 @@ export function PlaylistDirectoryPage() {
   const [active, setActive] = useState<Category>('Year');
   useEffect(() => {
     let mounted = true;
-    void Promise.all(musicPosts.map(p => loadPostBySlug(p.slug))).then(posts => {
-      if (mounted) setEntries(posts.filter((p): p is BlogPost => Boolean(p)).map(getPlaylists).filter(e => e.playlists.length));
+    void Promise.allSettled(musicPosts.map(p => loadPostBySlug(p.slug))).then(results => {
+      if (!mounted) return;
+      const loaded = results.flatMap(result => result.status === 'fulfilled' && result.value ? [result.value] : []);
+      setEntries(loaded.flatMap(post => {
+        try {
+          const entry = getPlaylists(post);
+          return entry.playlists.length ? [entry] : [];
+        } catch {
+          return [];
+        }
+      }));
     }).finally(() => { if (mounted) setLoading(false); });
     return () => { mounted = false; };
   }, []);
@@ -104,7 +113,7 @@ export function PlaylistDirectoryPage() {
         <p className="lead">All the music in one place. Pick a category, press play, and skip the essays unless you want the stories behind the songs.</p>
         <SiteLink className="text-link" href="/section/music-playlists">Browse the music posts</SiteLink>
       </div>
-      <img className="playlist-directory__skull" src={skull} alt="A bearded Our Old Dad skull wearing sunglasses, an OOD cap, and headphones while enjoying music." width="340" height="340" />
+      <img className="playlist-directory__skull" src={skull} alt="A bearded Our Old Dad skull wearing sunglasses and headphones while enjoying music." width="340" height="340" />
     </header>
     <nav className="playlist-directory__tabs" aria-label="Playlist categories">
       {groups.map(group => <button type="button" key={group} aria-pressed={active === group} onClick={() => setActive(group)}>{group === 'Misc' ? 'Miscellaneous' : group}</button>)}
