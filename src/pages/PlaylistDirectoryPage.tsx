@@ -3,7 +3,7 @@ import { getPostsForSection, loadPostBySlug } from '../content/loadPosts';
 import type { BlogPost } from '../content/postTypes';
 import { SiteLink } from '../components/SiteLink';
 import { postPath } from '../routes';
-import skull from '../assets/home-skull-square.webp';
+import skull from '../assets/playlist-skull-transparent.webp';
 import './PlaylistDirectoryPage.css';
 
 type Category = 'Year' | 'Era' | 'Artist' | 'Straight Greats' | 'Misc';
@@ -104,7 +104,7 @@ export function PlaylistDirectoryPage() {
         <p className="lead">All the music in one place. Pick a category, press play, and skip the essays unless you want the stories behind the songs.</p>
         <SiteLink className="text-link" href="/section/music-playlists">Browse the music posts</SiteLink>
       </div>
-      <img className="playlist-directory__skull" src={skull} alt="The established illustrated OOD skull with a full beard, sunglasses, and headphones." width="340" height="340" />
+      <img className="playlist-directory__skull" src={skull} alt="A bearded Our Old Dad skull wearing sunglasses, an OOD cap, and headphones while enjoying music." width="340" height="340" />
     </header>
     <nav className="playlist-directory__tabs" aria-label="Playlist categories">
       {groups.map(group => <button type="button" key={group} aria-pressed={active === group} onClick={() => setActive(group)}>{group === 'Misc' ? 'Miscellaneous' : group}</button>)}
