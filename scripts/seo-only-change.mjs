@@ -21,7 +21,13 @@ export function isSeoOnlyChange(before, after) {
   const cleanAfter = removeOverrides(after);
   return cleanBefore !== null && cleanAfter !== null && cleanBefore === cleanAfter;
 }
-export function seoOnlyTouchedSlugs(root, base, changedFiles) {
+
+export function isPlaylistLinkOnlyChange(before, after) {
+  const normalize = (source) => source.replace(/(https?:\/\/(?:music\.|www\.)?youtube\.com\/[^\s"'<>]+?)([?&](?:amp;)?list=)([A-Za-z0-9_-]+)/g, (_, prefix, parameter) => prefix + parameter + 'PLAYLIST_ID');
+  return before !== after && normalize(before) === normalize(after);
+}
+
+export function nonMaterialTouchedSlugs(root, base, changedFiles) {
   const bySlug = new Map();
   for (const file of changedFiles) {
     const match = file.match(/^src\/content\/posts\/([^/]+)\/(.+)$/);
@@ -35,7 +41,7 @@ export function seoOnlyTouchedSlugs(root, base, changedFiles) {
     try {
       const before = execFileSync('git', ['show', base + ':' + files[0].file], { cwd: root, encoding: 'utf8' });
       const after = readFileSync(path.join(root, files[0].file), 'utf8');
-      if (isSeoOnlyChange(before, after)) allowed.add(slug);
+      if (isSeoOnlyChange(before, after) || isPlaylistLinkOnlyChange(before, after)) allowed.add(slug);
     } catch {}
   }
   return allowed;

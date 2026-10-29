@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { isSeoOnlyChange } from '../scripts/seo-only-change.mjs';
+import { isSeoOnlyChange, isPlaylistLinkOnlyChange } from '../scripts/seo-only-change.mjs';
 const base = "const post = {\n  title: 'Original',\n  excerpt: 'Original excerpt',\n  bodyHtml: `<p>Keep exact story.</p>`,\n};\n";
 test('new SEO fields alone are allowed', () => {
   const next = base.replace("  bodyHtml:", "  seoTitle: \"Search title\",\n  seoDescription: \"A search description\",\n  bodyHtml:");
@@ -11,4 +11,12 @@ test('new SEO fields alone are allowed', () => {
 test('malformed SEO metadata and duplicate fields fail closed', () => {
   assert.equal(isSeoOnlyChange(base, base.replace('  bodyHtml:', '  seoTitle: dynamicValue,\n  bodyHtml:')), false);
   assert.equal(isSeoOnlyChange(base, base.replace('  bodyHtml:', '  seoTitle: "One",\n  seoTitle: "Two",\n  bodyHtml:')), false);
+});
+
+test('playlist ID-only replacement is non-material, other edits are not',()=>{
+ const a='<a href="https://www.youtube.com/playlist?list=PLold123456">Watch</a>';
+ const b='<a href="https://www.youtube.com/playlist?list=PLnew123456">Watch</a>';
+ assert.equal(isPlaylistLinkOnlyChange(a,b),true);
+ assert.equal(isPlaylistLinkOnlyChange(a,b.replace('Watch','Read')),false);
+ assert.equal(isPlaylistLinkOnlyChange(a,a),false);
 });

@@ -154,8 +154,8 @@ const post: BlogPost = {
     <p>That's a clean sweep: three Certified skulls.</p>
 
     <div class="post-links">
-      <a class="button button--primary" href="https://www.youtube.com/playlist?list=PLEo7Vn003Ekw" target="_blank" rel="noreferrer">Watch on YouTube</a>
-      <a class="button button--ghost" href="https://music.youtube.com/playlist?list=PLEo7Vn003Ekw" target="_blank" rel="noreferrer">Listen on YouTube Music</a>
+      <a class="button button--primary" href="https://www.youtube.com/playlist?list=PLGck6rFcDtTE" target="_blank" rel="noreferrer">Watch on YouTube</a>
+      <a class="button button--ghost" href="https://music.youtube.com/playlist?list=PLGck6rFcDtTE" target="_blank" rel="noreferrer">Listen on YouTube Music</a>
     </div>
   `,
 };

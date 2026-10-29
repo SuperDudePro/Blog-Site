@@ -1,6 +1,6 @@
 import fs from 'node:fs';
 import path from 'node:path';
-import { seoOnlyTouchedSlugs } from './seo-only-change.mjs';
+import { nonMaterialTouchedSlugs } from './seo-only-change.mjs';
 import { candidateBaseline, ctaAuditMarkdown, evaluateBaseline, inventoryMarkdown, scanOurOldDad } from './post-contract.mjs';
 
 function option(name) {
@@ -13,7 +13,7 @@ async function touchedPostSlugs(root, base) {
   const { execFileSync } = await import('node:child_process');
   const output = execFileSync('git', ['diff', '--name-only', `${base}...HEAD`], { cwd: root, encoding: 'utf8' });
   const changedFiles = output.split(/\r?\n/).filter(Boolean);
-  const seoOnly = seoOnlyTouchedSlugs(root, base, changedFiles);
+  const seoOnly = nonMaterialTouchedSlugs(root, base, changedFiles);
   return new Set(
     output
       .split(/\r?\n/)
