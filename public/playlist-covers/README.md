@@ -1,0 +1,1 @@
+Approved playlist cover images belong here.
