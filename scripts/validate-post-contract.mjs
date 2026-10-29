@@ -1,6 +1,6 @@
 import fs from 'node:fs';
 import path from 'node:path';
-import { seoOnlyTouchedSlugs } from './seo-only-change.mjs';
+import { nonMaterialTouchedSlugs } from './seo-only-change.mjs';
 import { candidateBaseline, ctaAuditMarkdown, evaluateBaseline, inventoryMarkdown, scanOurOldDad } from './post-contract.mjs';
 
 function option(name) {
