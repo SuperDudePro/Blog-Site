@@ -137,7 +137,6 @@ const post: BlogPost = {
 
     <div class="post-links">
       <a class="button button--primary" href="https://www.youtube.com/playlist?list=PLUPi6_JoWgyI" target="_blank" rel="noreferrer">Watch on YouTube</a>
-      <a class="button button--ghost" href="https://music.youtube.com/playlist?list=PLUPi6_JoWgyI&si=HTB8EtXMl0miRbeB" target="_blank" rel="noreferrer">Listen on YouTube Music</a>
     </div>
 
     <p>What belongs on your version of 1985, and what would you throw off mine? <a href="/contact">Use the contact page</a> and tell me.</p>
