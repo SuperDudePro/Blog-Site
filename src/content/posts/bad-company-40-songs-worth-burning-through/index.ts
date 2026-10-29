@@ -57,8 +57,7 @@ const post: BlogPost = {
     <p>The main thing I rediscovered is that Bad Company’s early run is even better than I tend to remember. Every time I go back, I think I’m just revisiting a band I’ve always liked. Then a song grabs me by the collar, and suddenly I remember: no, this was never casual. This was a band I lived with.</p>
     <p>Anyway, here’s the playlist. If you already love Bad Company, you probably won’t need much convincing. If you only know a few songs, this is a very good place to start.</p>
     <div class="post-links">
-      <a class="button button--primary" href="https://www.youtube.com/watch?v=LHQ5d6IRaFo&list=PLVk3UJeVFX7I" target="_blank" rel="noreferrer">Watch on YouTube</a>
-      <a class="button button--ghost" href="https://music.youtube.com/playlist?list=PLVk3UJeVFX7I" target="_blank" rel="noreferrer">Listen on YouTube Music</a>
+      <a class="button button--primary" href="https://www.youtube.com/playlist?list=PLVk3UJeVFX7I" target="_blank" rel="noreferrer">Watch on YouTube</a>
     </div>
     <p>What did I miss? What belongs on your Bad Company playlist, and what would you throw off mine? <a href="/contact">Use the contact page</a> and tell me.</p>
   `,

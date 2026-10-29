@@ -68,11 +68,8 @@ const post: BlogPost = {
 <p>The Rolling Stones are welcome to <a href="https://ourolddad.com/contact">fill out the contact form</a> to claim the badge.</p>
 <p>Where does the Stones run start and stop for you? <a href="https://ourolddad.com/contact">Let us know through the contact page</a>.</p>
 <h2>Hear the Run</h2>
-<p><a href="https://www.youtube.com/playlist?list=PLaTUDkmoLmiY" target="_blank" rel="noreferrer">Watch on YouTube</a></p>
-<p><a href="https://music.youtube.com/playlist?list=PLaTUDkmoLmiY&amp;si=DN-qh2u7Qe-QwEyP" target="_blank" rel="noreferrer">Listen on YouTube Music</a></p>
 <div class="post-links">
-<a class="button button--primary" href="https://www.youtube.com/watch?list=PLaTUDkmoLmiY" target="_blank" rel="noreferrer">Watch on YouTube</a>
-<a class="button button--ghost" href="https://music.youtube.com/playlist?list=PLaTUDkmoLmiY&amp;si=DN-qh2u7Qe-QwEyP" target="_blank" rel="noreferrer">Listen on YouTube Music</a>
+<a class="button button--primary" href="https://www.youtube.com/playlist?list=PLaTUDkmoLmiY" target="_blank" rel="noreferrer">Watch on YouTube</a>
 </div>
   `,
 };

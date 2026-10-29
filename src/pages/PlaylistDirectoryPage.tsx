@@ -54,8 +54,7 @@ function getPlaylists(post: BlogPost): Entry {
         results.set(key, item);
       }
       byId.set(id, item);
-      if (url.hostname === 'music.youtube.com') item.music = `https://music.youtube.com/playlist?list=${encodeURIComponent(id)}`;
-      else item.youtube = `https://www.youtube.com/playlist?list=${encodeURIComponent(id)}`;
+      item.youtube = `https://www.youtube.com/playlist?list=${encodeURIComponent(id)}`;
     } catch { /* Skip invalid links. */ }
   }
   return { post, playlists: [...results.values()], category: classify(post), artists: getArtists(post) };
@@ -76,7 +75,6 @@ function PlaylistCard({ entry }: { entry: Entry }) {
         {id ? playing.includes(playlist.key) ? <iframe loading="lazy" title={`${post.title}: ${playlist.label || 'playlist'}`} src={`https://www.youtube-nocookie.com/embed/videoseries?list=${encodeURIComponent(id)}`} allow="accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture; web-share" allowFullScreen referrerPolicy="strict-origin-when-cross-origin" /> : <button className="playlist-directory__preview" type="button" onClick={() => setPlaying(prev => [...prev, playlist.key])} aria-label={`Load player for ${playlist.label || post.title}`}><span aria-hidden="true" className="playlist-directory__play-icon">▶</span><span>Play playlist here</span></button> : null}
         <div className="playlist-directory__actions">
           {playlist.youtube ? <a href={playlist.youtube} target="_blank" rel="noreferrer">YouTube</a> : null}
-          {playlist.music ? <a href={playlist.music} target="_blank" rel="noreferrer">YouTube Music</a> : null}
         </div>
       </div>;
     })}

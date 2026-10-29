@@ -53,8 +53,7 @@ const post: BlogPost = {
     <p>A few years ago, around the time Journey went into the Rock and Roll Hall of Fame, I got pulled into one of those pointless but irresistible online arguments about whether the later version of the band could really compare to the old one. I said no. Probably more bluntly than necessary. What surprised me was that Jonathan Cain liked the tweet. Since I had admired him going back through The Babys, Journey, and Bad English, that felt like a strange little moment of validation. I eventually backed out of the argument, but last time I checked, he still followed me. Small thing. Slightly ridiculous. Still kind of fun.</p>
     <p>Anyway, here’s the playlist. If you grew up with Journey, it may send you back. If you didn’t, it’s still a hell of a place to start.</p>
     <div class="post-links">
-      <a class="button button--primary" href="https://www.youtube.com/watch?v=BPazVAtD-xQ&list=PLMN1VkF5l6d0&pp=sAgC" target="_blank" rel="noreferrer">Watch on YouTube</a>
-      <a class="button button--ghost" href="https://music.youtube.com/playlist?list=PLMN1VkF5l6d0&si=kPfLLFYG5HhbjnNW" target="_blank" rel="noreferrer">Listen on YouTube Music</a>
+      <a class="button button--primary" href="https://www.youtube.com/playlist?list=PLMN1VkF5l6d0" target="_blank" rel="noreferrer">Watch on YouTube</a>
     </div>
     <p>What did I miss? What belongs on your version of this playlist, and what would you throw off mine? <a href="/contact">Use the contact page</a> and tell me.</p>
   `,

@@ -101,11 +101,8 @@ const post: BlogPost = {
 <p>And of those four fucking monsters, I still pick <em>Animals</em>.</p>
 <p>Which one is your favorite? <a href="https://ourolddad.com/contact">Let us know through the contact page.</a></p>
 <h2>Hear the Run</h2>
-<p><a href="https://www.youtube.com/watch?list=PLRlr-UN4_b6I" target="_blank" rel="noreferrer">Watch on YouTube</a></p>
-<p><a href="https://music.youtube.com/playlist?list=PLRlr-UN4_b6I&amp;si=fS9qLh4QOVyTrgRB" target="_blank" rel="noreferrer">Listen on YouTube Music</a></p>
 <div class="post-links">
-<a class="button button--primary" href="https://www.youtube.com/watch?list=PLRlr-UN4_b6I" target="_blank" rel="noreferrer">Watch on YouTube</a>
-<a class="button button--ghost" href="https://music.youtube.com/playlist?list=PLRlr-UN4_b6I&amp;si=fS9qLh4QOVyTrgRB" target="_blank" rel="noreferrer">Listen on YouTube Music</a>
+<a class="button button--primary" href="https://www.youtube.com/playlist?list=PLRlr-UN4_b6I" target="_blank" rel="noreferrer">Watch on YouTube</a>
 </div>
   `,
 };

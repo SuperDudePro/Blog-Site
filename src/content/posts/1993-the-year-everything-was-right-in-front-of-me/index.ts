@@ -114,8 +114,7 @@ const post: BlogPost = {
     <p>That's the year.</p>
 
     <div class="post-links">
-      <a class="button button--primary" href="https://youtube.com/playlist?list=PLfY6ggILXuf8" target="_blank" rel="noreferrer">Watch on YouTube</a>
-      <a class="button button--ghost" href="https://music.youtube.com/playlist?list=PLfY6ggILXuf8&amp;si=tjMOu_XWUZCCCzef" target="_blank" rel="noreferrer">Listen on YouTube Music</a>
+      <a class="button button--primary" href="https://www.youtube.com/playlist?list=PLfY6ggILXuf8" target="_blank" rel="noreferrer">Watch on YouTube</a>
     </div>
 
     <p>What belongs on your version of 1993—or what did I get completely wrong?</p>

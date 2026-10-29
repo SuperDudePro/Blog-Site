@@ -44,7 +44,7 @@ const post: BlogPost = {
 
     <p>R.E.M. may <a href="https://ourolddad.com/contact">fill out the contact form</a> to claim its badge.</p>
 
-    <p>All thirty-four songs in album order: <a href="https://music.youtube.com/playlist?list=PLG4FxJ0KHX58" target="_blank" rel="noreferrer">YouTube Music</a> · <a href="https://www.youtube.com/playlist?list=PLG4FxJ0KHX58" target="_blank" rel="noreferrer">YouTube</a></p>
+    <p>All thirty-four songs in album order; the playlist is linked below.</p>
 
     <p>R.E.M. had already made a pile of great records before <em>Green</em>, and serious R.E.M. people would probably pick an earlier run. These are mine because they arrived at three key moments between November 1988 and October 1992, when some of the songs felt like Michael Stipe had written them specifically for me.</p>
 
@@ -136,7 +136,6 @@ const post: BlogPost = {
 
     <div class="post-links">
       <a class="button button--primary" href="https://www.youtube.com/playlist?list=PLG4FxJ0KHX58" target="_blank" rel="noreferrer">Watch on YouTube</a>
-      <a class="button button--ghost" href="https://music.youtube.com/playlist?list=PLG4FxJ0KHX58" target="_blank" rel="noreferrer">Listen on YouTube Music</a>
     </div>
   `,
 };

@@ -100,7 +100,6 @@ const post: BlogPost = {
 
     <div class="post-links">
       <a class="button button--primary" href="https://www.youtube.com/playlist?list=PLKdFg3sCanAc" target="_blank" rel="noreferrer">Watch on YouTube</a>
-      <a class="button button--ghost" href="https://music.youtube.com/playlist?list=PLKdFg3sCanAc&amp;si=2393_nHP3GJ2GiwC" target="_blank" rel="noreferrer">Listen on YouTube Music</a>
     </div>
   `,
 };
