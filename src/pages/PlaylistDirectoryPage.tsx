@@ -42,19 +42,19 @@ function getPlaylists(post: BlogPost): Entry {
     artists: getArtists(post),
   };
 }
-const approvedPlaylistCoverIds: Record<string, string> = {
-  'the-83-hawaii-playlist': '1raryAeRqjT-Yvug-zDmM3ypmFTZ5Vh8V',
-  'straight-greats-5-rolling-stones-six-straight': '1KMsyng67rHBsLCtsha3SMeoGXZ3pl8TY',
+const approvedPlaylistCovers: Record<string, string> = {
+  'the-83-hawaii-playlist': '/playlist-covers/83-hawaii.svg',
+  'straight-greats-5-rolling-stones-six-straight': '/playlist-covers/rolling-stones.svg',
 };
 
 // Artwork is created by the YouTube playlist workflow and approved separately.
 // Other playlists retain their existing post art until their cover is supplied.
 function PlaylistCard({ entry }: { entry: Entry }) {
   const { post } = entry;
-  const approvedCoverId = approvedPlaylistCoverIds[post.slug];
+  const approvedCover = approvedPlaylistCovers[post.slug];
   const [coverFailed, setCoverFailed] = useState(false);
-  const coverSrc = approvedCoverId && !coverFailed
-    ? `https://drive.google.com/thumbnail?id=${encodeURIComponent(approvedCoverId)}&sz=w640`
+  const coverSrc = approvedCover && !coverFailed
+    ? approvedCover
     : post.cardImage || post.heroImage;
   return <article className="playlist-directory__card">
     {coverSrc ? <div className="playlist-directory__artwork">
