@@ -5,15 +5,6 @@ import './SectionCard.css';
 
 type Props = { section: Section };
 
-const sectionSketchAlt: Record<SectionKey, string> = {
-  everything: 'A laptop, coffee mug, notebook, and phone in a charcoal-and-purple sketch.',
-  diary: 'A worn leather journal and pen in a charcoal-and-purple sketch.',
-  'life-education': 'A globe, stacked books, and foliage in a charcoal-and-purple sketch.',
-  'music-playlists': 'An acoustic guitar and headphones in a charcoal-and-purple sketch.',
-  'slow-travel': 'A hiking backpack beside a mountain landscape in a charcoal-and-purple sketch.',
-  advice: 'A weathered wooden trail signpost in a charcoal-and-purple sketch.',
-};
-
 export function SectionCard({ section }: Props) {
   return (
     <SiteLink className="section-card card-link" href={sectionPath(section.key)}>
@@ -21,7 +12,7 @@ export function SectionCard({ section }: Props) {
       <h3>{section.name}</h3>
       <img
         className={`section-card__sketch section-card__sketch--${section.key}`}
-        src={`/section-sketches/${section.key}.webp?v=20261015-replacement`}
+        src={sectionSketchPath(section.key)}
         alt={sectionSketchAlt[section.key]}
         width={320}
         height={320}
