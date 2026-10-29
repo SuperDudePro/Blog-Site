@@ -13,3 +13,7 @@
 .playlist-directory__card-heading{margin-top:1rem}
 .playlist-directory__card{padding:1rem}
 @media(max-width:760px){.playlist-directory__cover strong{font-size:clamp(1.4rem,6vw,2.3rem)}}
+
+/* Keep the actual playlist artwork proportional, without oversized image boxes. */
+.playlist-directory__artwork{display:flex;align-items:center;justify-content:center;min-width:0}
+.playlist-directory__artwork img{display:block;width:auto;max-width:100%;height:auto;max-height:260px;object-fit:contain;border-radius:12px}
