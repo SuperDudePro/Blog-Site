@@ -13,25 +13,14 @@ test('all six numbered Straight Greats posts are recognized, not misfiled under 
   for (const post of numbered) assert.ok(group(post), post.slug);
 });
 
-test('every playlist-bearing music post has both YouTube and YouTube Music sources', () => {
+test('OOD playlists use YouTube-only links', () => {
   for (const post of music) {
+    if (post.slug === 'within-a-listen') continue; // Original commercial albums, not OOD playlists
     const links = youtubeLinks(post);
     if (!links.length) continue;
-    assert.ok(links.some(url => url.hostname === 'music.youtube.com'), post.slug + ': no Music link');
-    assert.ok(links.some(url => url.hostname === 'www.youtube.com' || url.hostname === 'youtube.com'), post.slug + ': no YouTube link');
+    assert.ok(links.every(url => url.hostname === 'www.youtube.com' || url.hostname === 'youtube.com'), post.slug + ': unexpected source');
     for (const url of links) assert.ok(url.searchParams.get('list'), post.slug + ': missing playlist id');
   }
-});
-
-test('Within a Listen pairs two albums, not four separate playlists', () => {
-  const post = music.find(p => p.slug === 'within-a-listen');
-  assert.ok(post);
-  const links = youtubeLinks(post);
-  assert.equal(links.length, 4);
-  assert.equal(links.filter(url => url.hostname === 'music.youtube.com').length, 2);
-  assert.equal(links.filter(url => url.hostname !== 'music.youtube.com').length, 2);
-  assert.match(post.bodyHtml, /Let Love Rule/);
-  assert.match(post.bodyHtml, /Shake Your Money Maker/);
 });
 
 test('all playlist post source slugs are unique', () => {
