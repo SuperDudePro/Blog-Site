@@ -1,3 +1,4 @@
+import { sectionSketchAlt, sectionSketchPath } from '../data/sectionSketches';
 import { SiteLink } from '../components/SiteLink';
 import { formatPostDate, getPostsForSection } from '../content/loadPosts';
 import { sections } from '../data/siteContent';
@@ -25,6 +26,7 @@ export function CategoriesPage() {
             <article className="about-card" key={section.key}>
               <span className="eyebrow">{section.shortName}</span>
               <h2>{section.name}</h2>
+              <img className="categories-page__sketch" src={sectionSketchPath(section.key)} alt={sectionSketchAlt[section.key]} width={320} height={320} loading="lazy" decoding="async" />
               <p>{section.description}</p>
 
               {latestPost ? (

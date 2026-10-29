@@ -1099,3 +1099,6 @@ p {
     justify-self: stretch;
   }
 }
+
+/* Same charcoal-and-purple illustrations as the home section cards. */
+.categories-page__sketch{display:block;width:min(100%,176px);height:auto;margin:.7rem auto 1rem;object-fit:contain}

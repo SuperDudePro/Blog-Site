@@ -1,18 +1,10 @@
-import type { Section, SectionKey } from '../data/siteContent';
+import type { Section } from '../data/siteContent';
+import { sectionSketchAlt } from '../data/sectionSketches';
 import { sectionPath } from '../routes';
 import { SiteLink } from './SiteLink';
 import './SectionCard.css';
 
 type Props = { section: Section };
-
-const sectionSketchAlt: Record<SectionKey, string> = {
-  everything: 'A laptop, coffee mug, notebook, and phone in a charcoal-and-purple sketch.',
-  diary: 'A worn leather journal and pen in a charcoal-and-purple sketch.',
-  'life-education': 'A globe, stacked books, and foliage in a charcoal-and-purple sketch.',
-  'music-playlists': 'An acoustic guitar and headphones in a charcoal-and-purple sketch.',
-  'slow-travel': 'A hiking backpack beside a mountain landscape in a charcoal-and-purple sketch.',
-  advice: 'A weathered wooden trail signpost in a charcoal-and-purple sketch.',
-};
 
 export function SectionCard({ section }: Props) {
   return (

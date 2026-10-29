@@ -4,6 +4,7 @@ import { PostCard } from '../components/PostCard';
 import { PostResponsePrompt } from '../components/PostResponsePrompt';
 import { SharePost } from '../components/SharePost';
 import { SiteLink } from '../components/SiteLink';
+import { YouTubePlaylistPlayers, extractYouTubePlaylists } from '../components/YouTubePlaylistPlayers';
 import { SubscribeForm } from '../components/SubscribeForm';
 import { formatPostDate, getPostMetadataBySlug, getRelatedPosts, loadPostBySlug } from '../content/loadPosts';
 import type { BlogPost, PostMetadata } from '../content/postTypes';
@@ -92,6 +93,7 @@ export function PostPage({ slug }: Props) {
       <PostHero post={post} />
 
       {post.section === "music-playlists" ? <nav className="content-band" aria-label="Playlist directory"><SiteLink className="button button--ghost" href="/playlists">Browse all playlists by year, era, artist, Straight Greats, or miscellaneous</SiteLink></nav> : null}
+      {post.section === 'music-playlists' && extractYouTubePlaylists(post).length > 0 ? <section className="music-post__playlists" aria-label="Listen to the playlists"><h2>Listen here</h2><YouTubePlaylistPlayers key={post.slug} post={post} playlists={extractYouTubePlaylists(post)} /></section> : null}
       <article className="post-article">
         <div dangerouslySetInnerHTML={{ __html: post.bodyHtml }} />
         <PostResponsePrompt key={post.slug} slug={post.slug} title={post.title} />

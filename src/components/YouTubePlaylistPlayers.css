@@ -1,0 +1,13 @@
+.ood-playlist-players{display:grid;gap:1rem;min-width:0}
+.ood-playlist-player{min-width:0}
+.ood-playlist-player__label{margin:0 0 .35rem;font-size:.95rem;font-weight:700}
+.ood-playlist-player iframe,.ood-playlist-player__preview{border:0;border-radius:12px;background:#151515;display:block;width:100%;aspect-ratio:16/9}
+.ood-playlist-player__preview{display:flex;flex-direction:column;justify-content:center;align-items:center;gap:.55rem;color:#fff;background:linear-gradient(145deg,#25222e,#51336e 75%,#22212b);font:inherit;font-weight:750;cursor:pointer}
+.ood-playlist-player__preview:hover{background:linear-gradient(145deg,#342940,#7043a2 75%,#2a2036)}
+.ood-playlist-player__preview:focus-visible{outline:3px solid var(--focus);outline-offset:3px}
+.ood-playlist-player__play-icon{display:flex;align-items:center;justify-content:center;background:#e62117;color:white;border-radius:13px;width:66px;height:46px;font-size:20px;padding-left:3px}
+.ood-playlist-player__actions{display:flex;flex-wrap:wrap;gap:.8rem;padding-top:.7rem}
+.ood-playlist-player__actions a{color:var(--accent-ink);font-weight:700;text-decoration:underline;text-underline-offset:3px}
+.music-post__playlists{width:min(calc(100% - 2rem),760px);margin:0 auto 1.5rem;padding:1.35rem;background:var(--surface);border:4px solid var(--box-border);border-radius:var(--radius);box-shadow:var(--shadow)}
+.music-post__playlists h2{margin-bottom:1rem}
+@media(max-width:600px){.music-post__playlists{padding:1rem}}

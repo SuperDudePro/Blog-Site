@@ -4,6 +4,7 @@ import type { BlogPost } from '../content/postTypes';
 import { SiteLink } from '../components/SiteLink';
 import { postPath } from '../routes';
 import skull from '../assets/playlist-skull-transparent.webp';
+import { YouTubePlaylistPlayers, extractYouTubePlaylists } from '../components/YouTubePlaylistPlayers';
 import './PlaylistDirectoryPage.css';
 
 type Category = 'Year' | 'Era' | 'Artist' | 'Straight Greats' | 'Misc';
@@ -29,39 +30,20 @@ function classify(post: BlogPost): Category {
 function getArtists(post: BlogPost) {
   return Object.entries(artistNames).filter(([key]) => post.slug.includes(key)).map(([, name]) => name);
 }
-function playlistLabel(anchor: HTMLAnchorElement, post: BlogPost): string {
-  if (post.slug !== 'within-a-listen') return '';
-  const label = anchor.textContent || '';
-  if (/Let Love Rule/i.test(label)) return 'Let Love Rule — Lenny Kravitz';
-  if (/Shake Your Money Maker/i.test(label)) return 'Shake Your Money Maker — The Black Crowes';
-  return '';
-}
 function getPlaylists(post: BlogPost): Entry {
-  const html = new DOMParser().parseFromString(post.bodyHtml, 'text/html');
-  const results = new Map<string, Playlist>();
-  const byId = new Map<string, Playlist>();
-  for (const anchor of html.querySelectorAll<HTMLAnchorElement>('a[href]')) {
-    try {
-      const url = new URL(anchor.href);
-      if (!['www.youtube.com', 'youtube.com', 'music.youtube.com'].includes(url.hostname)) continue;
-      const id = url.searchParams.get('list');
-      if (!id) continue;
-      const label = playlistLabel(anchor, post);
-      const key = label || id;
-      let item = results.get(key) || byId.get(id);
-      if (!item) {
-        item = { key, ...(label ? { label } : {}) };
-        results.set(key, item);
-      }
-      byId.set(id, item);
-      item.youtube = `https://www.youtube.com/playlist?list=${encodeURIComponent(id)}`;
-    } catch { /* Skip invalid links. */ }
-  }
-  return { post, playlists: [...results.values()], category: classify(post), artists: getArtists(post) };
+  return {
+    post,
+    playlists: extractYouTubePlaylists(post).map(item => ({
+      key: item.label || item.id,
+      ...(item.label ? { label: item.label } : {}),
+      youtube: `https://www.youtube.com/playlist?list=${encodeURIComponent(item.id)}`,
+    })),
+    category: classify(post),
+    artists: getArtists(post),
+  };
 }
 function PlaylistCard({ entry }: { entry: Entry }) {
-  const [playing, setPlaying] = useState<string[]>([]);
-  const { post, playlists } = entry;
+  const { post } = entry;
   return <article className="playlist-directory__card">
     <div className={`playlist-directory__cover playlist-directory__cover--${entry.category.toLowerCase().replace(/\s+/g, "-")}`} aria-hidden="true">
       <span className="playlist-directory__cover-kicker">OUR OLD DAD · PLAYLIST</span>
@@ -72,17 +54,7 @@ function PlaylistCard({ entry }: { entry: Entry }) {
       <h3>{post.title}</h3>
       {entry.artists.length ? <p className="playlist-directory__artist">{entry.artists.join(', ')}</p> : null}
     </div>
-    {playlists.map((playlist, index) => {
-      const source = playlist.youtube || playlist.music;
-      const id = source ? new URL(source).searchParams.get('list') : null;
-      return <div className="playlist-directory__player" key={playlist.key}>
-        {playlist.label || playlists.length > 1 ? <p className="playlist-directory__player-label">{playlist.label || `Playlist ${index + 1}`}</p> : null}
-        {id ? playing.includes(playlist.key) ? <iframe loading="lazy" title={`${post.title}: ${playlist.label || 'playlist'}`} src={`https://www.youtube-nocookie.com/embed/videoseries?list=${encodeURIComponent(id)}`} allow="accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture; web-share" allowFullScreen referrerPolicy="strict-origin-when-cross-origin" /> : <button className="playlist-directory__preview" type="button" onClick={() => setPlaying(prev => [...prev, playlist.key])} aria-label={`Load player for ${playlist.label || post.title}`}><span aria-hidden="true" className="playlist-directory__play-icon">▶</span><span>Play playlist here</span></button> : null}
-        <div className="playlist-directory__actions">
-          {playlist.youtube ? <a href={playlist.youtube} target="_blank" rel="noreferrer">YouTube</a> : null}
-        </div>
-      </div>;
-    })}
+    <YouTubePlaylistPlayers post={post} playlists={extractYouTubePlaylists(post)} showLinks />
     <div className="playlist-directory__story"><SiteLink href={postPath(post.slug)}>Read the story</SiteLink></div>
   </article>;
 }
