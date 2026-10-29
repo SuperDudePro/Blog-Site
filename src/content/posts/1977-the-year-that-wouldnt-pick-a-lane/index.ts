@@ -109,8 +109,7 @@ const post: BlogPost = {
     <p>Just to drop you back into a year and let the songs make the case.</p>
 
     <div class="post-links">
-      <a class="button button--primary" href="https://youtube.com/playlist?list=PLFQOgHMDLmVs&si=KuIS0FuRS0k6_wj5" target="_blank" rel="noreferrer">Watch on YouTube</a>
-      <a class="button button--ghost" href="https://music.youtube.com/playlist?list=PLFQOgHMDLmVs&si=5JNpWizs5e0o4n7o" target="_blank" rel="noreferrer">Listen on YouTube Music</a>
+      <a class="button button--primary" href="https://www.youtube.com/playlist?list=PLFQOgHMDLmVs" target="_blank" rel="noreferrer">Watch on YouTube</a>
     </div>
 
     <p>What did I miss? What belongs on your version of 1977, and what would you throw off mine? <a href="/contact">Use the contact page</a> and tell me.</p>
