@@ -1,5 +1,5 @@
 import type { Section } from '../data/siteContent';
-import { sectionSketchAlt, sectionSketchPath } from '../data/sectionSketches';
+import { sectionSketchAlt } from '../data/sectionSketches';
 import { sectionPath } from '../routes';
 import { SiteLink } from './SiteLink';
 import './SectionCard.css';
@@ -13,7 +13,7 @@ export function SectionCard({ section }: Props) {
       <h3>{section.name}</h3>
       <img
         className={`section-card__sketch section-card__sketch--${section.key}`}
-        src={sectionSketchPath(section.key)}
+        src={`/section-sketches/${section.key}.webp?v=20261015-replacement`}
         alt={sectionSketchAlt[section.key]}
         width={320}
         height={320}
