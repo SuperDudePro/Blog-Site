@@ -109,8 +109,8 @@ const post: BlogPost = {
     <p>Here’s the proof.</p>
 
     <div class="post-links">
-      <a class="button button--primary" href="https://www.youtube.com/playlist?list=PLJ-R3jWagtQh0xz7ffma07jAWBIv87Tx5" target="_blank" rel="noreferrer">Watch on YouTube</a>
-      <a class="button button--ghost" href="https://music.youtube.com/playlist?list=PLJ-R3jWagtQh0xz7ffma07jAWBIv87Tx5&si=C2tAa4I5c3LsvUHq" target="_blank" rel="noreferrer">Listen on YouTube Music</a>
+      <a class="button button--primary" href="https://www.youtube.com/playlist?list=PLJngcclfZ4hw" target="_blank" rel="noreferrer">Watch on YouTube</a>
+      <a class="button button--ghost" href="https://music.youtube.com/playlist?list=PLJngcclfZ4hw&si=C2tAa4I5c3LsvUHq" target="_blank" rel="noreferrer">Listen on YouTube Music</a>
     </div>
 
     <p>Think I’ve left out the song that proves—or destroys—the entire case?</p>

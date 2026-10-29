@@ -48,8 +48,8 @@ const post: BlogPost = {
     <p>Don't say I never taught you anything.</p>
     <p><strong>What's a song you never get sick of hearing?</strong> <a href="https://ourolddad.com/contact">Let me know through the contact page.</a></p>
     <div class="post-links">
-      <a class="button button--primary" href="https://music.youtube.com/playlist?list=PLJ-R3jWagtQgJa5vKNuLmjL4wUJymvL6r&si=W-Wu-jabIUlHqqif" target="_blank" rel="noreferrer">Listen on YouTube Music</a>
-      <a class="button button--ghost" href="https://www.youtube.com/playlist?list=PLJ-R3jWagtQgJa5vKNuLmjL4wUJymvL6r" target="_blank" rel="noreferrer">Watch on YouTube</a>
+      <a class="button button--primary" href="https://music.youtube.com/playlist?list=PLGWTRVSj7pzs&si=W-Wu-jabIUlHqqif" target="_blank" rel="noreferrer">Listen on YouTube Music</a>
+      <a class="button button--ghost" href="https://www.youtube.com/playlist?list=PLGWTRVSj7pzs" target="_blank" rel="noreferrer">Watch on YouTube</a>
     </div>
   `,
 };
