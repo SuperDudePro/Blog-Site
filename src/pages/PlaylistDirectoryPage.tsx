@@ -43,7 +43,7 @@ function getPlaylists(post: BlogPost): Entry {
   };
 }
 function PlaylistCard({ entry }: { entry: Entry }) {
-  const { post, playlists } = entry;
+  const { post } = entry;
   return <article className="playlist-directory__card">
     <div className={`playlist-directory__cover playlist-directory__cover--${entry.category.toLowerCase().replace(/\s+/g, "-")}`} aria-hidden="true">
       <span className="playlist-directory__cover-kicker">OUR OLD DAD · PLAYLIST</span>
