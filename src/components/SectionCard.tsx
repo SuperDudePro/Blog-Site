@@ -1,4 +1,5 @@
-import type { Section, SectionKey } from '../data/siteContent';
+import type { Section } from '../data/siteContent';
+import { sectionSketchAlt, sectionSketchPath } from '../data/sectionSketches';
 import { sectionPath } from '../routes';
 import { SiteLink } from './SiteLink';
 import './SectionCard.css';
