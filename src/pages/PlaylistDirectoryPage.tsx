@@ -52,12 +52,13 @@ const approvedPlaylistCoverIds: Record<string, string> = {
 function PlaylistCard({ entry }: { entry: Entry }) {
   const { post } = entry;
   const approvedCoverId = approvedPlaylistCoverIds[post.slug];
-  const coverSrc = approvedCoverId
+  const [coverFailed, setCoverFailed] = useState(false);
+  const coverSrc = approvedCoverId && !coverFailed
     ? `https://drive.google.com/thumbnail?id=${encodeURIComponent(approvedCoverId)}&sz=w640`
     : post.cardImage || post.heroImage;
   return <article className="playlist-directory__card">
     {coverSrc ? <div className="playlist-directory__artwork">
-      <img src={coverSrc} alt={post.cardAlt || post.heroAlt || `Artwork for ${post.title}`} loading="lazy" decoding="async" />
+      <img src={coverSrc} onError={() => setCoverFailed(true)} alt={post.cardAlt || post.heroAlt || `Artwork for ${post.title}`} loading="lazy" decoding="async" />
     </div> : null}
     <div className="playlist-directory__card-heading">
       <h3>{post.title}</h3>
