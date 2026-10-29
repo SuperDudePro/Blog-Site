@@ -27,6 +27,12 @@ export function isPlaylistLinkOnlyChange(before, after) {
   return before !== after && normalize(before) === normalize(after);
 }
 
+export function isYoutubeMusicButtonRemovalOnlyChange(before, after) {
+  if (before === after) return false;
+  const strip = (source) => source.replace(/^[ \\t]*<a class="button button--ghost" href="https:\/\/music\.youtube\.com\/playlist\?list=[^"\n]+"[^\n]*<\/a>[ \\t]*\r?\n/gm, '');
+  return strip(before) === strip(after);
+}
+
 export function nonMaterialTouchedSlugs(root, base, changedFiles) {
   const bySlug = new Map();
   for (const file of changedFiles) {
@@ -41,7 +47,7 @@ export function nonMaterialTouchedSlugs(root, base, changedFiles) {
     try {
       const before = execFileSync('git', ['show', base + ':' + files[0].file], { cwd: root, encoding: 'utf8' });
       const after = readFileSync(path.join(root, files[0].file), 'utf8');
-      if (isSeoOnlyChange(before, after) || isPlaylistLinkOnlyChange(before, after)) allowed.add(slug);
+      if (isSeoOnlyChange(before, after) || isPlaylistLinkOnlyChange(before, after) || isYoutubeMusicButtonRemovalOnlyChange(before, after)) allowed.add(slug);
     } catch {}
   }
   return allowed;
