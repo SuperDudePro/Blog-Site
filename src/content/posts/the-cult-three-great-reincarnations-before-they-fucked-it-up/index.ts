@@ -97,11 +97,9 @@ const post: BlogPost = {
     <p>What do you think? Did The Cult earn the clean sweep, or is there another album we should have included? <a href="https://ourolddad.com/contact">Let us know through the contact page.</a></p>
     <hr />
     <h2>Playlist</h2>
-    <p><strong>YouTube Music:</strong> <a href="https://music.youtube.com/playlist?list=PLeIYOcI6NDh0">Listen to the playlist</a></p>
     <p><strong>YouTube:</strong> <a href="https://www.youtube.com/playlist?list=PLeIYOcI6NDh0">Watch the playlist</a></p>
     <div class="post-links">
     <a class="button button--primary" href="https://www.youtube.com/playlist?list=PLeIYOcI6NDh0" target="_blank" rel="noreferrer">Watch on YouTube</a>
-    <a class="button button--ghost" href="https://music.youtube.com/playlist?list=PLeIYOcI6NDh0" target="_blank" rel="noreferrer">Listen on YouTube Music</a>
     </div>
   `,
 };
