@@ -54,8 +54,8 @@ const post: BlogPost = {
     </figure>
 
     <div class="post-links">
-      <a class="button button--primary" href="https://music.youtube.com/playlist?list=PLJ-R3jWagtQiFwZyqZyDIU08fiJGYNz6r" target="_blank" rel="noreferrer">Listen on YouTube Music</a>
-      <a class="button button--ghost" href="https://www.youtube.com/playlist?list=PLJ-R3jWagtQiFwZyqZyDIU08fiJGYNz6r" target="_blank" rel="noreferrer">Listen on YouTube</a>
+      <a class="button button--primary" href="https://music.youtube.com/playlist?list=PLB6srd_Z0UfQ" target="_blank" rel="noreferrer">Listen on YouTube Music</a>
+      <a class="button button--ghost" href="https://www.youtube.com/playlist?list=PLB6srd_Z0UfQ" target="_blank" rel="noreferrer">Listen on YouTube</a>
     </div>
 
     <p>What songs still sound like a place you haven't been in decades?</p>
