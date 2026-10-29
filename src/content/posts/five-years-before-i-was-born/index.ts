@@ -113,7 +113,6 @@ const post: BlogPost = {
 <p>What did I miss? If there's something from January 1, 1960 through April 14, 1965 that absolutely belongs here, <a href="https://ourolddad.com/contact">let me know through the contact page</a>.</p>
 <div class="post-links">
   <a class="button button--primary" href="https://www.youtube.com/playlist?list=PLKqhESU25rZs" target="_blank" rel="noreferrer">Watch on YouTube</a>
-  <a class="button button--ghost" href="https://music.youtube.com/playlist?list=PLKqhESU25rZs&si=JaS3265R556-vHzP" target="_blank" rel="noreferrer">Listen on YouTube Music</a>
 </div>
   `,
 };
