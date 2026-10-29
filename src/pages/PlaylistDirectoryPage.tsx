@@ -42,11 +42,23 @@ function getPlaylists(post: BlogPost): Entry {
     artists: getArtists(post),
   };
 }
+const approvedPlaylistCoverIds: Record<string, string> = {
+  'the-83-hawaii-playlist': '1raryAeRqjT-Yvug-zDmM3ypmFTZ5Vh8V',
+  'straight-greats-5-rolling-stones-six-straight': '1KMsyng67rHBsLCtsha3SMeoGXZ3pl8TY',
+};
+
+// Artwork is created by the YouTube playlist workflow and approved separately.
+// Other playlists retain their existing post art until their cover is supplied.
 function PlaylistCard({ entry }: { entry: Entry }) {
   const { post } = entry;
+  const approvedCoverId = approvedPlaylistCoverIds[post.slug];
+  const [coverFailed, setCoverFailed] = useState(false);
+  const coverSrc = approvedCoverId && !coverFailed
+    ? `https://drive.google.com/thumbnail?id=${encodeURIComponent(approvedCoverId)}&sz=w640`
+    : post.cardImage || post.heroImage;
   return <article className="playlist-directory__card">
-    {post.cardImage || post.heroImage ? <div className="playlist-directory__artwork">
-      <img src={post.cardImage || post.heroImage} alt={post.cardAlt || post.heroAlt || `Artwork for ${post.title}`} loading="lazy" decoding="async" />
+    {coverSrc ? <div className="playlist-directory__artwork">
+      <img src={coverSrc} onError={() => setCoverFailed(true)} alt={post.cardAlt || post.heroAlt || `Artwork for ${post.title}`} loading="lazy" decoding="async" />
     </div> : null}
     <div className="playlist-directory__card-heading">
       <h3>{post.title}</h3>
