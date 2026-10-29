@@ -63,6 +63,11 @@ function PlaylistCard({ entry }: { entry: Entry }) {
   const [playing, setPlaying] = useState<string[]>([]);
   const { post, playlists } = entry;
   return <article className="playlist-directory__card">
+    <div className={`playlist-directory__cover playlist-directory__cover--${entry.category.toLowerCase().replace(/\s+/g, "-")}`} aria-hidden="true">
+      <span className="playlist-directory__cover-kicker">OUR OLD DAD · PLAYLIST</span>
+      <strong>{post.title.replace(/^Straight Greats No\.\s*\d+:\s*/i, "")}</strong>
+      <span className="playlist-directory__cover-footer">{entry.category === "Straight Greats" ? "STRAIGHT GREATS" : entry.category.toUpperCase()} · PLAY IT LOUD</span>
+    </div>
     <div className="playlist-directory__card-heading">
       <h3>{post.title}</h3>
       {entry.artists.length ? <p className="playlist-directory__artist">{entry.artists.join(', ')}</p> : null}
