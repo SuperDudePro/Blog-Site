@@ -17,3 +17,6 @@
 /* Keep the actual playlist artwork proportional, without oversized image boxes. */
 .playlist-directory__artwork{display:flex;align-items:center;justify-content:center;min-width:0}
 .playlist-directory__artwork img{display:block;width:auto;max-width:100%;height:auto;max-height:260px;object-fit:contain;border-radius:12px}
+
+.playlist-directory__channel-links{display:flex;flex-wrap:wrap;align-items:center;gap:.7rem 1.4rem;margin-top:1rem}
+.playlist-directory__channel-links a{font-weight:700}
