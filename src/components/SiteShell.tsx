@@ -73,6 +73,8 @@ export function SiteShell({ children }: Props) {
             </p>
             <p className="site-footer__copy">{site.footerNote}</p>
             <p className="site-footer__copy">
+              <a href={site.youtubeUrl} target="_blank" rel="noopener noreferrer">Our Old Dad on YouTube</a>
+              <span aria-hidden="true"> · </span>
               <a href="/rss.xml">RSS feed</a>
             </p>
           </div>
