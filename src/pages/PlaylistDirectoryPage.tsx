@@ -3,6 +3,7 @@ import { getPostsForSection, loadPostBySlug } from '../content/loadPosts';
 import type { BlogPost } from '../content/postTypes';
 import { SiteLink } from '../components/SiteLink';
 import { postPath } from '../routes';
+import { site } from '../data/siteContent';
 import skull from '../assets/playlist-skull-transparent.webp';
 import { YouTubePlaylistPlayers, extractYouTubePlaylists } from '../components/YouTubePlaylistPlayers';
 import './PlaylistDirectoryPage.css';
@@ -96,7 +97,10 @@ export function PlaylistDirectoryPage() {
         <span className="eyebrow">OOD Playlists</span>
         <h1>Just the playlists.</h1>
         <p className="lead">All the music in one place. Pick a category, press play, and skip the essays unless you want the stories behind the songs.</p>
-        <SiteLink className="text-link" href="/section/music-playlists">Browse the music posts</SiteLink>
+        <div className="playlist-directory__channel-links">
+          <SiteLink className="text-link" href="/section/music-playlists">Browse the music posts</SiteLink>
+          <a className="text-link" href={site.youtubeUrl} target="_blank" rel="noopener noreferrer">Visit our YouTube channel</a>
+        </div>
       </div>
       <img className="playlist-directory__skull" src={skull} alt="A bearded Our Old Dad skull wearing sunglasses and headphones while enjoying music." width="340" height="340" />
     </header>
