@@ -18,7 +18,7 @@ export type Section = {
 
 export const site = {
   url: 'https://ourolddad.com',
-  youtubeUrl: 'https://www.youtube.com/channel/UCIrltU6f-ROpqEeUvZVF6tQ',
+  youtubeUrl: 'https://www.youtube.com/@OurOldDad',
   title: 'Our Old Dad',
   headerTagline: 'Raising Two Generations',
   tagline: 'Flailing, Raging, and Raising Two Generations',
