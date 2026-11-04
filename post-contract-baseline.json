@@ -27,11 +27,6 @@
         "reason": "body-image-3.webp is 1440x1080; the body role requires 1200x900."
       },
       {
-        "ruleId": "image.body.minimum",
-        "signature": "count=3",
-        "reason": "Only 3 distinct body images; current minimum is 4."
-      },
-      {
         "ruleId": "image.role.card.geometry",
         "signature": "file=card-image.webp;actual=1200x900;expected=960x720",
         "reason": "card-image.webp is 1200x900; the card role requires 960x720."
@@ -83,11 +78,6 @@
         "ruleId": "image.body.geometry",
         "signature": "file=body-image-3.webp;actual=1000x708;expected=1200x900",
         "reason": "body-image-3.webp is 1000x708; the body role requires 1200x900."
-      },
-      {
-        "ruleId": "image.body.minimum",
-        "signature": "count=3",
-        "reason": "Only 3 distinct body images; current minimum is 4."
       },
       {
         "ruleId": "image.body.sequence",
@@ -158,11 +148,6 @@
         "reason": "No reader CTA linking to /contact was found inside bodyHtml; sitewide header/footer Contact links do not count."
       },
       {
-        "ruleId": "image.body.minimum",
-        "signature": "count=0",
-        "reason": "Only 0 distinct body images; current minimum is 4."
-      },
-      {
         "ruleId": "image.body.reference",
         "signature": "https://upload.wikimedia.org/wikipedia/commons/5/5d/Bridal_Veil_Falls_Telluride_CO3.jpg",
         "reason": "Body image source \"https://upload.wikimedia.org/wikipedia/commons/5/5d/Bridal_Veil_Falls_Telluride_CO3.jpg\" does not match a local import."
@@ -226,11 +211,6 @@
         "reason": "body-image-3.webp is 1400x788; the body role requires 1200x900."
       },
       {
-        "ruleId": "image.body.minimum",
-        "signature": "count=3",
-        "reason": "Only 3 distinct body images; current minimum is 4."
-      },
-      {
         "ruleId": "image.role.card.geometry",
         "signature": "file=card-image.webp;actual=1200x800;expected=960x720",
         "reason": "card-image.webp is 1200x800; the card role requires 960x720."
@@ -251,11 +231,6 @@
         "ruleId": "image.body.geometry",
         "signature": "file=body-image-2.webp;actual=1400x1050;expected=1200x900",
         "reason": "body-image-2.webp is 1400x1050; the body role requires 1200x900."
-      },
-      {
-        "ruleId": "image.body.minimum",
-        "signature": "count=2",
-        "reason": "Only 2 distinct body images; current minimum is 4."
       },
       {
         "ruleId": "image.role.card.geometry",
@@ -285,11 +260,6 @@
         "reason": "body-image-2.webp is 1400x900; the body role requires 1200x900."
       },
       {
-        "ruleId": "image.body.minimum",
-        "signature": "count=2",
-        "reason": "Only 2 distinct body images; current minimum is 4."
-      },
-      {
         "ruleId": "image.role.card.geometry",
         "signature": "file=card-image.webp;actual=1200x800;expected=960x720",
         "reason": "card-image.webp is 1200x800; the card role requires 960x720."
@@ -315,11 +285,6 @@
         "ruleId": "image.body.geometry",
         "signature": "file=body-image-3.webp;actual=1448x1086;expected=1200x900",
         "reason": "body-image-3.webp is 1448x1086; the body role requires 1200x900."
-      },
-      {
-        "ruleId": "image.body.minimum",
-        "signature": "count=3",
-        "reason": "Only 3 distinct body images; current minimum is 4."
       },
       {
         "ruleId": "image.role.card.geometry",
@@ -356,11 +321,6 @@
         "reason": "body-image-2.webp is 1400x1050; the body role requires 1200x900."
       },
       {
-        "ruleId": "image.body.minimum",
-        "signature": "count=2",
-        "reason": "Only 2 distinct body images; current minimum is 4."
-      },
-      {
         "ruleId": "image.role.card.geometry",
         "signature": "file=card-image.webp;actual=1400x787;expected=960x720",
         "reason": "card-image.webp is 1400x787; the card role requires 960x720."
@@ -376,11 +336,6 @@
         "ruleId": "cta.contact.required",
         "signature": "/contact",
         "reason": "No reader CTA linking to /contact was found inside bodyHtml; sitewide header/footer Contact links do not count."
-      },
-      {
-        "ruleId": "image.body.minimum",
-        "signature": "count=2",
-        "reason": "Only 2 distinct body images; current minimum is 4."
       },
       {
         "ruleId": "image.role.card.geometry",
@@ -408,11 +363,6 @@
         "ruleId": "image.body.geometry",
         "signature": "file=body-image-3.webp;actual=480x371;expected=1200x900",
         "reason": "body-image-3.webp is 480x371; the body role requires 1200x900."
-      },
-      {
-        "ruleId": "image.body.minimum",
-        "signature": "count=3",
-        "reason": "Only 3 distinct body images; current minimum is 4."
       },
       {
         "ruleId": "image.body.sequence",
@@ -449,11 +399,6 @@
         "reason": "body-image-2.webp is 1448x1086; the body role requires 1200x900."
       },
       {
-        "ruleId": "image.body.minimum",
-        "signature": "count=2",
-        "reason": "Only 2 distinct body images; current minimum is 4."
-      },
-      {
         "ruleId": "image.role.card.geometry",
         "signature": "file=card-image.webp;actual=1448x1086;expected=960x720",
         "reason": "card-image.webp is 1448x1086; the card role requires 960x720."
@@ -469,11 +414,6 @@
         "ruleId": "cta.contact.required",
         "signature": "/contact",
         "reason": "No reader CTA linking to /contact was found inside bodyHtml; sitewide header/footer Contact links do not count."
-      },
-      {
-        "ruleId": "image.body.minimum",
-        "signature": "count=2",
-        "reason": "Only 2 distinct body images; current minimum is 4."
       },
       {
         "ruleId": "image.role.card.geometry",
@@ -503,11 +443,6 @@
         "reason": "body-image-3.webp is 1200x1600; the body role requires 1200x900."
       },
       {
-        "ruleId": "image.body.minimum",
-        "signature": "count=3",
-        "reason": "Only 3 distinct body images; current minimum is 4."
-      },
-      {
         "ruleId": "image.role.card.geometry",
         "signature": "file=card-image.webp;actual=800x800;expected=960x720",
         "reason": "card-image.webp is 800x800; the card role requires 960x720."
@@ -525,11 +460,6 @@
         "ruleId": "cta.contact.required",
         "signature": "/contact",
         "reason": "No reader CTA linking to /contact was found inside bodyHtml; sitewide header/footer Contact links do not count."
-      },
-      {
-        "ruleId": "image.body.minimum",
-        "signature": "count=2",
-        "reason": "Only 2 distinct body images; current minimum is 4."
       },
       {
         "ruleId": "image.body.sequence",
@@ -569,11 +499,6 @@
         "reason": "body-image-3.webp is 1400x1050; the body role requires 1200x900."
       },
       {
-        "ruleId": "image.body.minimum",
-        "signature": "count=3",
-        "reason": "Only 3 distinct body images; current minimum is 4."
-      },
-      {
         "ruleId": "image.role.card.geometry",
         "signature": "file=card-image.webp;actual=1200x800;expected=960x720",
         "reason": "card-image.webp is 1200x800; the card role requires 960x720."
@@ -606,11 +531,6 @@
         "ruleId": "image.body.geometry",
         "signature": "file=body-image-3.webp;actual=1200x1500;expected=1200x900",
         "reason": "body-image-3.webp is 1200x1500; the body role requires 1200x900."
-      },
-      {
-        "ruleId": "image.body.minimum",
-        "signature": "count=3",
-        "reason": "Only 3 distinct body images; current minimum is 4."
       },
       {
         "ruleId": "image.role.card.geometry",
