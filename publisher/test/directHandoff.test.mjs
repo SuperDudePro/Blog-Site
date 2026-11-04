@@ -46,7 +46,7 @@ const source = [
   '  cardAlt: "Card image.",',
   '  heroImage,',
   '  heroAlt: "Hero image.",',
-  '  bodyHtml: `<p>Reading flow.</p>${body1}${body2}${body3}${body4}<a href="/contact">Contact us.</a>`,'
+  '  bodyHtml: `<p>Reading flow.</p>' + Array.from({length:4},(_,i)=>'<img src="${body'+(i+1)+'}" alt="Body image '+(i+1)+'." />').join('') + '<a href="/contact">Contact us.</a>`,'
   '};',
   'export default post;',
 ].join('\n');
