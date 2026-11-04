@@ -1,4 +1,6 @@
 import { requirePublisher } from '../../lib/auth.mjs';
+import { verifyDirectHandoff } from '../../lib/directHandoff.mjs';
+import { jobFromPullRequest } from '../../lib/publishingJobs.mjs';
 import { repoRequest } from '../../lib/github.mjs';
 import { json, method, readJson } from '../../lib/http.mjs';
 import { validateRepository } from '../../lib/validation.mjs';
@@ -117,6 +119,23 @@ export default async function handler(request, response) {
       }
     }
     const merged = Boolean(pullRequest.merged || pullRequest.merged_at);
+    const directJob = jobFromPullRequest(repository, pullRequest);
+    const isDirect = directJob?.handoffMethod === 'direct-github';
+    let directVerification = { state: isDirect ? 'pending' : 'not-applicable', errors: [], commitSha: null };
+    if (isDirect && checks.state === 'success') {
+      try {
+        const verified = await verifyDirectHandoff({ repository, prNumber });
+        directVerification = {
+          state: verified.ok && verified.commitSha === currentCommit ? 'success' : 'failed',
+          errors: verified.commitSha !== currentCommit
+            ? ['The direct handoff verification did not match the latest PR commit.']
+            : verified.errors,
+          commitSha: verified.commitSha,
+        };
+      } catch (error) {
+        directVerification = { state: 'failed', errors: [error.message], commitSha: null };
+      }
+    }
     const mergeCommit = pullRequest.merge_commit_sha || null;
     const production = merged
       ? await productionStatus(repository, canonicalUrl, title, mergeCommit, profile)
@@ -127,12 +146,13 @@ export default async function handler(request, response) {
       checks,
       deploymentUrl,
       smoke,
-      readyToMerge: !merged && checks.state === 'success' && Boolean(deploymentUrl) && smoke.state === 'success',
+      directVerification,
+      readyToMerge: !merged && checks.state === 'success' && Boolean(deploymentUrl) && smoke.state === 'success' && (!isDirect || directVerification.state === 'success'),
       merged,
       mergedAt: pullRequest.merged_at || null,
       mergeCommit,
       production,
-      publishingComplete: merged && production.state === 'success',
+      publishingComplete: merged && production.state === 'success' && (!isDirect || directVerification.state === 'success'),
       prState: pullRequest.state || null,
     });
   } catch (error) {

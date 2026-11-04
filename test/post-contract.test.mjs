@@ -108,9 +108,11 @@ test('contact wording without an article link does not satisfy the CTA contract'
   assert.match(ctaAuditMarkdown(scan), /Closing article text: .*Use the Contact link in the site footer\./);
 });
 
-test('fewer than four body roles fails', () => {
-  const scan = scanOurOldDad(createRepo({ count: 3 }));
-  assert(scan.posts[0].defects.some((value) => value.ruleId === 'image.body.minimum'));
+test('author may choose zero, one, three, or four body images', () => {
+  for (const count of [0, 1, 3, 4]) {
+    const scan = scanOurOldDad(createRepo({ count }));
+    assert.deepEqual(scan.posts[0].defects, [], `count ${count}: ${JSON.stringify(scan.posts[0].defects)}`);
+  }
 });
 
 test('card or hero reuse and numbering gaps fail', () => {
@@ -206,7 +208,7 @@ test('failed retrofit does not advance next and confirmed baseline retirement do
 });
 
 test('only the exact reviewed legacy defect is allowed', () => {
-  const root = createRepo({ count: 3 });
+  const root = createRepo({ cardDimensions: [800, 600] });
   const first = scanOurOldDad(root);
   const baseline = candidateBaseline(first);
   baseline.status = 'reviewed';
@@ -220,7 +222,7 @@ test('only the exact reviewed legacy defect is allowed', () => {
 });
 
 test('obsolete baseline defects fail until removed', () => {
-  const legacy = scanOurOldDad(createRepo({ count: 3 }));
+  const legacy = scanOurOldDad(createRepo({ cardDimensions: [800, 600] }));
   const baseline = candidateBaseline(legacy);
   baseline.status = 'reviewed';
   const repaired = scanOurOldDad(createRepo());

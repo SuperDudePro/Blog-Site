@@ -183,7 +183,7 @@ test('Junk Drawer exception is explicit and source-matched', () => {
     canonicalUrl: 'https://ourolddad.com/post/short', buildCommand: 'npm run build',
     images: images('', 1),
   };
-  assert.throws(() => validateManifest(base), /At least 4/);
+  assert.equal(validateManifest(base), base);
   assert.equal(validateManifest({ ...base, format: 'junk-drawer' }).format, 'junk-drawer');
   assert.throws(() => validateManifest({ ...base, format: 'other' }), /Unsupported post format/);
 });

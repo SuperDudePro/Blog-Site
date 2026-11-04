@@ -15,8 +15,16 @@ export function webpFixture(width, height) {
   return bytes;
 }
 
+// Genuine lossless WebP images encoded at each role's target dimensions.
+// These exercise the actual byte stream, not just a mocked 30-byte WebP header.
+const REAL_WEBP_BASE64 = {
+  card: 'UklGRkIAAABXRUJQVlA4TDUAAAAvv8OzAAfQ//73v/8BIUHi//cmIvqf8Z///Oc///nPf/7zn//85z//+c9//vOf//znP/+fAAA=',
+  hero: 'UklGRl4AAABXRUJQVlA4TFIAAAAvP8bgAAfQ//73v/8BAEX6/58i+p/63//+97///e9///vf//73v//973//+9///ve///3vf//73//+97///e9///vf//73v//973//+9///k8a',
+  body: 'UklGRlAAAABXRUJQVlA4TEMAAAAvr8TgAAfQ//73v/8BAEX6/58i+p/63//+97///e9///vf//73v//973//+9///ve///3vf//73//+97///e9//9sNAA==',
+};
+
 export function imageFixture(role) {
-  if (role === 'card') return webpFixture(960, 720);
-  if (role === 'hero') return webpFixture(1600, 900);
-  return webpFixture(1200, 900);
+  const kind = role === 'card' || role === 'hero' ? role : 'body';
+  return Buffer.from(REAL_WEBP_BASE64[kind], 'base64');
 }
+
