@@ -100,3 +100,21 @@ test('refresh recovery never guesses between active jobs from different sites', 
     'SuperDudePro/Blog-Site',
   );
 });
+
+test('direct GitHub handoffs are resumable without a ZIP and are not mislabeled as package-validated', () => {
+  const direct = jobFromPullRequest('SuperDudePro/Blog-Site', pull({
+    number: 99,
+    title: 'Publish Direct Story',
+    state: 'open',
+    merged_at: null,
+    head: { ref: 'publisher/direct-story', sha: 'd'.repeat(40) },
+    body: `- Site profile: **Our Old Dad**
+- Handoff method: **Direct GitHub**
+- Slug: \`direct-story\`
+- Destination: \`src/content/posts/direct-story/\`
+- Canonical URL: https://ourolddad.com/post/direct-story`,
+  }));
+  assert.equal(direct.handoffMethod, 'direct-github');
+  assert.equal(selectRecoverableJob([direct], '')?.handoff.prNumber, 99);
+  assert.equal(direct.manifest.slug, 'direct-story');
+});
