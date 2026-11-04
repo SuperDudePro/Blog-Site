@@ -30,10 +30,14 @@ test('rejects gaps and target-specific path drift', () => {
   assert.match(imageManifestErrors(profile, images).join(' '), /body-image-3/);
 });
 
-test('Junk Drawer requires one body image while ordinary posts still require four', () => {
-  const profile = getSiteProfile({ targetSite: 'Our Old Dad' });
-  assert.deepEqual(imageManifestErrors(profile, records('', 1), 'junk-drawer'), []);
-  assert.match(imageManifestErrors(profile, records('', 0), 'junk-drawer').join(' '), /At least 1/);
-  assert.match(imageManifestErrors(profile, records('', 1)).join(' '), /At least four|At least 4/);
-  assert.match(imageManifestErrors(getSiteProfile({ targetSite: 'LifeEducation' }), records('images/', 1), 'junk-drawer').join(' '), /At least 4/);
+test('both profiles permit the owner's choice of zero or more body roles', () => {
+  for (const profile of [
+    getSiteProfile({ targetSite: 'Our Old Dad' }),
+    getSiteProfile({ targetSite: 'LifeEducation' }),
+  ]) {
+    for (const count of [0, 1, 3, 4, 6]) {
+      assert.deepEqual(imageManifestErrors(profile, records(profile.imageDirectory, count)), []);
+    }
+  }
+  assert.deepEqual(imageManifestErrors(getSiteProfile({ targetSite: 'Our Old Dad' }), records('', 0), 'junk-drawer'), []);
 });
