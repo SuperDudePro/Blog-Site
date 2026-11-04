@@ -9,7 +9,7 @@ export const SITE_PROFILES = [
     sourceFiles: ['index.ts'],
     metadataFields: ['title', 'slug', 'excerpt', 'section', 'publishedAt', 'status'],
     imageDirectory: '',
-    statuses: ['Featured', 'Recent', 'Starter', 'Draft'],
+    statuses: ['Featured', 'Recent'],
     sections: ['diary', 'life-education', 'music-playlists', 'slow-travel', 'advice'],
   },
   {
