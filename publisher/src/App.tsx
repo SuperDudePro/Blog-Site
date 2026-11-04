@@ -9,6 +9,7 @@ import { resetPipelineForStatusCheck } from './pipelineState.js';
 type Session = { repository: string; slug: string; title: string; destinationPath: string; canonicalUrl: string; baseBranch: string; baseCommitSha: string; baseTreeSha: string; branch?: string; operation?: 'create'|'replace'; existingFiles?: Array<{path:string;sha:string;size?:number}> };
 type Handoff = { repository: string; branch: string; commit: string; prNumber: number; prUrl: string; baseBranch: string; canonicalUrl?: string; title?: string };
 type ResumeJob = { handoff:Handoff; manifest:Manifest; state:'open'|'closed'|'merged'; updatedAt:string };
+type RecoverableJob = { jobKey:string; title:string; repository:string; prNumber:number; state:string; updatedAt:string };
 type Verification = { state:'pending'|'success'|'failed'; status?:number; smokeUrl?:string; error?:string; deployedCommit?:string; mergeCommit?:string };
 type Status = { checks: { state: 'pending' | 'success' | 'failed'; items: Array<{name:string; status:string; conclusion:string|null}> }; deploymentUrl: string | null; smoke: Verification; readyToMerge: boolean; merged: boolean; mergedAt: string|null; production: Verification; publishingComplete: boolean };
 type StepState = 'pending'|'active'|'complete'|'failed';
@@ -45,6 +46,7 @@ export default function App(){
   const [keyInput,setKeyInput]=useState(key);
   const [authenticated,setAuthenticated]=useState(false);
   const [authError,setAuthError]=useState('');
+  const [recoverableJobs,setRecoverableJobs]=useState<RecoverableJob[]>([]);
   const [file,setFile]=useState<File|null>(null);
   const [inspection,setInspection]=useState<Inspection|null>(restoredJob?.inspection||null);
   const [selected,setSelected]=useState<ImageView|null>(null);
@@ -94,23 +96,40 @@ export default function App(){
 
   async function login(candidate:string){ setAuthError(''); try{await api('/api/session',candidate);sessionStorage.setItem(KEY,candidate);setKey(candidate);setAuthenticated(true);}catch(e){setAuthenticated(false);setAuthError(e instanceof Error?e.message:'Access failed.');} }
   useEffect(()=>{if(key)void login(key);},[]);
+  async function restoreFromGitHub(jobKey:string){
+    setBusy(true);setError('');
+    try{
+      const result=await api<{job:ResumeJob|null;jobKey:string;recoveryError?:string;recoverableJobs:RecoverableJob[]}>(
+        '/api/publish/resume',key,{job:jobKey},
+      );
+      setRecoverableJobs(result.recoverableJobs.filter(job=>job.state==='open'));
+      if(result.recoveryError&&!result.job){setError(result.recoveryError);return;}
+      if(!result.job){setError('That publishing PR was not found.');return;}
+      const recovered=resumeInspection(result.job);
+      setInspection(recovered);setHandoff(result.job.handoff);rememberJob(result.job.handoff);
+      savePublisherJob(localStorage,result.job.handoff,recovered);setRecoverableJobs([]);
+      setPipeline(steps().map((step,index)=>index<5?{...step,state:'complete' as StepState}:index===5?{...step,state:'active' as StepState}:step));
+      await poll(result.job.handoff,result.job.manifest);
+    }catch(e){setError(e instanceof Error?e.message:'Could not restore the publishing job.');}
+    finally{setBusy(false);}
+  }
+
   useEffect(()=>{
     if(!authenticated||restoredJob||handoff||inspection||busy)return;
-    setBusy(true);
     const requestedJob=new URL(window.location.href).searchParams.get('job')||'';
-    void api<{job:ResumeJob|null;jobKey:string;recoveryError?:string}>('/api/publish/resume',key,{job:requestedJob})
-      .then(({job,recoveryError})=>{
-        if(recoveryError)setError(recoveryError);
-        if(!job)return;
-        const recovered=resumeInspection(job);
-        setInspection(recovered);
-        setHandoff(job.handoff);
-        rememberJob(job.handoff);
-        savePublisherJob(localStorage,job.handoff,recovered);
-        setPipeline(steps().map((step,index)=>index<5?{...step,state:'complete' as StepState}:index===5?{...step,state:'active' as StepState}:step));
-        return poll(job.handoff,job.manifest);
-      })
-      .catch(e=>setError(e instanceof Error?e.message:'Could not restore the active publishing job.'))
+    setBusy(true);
+    void api<{job:ResumeJob|null;jobKey:string;recoveryError?:string;recoverableJobs:RecoverableJob[]}>(
+      '/api/publish/resume',key,{job:requestedJob},
+    ).then(({job,recoveryError,recoverableJobs})=>{
+      setRecoverableJobs(recoverableJobs.filter(candidate=>candidate.state==='open'));
+      if(recoveryError)setError(recoveryError);
+      if(!job)return;
+      const recovered=resumeInspection(job);
+      setInspection(recovered);setHandoff(job.handoff);rememberJob(job.handoff);
+      savePublisherJob(localStorage,job.handoff,recovered);setRecoverableJobs([]);
+      setPipeline(steps().map((step,index)=>index<5?{...step,state:'complete' as StepState}:index===5?{...step,state:'active' as StepState}:step));
+      return poll(job.handoff,job.manifest);
+    }).catch(e=>setError(e instanceof Error?e.message:'Could not restore the active publishing job.'))
       .finally(()=>setBusy(false));
   },[authenticated]);
   async function load(chosen?:File){ if(!chosen)return; if(!chosen.name.toLowerCase().endsWith('.zip')){setError('Choose a ZIP package.');return;} inspection?.images.forEach(i=>i.url&&URL.revokeObjectURL(i.url));clearPublisherJob(localStorage);setBusy(true);setError('');setFile(chosen);setInspection(null);setSelected(null);setHandoff(null);setStatus(null);setPipeline(steps());try{const result=await inspectPackage(chosen);setInspection(result);setSelected(result.images[0]||null);}catch(e){setError(e instanceof Error?e.message:'Inspection failed.');}finally{setBusy(false);} }
@@ -180,6 +199,15 @@ export default function App(){
 
   return <main className="app-shell">
     <SiteArtUploader publisherKey={key} />
+    {!handoff&&!inspection&&recoverableJobs.length>0&&<section className="panel">
+      <p className="eyebrow">Direct GitHub handoff</p>
+      <h2>Resume a publishing draft without a ZIP</h2>
+      <p>Approved post files and images can be transferred directly to a draft GitHub PR. Select the job below to follow checks, preview and production verification. This does not approve or merge anything.</p>
+      {recoverableJobs.map(job=><div key={job.jobKey} className="actions">
+        <span>{job.repository.endsWith('LifeEducationOrg')?'LifeEducation':'Our Old Dad'} — {job.title} (PR #{job.prNumber})</span>
+        <button className="ghost" disabled={busy} onClick={()=>void restoreFromGitHub(job.jobKey)}>Resume</button>
+      </div>)}
+    </section>
     <header className="masthead"><div><p className="eyebrow">Wilbert Publisher</p><h1>Package in. Verified publishing out.</h1><p className="intro">Inspect the ZIP, create one controlled commit, verify the preview, leave the merge decision to you, then confirm the merged post reaches production.</p></div><button className="ghost" onClick={()=>{sessionStorage.removeItem(KEY);setAuthenticated(false);}}>Lock</button></header>
     <label className={`drop-zone ${drag?'active':''}`} onDragOver={e=>{e.preventDefault();setDrag(true)}} onDragLeave={()=>setDrag(false)} onDrop={(e:DragEvent)=>{e.preventDefault();setDrag(false);void load(e.dataTransfer.files?.[0])}}><input type="file" accept=".zip" onChange={(e:ChangeEvent<HTMLInputElement>)=>void load(e.target.files?.[0])}/><strong>{busy&&!inspection?'Reading package…':'Drop a finished post ZIP here'}</strong><span>or click to choose one</span></label>
     {error&&<div className="error-banner">{error}</div>}
