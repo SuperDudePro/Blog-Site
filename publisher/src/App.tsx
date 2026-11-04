@@ -220,7 +220,7 @@ export default function App(){
         <span>{job.repository.endsWith('LifeEducationOrg')?'LifeEducation':'Our Old Dad'} — {job.title} (PR #{job.prNumber}; {job.handoffMethod==='direct-github'?'direct transfer':'package'})</span>
         <button className="ghost" disabled={busy} onClick={()=>void restoreFromGitHub(job.jobKey)}>Resume</button>
       </div>)}
-    </section>
+    </section>}
     <header className="masthead"><div><p className="eyebrow">Wilbert Publisher</p><h1>Package in. Verified publishing out.</h1><p className="intro">Inspect the ZIP, create one controlled commit, verify the preview, leave the merge decision to you, then confirm the merged post reaches production.</p></div><button className="ghost" onClick={()=>{sessionStorage.removeItem(KEY);setAuthenticated(false);}}>Lock</button></header>
     <label className={`drop-zone ${drag?'active':''}`} onDragOver={e=>{e.preventDefault();setDrag(true)}} onDragLeave={()=>setDrag(false)} onDrop={(e:DragEvent)=>{e.preventDefault();setDrag(false);void load(e.dataTransfer.files?.[0])}}><input type="file" accept=".zip" onChange={(e:ChangeEvent<HTMLInputElement>)=>void load(e.target.files?.[0])}/><strong>{busy&&!inspection?'Reading package…':'Drop a finished post ZIP here'}</strong><span>or click to choose one</span></label>
     {error&&<div className="error-banner">{error}</div>}
