@@ -37,3 +37,11 @@ test('Junk Drawer requires one body image while ordinary posts still require fou
   assert.match(imageManifestErrors(profile, records('', 1)).join(' '), /At least four|At least 4/);
   assert.match(imageManifestErrors(getSiteProfile({ targetSite: 'LifeEducation' }), records('images/', 1), 'junk-drawer').join(' '), /At least 4/);
 });
+
+
+test('Our Old Dad rejects status values that the website cannot compile', () => {
+  const profile = getSiteProfile({ targetSite: 'Our Old Dad' });
+  assert.deepEqual(profile.statuses, ['Featured', 'Recent']);
+  assert.ok(!profile.statuses.includes('Draft'));
+  assert.ok(!profile.statuses.includes('Starter'));
+});
