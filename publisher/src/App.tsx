@@ -52,6 +52,7 @@ export default function App(){
   const [busy,setBusy]=useState(false);
   const [drag,setDrag]=useState(false);
   const [approval,setApproval]=useState(false);
+  const [serverPreflight,setServerPreflight]=useState<'idle'|'checking'|'passed'|'failed'>('idle');
   const [pipeline,setPipeline]=useState<Step[]>(()=>restoredJob
     ? steps().map((step,index)=>index<5?{...step,state:'complete' as StepState}:index===5?{...step,state:'active' as StepState}:step)
     : steps());
@@ -59,7 +60,7 @@ export default function App(){
   const [status,setStatus]=useState<Status|null>(null);
   const passed=inspection?.checks.filter(c=>c.ok).length||0;
   const total=inspection?.checks.length||0;
-  const ready=Boolean(inspection&&passed===total);
+  const ready=Boolean(inspection&&passed===total&&serverPreflight==='passed');
   const groups=useMemo(()=>inspection?[...new Set(inspection.checks.map(c=>c.group))]:[],[inspection]);
   const update=(i:number,state:StepState,detail?:string)=>setPipeline(current=>current.map((s,n)=>n===i?{...s,state,detail}:s));
 
@@ -113,7 +114,30 @@ export default function App(){
       .catch(e=>setError(e instanceof Error?e.message:'Could not restore the active publishing job.'))
       .finally(()=>setBusy(false));
   },[authenticated]);
-  async function load(chosen?:File){ if(!chosen)return; if(!chosen.name.toLowerCase().endsWith('.zip')){setError('Choose a ZIP package.');return;} inspection?.images.forEach(i=>i.url&&URL.revokeObjectURL(i.url));clearPublisherJob(localStorage);setBusy(true);setError('');setFile(chosen);setInspection(null);setSelected(null);setHandoff(null);setStatus(null);setPipeline(steps());try{const result=await inspectPackage(chosen);setInspection(result);setSelected(result.images[0]||null);}catch(e){setError(e instanceof Error?e.message:'Inspection failed.');}finally{setBusy(false);} }
+  async function load(chosen?:File){
+    if(!chosen)return;
+    if(!chosen.name.toLowerCase().endsWith('.zip')){setError('Choose a ZIP package.');return;}
+    inspection?.images.forEach(i=>i.url&&URL.revokeObjectURL(i.url));
+    clearPublisherJob(localStorage);
+    setBusy(true);setError('');setFile(chosen);setInspection(null);setSelected(null);
+    setHandoff(null);setStatus(null);setPipeline(steps());setServerPreflight('idle');
+    try{
+      const result=await inspectPackage(chosen);
+      setInspection(result);setSelected(result.images[0]||null);
+      if(result.checks.some(check=>!check.ok))return;
+      setServerPreflight('checking');
+      const report=await api<{ok:boolean;errors:string[]}>('/api/publish/preflight',key,{manifest:result.manifest,preflight:result.preflight});
+      if(!report.ok){
+        setServerPreflight('failed');
+        setError(`Server preflight found ${report.errors.length} defect(s):\n${report.errors.map(detail=>`- ${detail}`).join('\n')}`);
+        return;
+      }
+      setServerPreflight('passed');
+    }catch(e){
+      setServerPreflight('failed');
+      setError(e instanceof Error?e.message:'Inspection or server preflight failed.');
+    }finally{setBusy(false);}
+  }
 
   async function poll(h:Handoff,m:Manifest){
     for(let attempt=0;attempt<180;attempt++){
@@ -182,10 +206,11 @@ export default function App(){
     <SiteArtUploader publisherKey={key} />
     <header className="masthead"><div><p className="eyebrow">Wilbert Publisher</p><h1>Package in. Verified publishing out.</h1><p className="intro">Inspect the ZIP, create one controlled commit, verify the preview, leave the merge decision to you, then confirm the merged post reaches production.</p></div><button className="ghost" onClick={()=>{sessionStorage.removeItem(KEY);setAuthenticated(false);}}>Lock</button></header>
     <label className={`drop-zone ${drag?'active':''}`} onDragOver={e=>{e.preventDefault();setDrag(true)}} onDragLeave={()=>setDrag(false)} onDrop={(e:DragEvent)=>{e.preventDefault();setDrag(false);void load(e.dataTransfer.files?.[0])}}><input type="file" accept=".zip" onChange={(e:ChangeEvent<HTMLInputElement>)=>void load(e.target.files?.[0])}/><strong>{busy&&!inspection?'Reading package…':'Drop a finished post ZIP here'}</strong><span>or click to choose one</span></label>
-    {error&&<div className="error-banner">{error}</div>}
+    {error&&<div className="error-banner" style={{whiteSpace:'pre-wrap'}}>{error}</div>}
+    {inspection&&!handoff&&<p role="status">{serverPreflight==='checking'?'Running read-only server preflight before approval…':serverPreflight==='passed'?'Server preflight passed. No GitHub changes made.':serverPreflight==='failed'?'Server preflight failed; draft preview is blocked.':passed!==total?'Correct browser inspection defects before server preflight.':'Server preflight pending.'}</p>}
     {approval&&inspection&&<section className="panel approval"><p className="eyebrow">Approval required</p><h2>Create the draft preview?</h2><p>This writes only <code>{inspection.manifest.destinationPath}</code>, opens a draft PR, and does not merge production.</p><div className="actions"><button className="ghost" onClick={()=>setApproval(false)}>Cancel</button><button onClick={()=>void publish()}>Approve and start</button></div></section>}
     {inspection&&<>
-      <section className="hero"><div><p className="eyebrow">{inspection.manifest.targetSite}</p><h2>{inspection.manifest.title}</h2><p>{inspection.manifest.excerpt}</p></div><div className={`score ${ready?'good':''}`}><span>{status?.publishingComplete?'Published':status?.merged?'Finishing production':status?.readyToMerge?'Ready for your merge':ready?'Ready for approval':'Needs attention'}</span><strong>{passed}/{total}</strong><small>checks passed</small></div></section>
+      <section className="hero"><div><p className="eyebrow">{inspection.manifest.targetSite}</p><h2>{inspection.manifest.title}</h2><p>{inspection.manifest.excerpt}</p></div><div className={`score ${ready?'good':''}`}><span>{status?.publishingComplete?'Published':status?.merged?'Finishing production':status?.readyToMerge?'Ready for your merge':ready?'Ready for approval':serverPreflight==='checking'?'Checking server contract':'Needs attention'}</span><strong>{passed}/{total}</strong><small>checks passed</small></div></section>
       <section className="meta">{[['Slug',inspection.manifest.slug],['Section / topic',inspection.manifest.section||inspection.manifest.topic],['Published',inspection.manifest.publishedAt],['Repository',inspection.manifest.repository],['Destination',inspection.manifest.destinationPath]].map(([a,b])=><div key={a}><span>{a}</span><strong>{b}</strong></div>)}</section>
       {(busy||handoff)&&<section className="panel pipeline"><div className="panel-head"><div><p className="eyebrow">Publishing pipeline</p><h2>{status?.publishingComplete?'Publishing complete':status?.merged?'Verifying production':status?.readyToMerge?'Ready for final review':busy?'Working through the pipeline':'Current pipeline status'}</h2></div>{handoff&&<button className="ghost" disabled={busy} onClick={()=>checkStatus(handoff,inspection.manifest)}>Check status</button>}</div><div className="pipeline-grid"><div>{pipeline.map(s=><div className="step" key={s.label}><i className={s.state}>{s.state==='complete'?'✓':s.state==='failed'?'!':s.state==='active'?'…':'○'}</i><div><strong>{s.label}</strong><span>{s.detail||s.state}</span></div></div>)}</div>{handoff&&<aside><p><b>Branch</b><br/>{handoff.branch}</p><p><b>Commit</b><br/>{handoff.commit}</p><a href={handoff.prUrl} target="_blank" rel="noreferrer">Open draft PR</a>{status?.deploymentUrl&&<a href={status.deploymentUrl} target="_blank" rel="noreferrer">Open Vercel preview</a>}{status?.smoke.smokeUrl&&<a href={status.smoke.smokeUrl} target="_blank" rel="noreferrer">Open tested preview</a>}{status?.publishingComplete&&<a href={inspection.manifest.canonicalUrl} target="_blank" rel="noreferrer">Open published post</a>}</aside>}</div></section>}
       <section className="workspace"><div className="panel"><p className="eyebrow">Images</p><div className="image-grid">{inspection.images.map(img=><button className={selected?.file===img.file?'selected':''} key={img.file} onClick={()=>setSelected(img)}>{img.url?<img src={img.url} alt={img.alt}/>:<span>Missing</span>}<b>{img.file}</b><small>{img.role}</small></button>)}</div></div><aside className="panel inspector">{selected&&<><img src={selected.url} alt={selected.alt}/><h3>{selected.file}</h3><p><b>Alt:</b> {selected.alt}</p><p><b>Caption:</b> {selected.caption||'None'}</p></>}</aside></section>
