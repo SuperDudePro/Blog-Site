@@ -8,8 +8,8 @@ import { clearPublisherJob, loadPublisherJob, savePublisherJob } from './jobPers
 import { resetPipelineForStatusCheck } from './pipelineState.js';
 type Session = { repository: string; slug: string; title: string; destinationPath: string; canonicalUrl: string; baseBranch: string; baseCommitSha: string; baseTreeSha: string; branch?: string; operation?: 'create'|'replace'; existingFiles?: Array<{path:string;sha:string;size?:number}> };
 type Handoff = { repository: string; branch: string; commit: string; prNumber: number; prUrl: string; baseBranch: string; canonicalUrl?: string; title?: string };
-type ResumeJob = { handoff:Handoff; manifest:Manifest; state:'open'|'closed'|'merged'; updatedAt:string };
-type RecoverableJob = { jobKey:string; title:string; repository:string; prNumber:number; state:string; updatedAt:string };
+type ResumeJob = { handoff:Handoff; manifest:Manifest; state:'open'|'closed'|'merged'; handoffMethod?:'direct-github'|'package'; updatedAt:string };
+type RecoverableJob = { jobKey:string; title:string; repository:string; prNumber:number; state:string; handoffMethod?:string; updatedAt:string };
 type Verification = { state:'pending'|'success'|'failed'; status?:number; smokeUrl?:string; error?:string; deployedCommit?:string; mergeCommit?:string };
 type Status = { checks: { state: 'pending' | 'success' | 'failed'; items: Array<{name:string; status:string; conclusion:string|null}> }; deploymentUrl: string | null; smoke: Verification; readyToMerge: boolean; merged: boolean; mergedAt: string|null; production: Verification; publishingComplete: boolean };
 type StepState = 'pending'|'active'|'complete'|'failed';
@@ -81,7 +81,7 @@ export default function App(){
         sections: [],
       },
       files: [],
-      checks: [{ group:'Recovery', label:'Publishing job restored from GitHub', ok:true, detail:`PR #${job.handoff.prNumber}` }],
+      checks: [{ group:'Recovery', label:'Publishing PR restored from GitHub', ok:true, detail:`PR #${job.handoff.prNumber}; ${job.handoffMethod==='direct-github'?'direct transfer—PR must independently prove editorial approval and CI':'package workflow'}` }],
       images: [],
       productionFiles: [],
       preflight: {
@@ -96,6 +96,19 @@ export default function App(){
 
   async function login(candidate:string){ setAuthError(''); try{await api('/api/session',candidate);sessionStorage.setItem(KEY,candidate);setKey(candidate);setAuthenticated(true);}catch(e){setAuthenticated(false);setAuthError(e instanceof Error?e.message:'Access failed.');} }
   useEffect(()=>{if(key)void login(key);},[]);
+  function recoveredPipeline(job:ResumeJob):Step[]{
+    if(job.handoffMethod==='direct-github'){
+      return steps().map((step,index)=>({
+        ...step,
+        state: index===4?'complete':index===5?'active':'pending',
+        detail: index===0?'Confirm editorial and image approval in the PR before merging.'
+          : index===4?'Direct GitHub draft staged; source/asset checks remain required.'
+          : undefined,
+      }));
+    }
+    return steps().map((step,index)=>index<5?{...step,state:'complete' as StepState}:index===5?{...step,state:'active' as StepState}:step);
+  }
+
   async function restoreFromGitHub(jobKey:string){
     setBusy(true);setError('');
     try{
@@ -108,7 +121,7 @@ export default function App(){
       const recovered=resumeInspection(result.job);
       setInspection(recovered);setHandoff(result.job.handoff);rememberJob(result.job.handoff);
       savePublisherJob(localStorage,result.job.handoff,recovered);setRecoverableJobs([]);
-      setPipeline(steps().map((step,index)=>index<5?{...step,state:'complete' as StepState}:index===5?{...step,state:'active' as StepState}:step));
+      setPipeline(recoveredPipeline(result.job));
       await poll(result.job.handoff,result.job.manifest);
     }catch(e){setError(e instanceof Error?e.message:'Could not restore the publishing job.');}
     finally{setBusy(false);}
@@ -127,7 +140,7 @@ export default function App(){
       const recovered=resumeInspection(job);
       setInspection(recovered);setHandoff(job.handoff);rememberJob(job.handoff);
       savePublisherJob(localStorage,job.handoff,recovered);setRecoverableJobs([]);
-      setPipeline(steps().map((step,index)=>index<5?{...step,state:'complete' as StepState}:index===5?{...step,state:'active' as StepState}:step));
+      setPipeline(recoveredPipeline(job));
       return poll(job.handoff,job.manifest);
     }).catch(e=>setError(e instanceof Error?e.message:'Could not restore the active publishing job.'))
       .finally(()=>setBusy(false));
@@ -204,7 +217,7 @@ export default function App(){
       <h2>Resume a publishing draft without a ZIP</h2>
       <p>Approved post files and images can be transferred directly to a draft GitHub PR. Select the job below to follow checks, preview and production verification. This does not approve or merge anything.</p>
       {recoverableJobs.map(job=><div key={job.jobKey} className="actions">
-        <span>{job.repository.endsWith('LifeEducationOrg')?'LifeEducation':'Our Old Dad'} — {job.title} (PR #{job.prNumber})</span>
+        <span>{job.repository.endsWith('LifeEducationOrg')?'LifeEducation':'Our Old Dad'} — {job.title} (PR #{job.prNumber}; {job.handoffMethod==='direct-github'?'direct transfer':'package'})</span>
         <button className="ghost" disabled={busy} onClick={()=>void restoreFromGitHub(job.jobKey)}>Resume</button>
       </div>)}
     </section>
