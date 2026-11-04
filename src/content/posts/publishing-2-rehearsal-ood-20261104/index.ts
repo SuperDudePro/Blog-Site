@@ -9,7 +9,7 @@ const post: BlogPost = {
 slug: 'publishing-2-rehearsal-ood-20261104',
 title: 'Publishing 2.0 OOD Rehearsal - Test Only',
 excerpt: 'Synthetic Publishing 2.0 test only; never merge or publish.',
-section: 'diary', publishedAt: '2026-11-04', status: 'Draft',
+section: 'diary', publishedAt: '2026-11-04', status: 'Recent',
 cardImage, cardAlt: 'Plain synthetic card image.',
 heroImage, heroAlt: 'Plain synthetic hero image.',
 bodyHtml: `
