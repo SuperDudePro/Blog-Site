@@ -24,7 +24,7 @@ function directFixture(kind) {
     slug,
     excerpt: 'Private synthetic handoff rehearsal.',
     publishedAt: '2026-11-04',
-    status: 'Draft',
+    status: life ? 'Draft' : 'Recent',
     destinationPath: 'src/content/posts/' + slug + '/',
     canonicalUrl: profile.canonicalPrefix + slug,
     buildCommand: profile.buildCommand,
@@ -67,7 +67,7 @@ function directFixture(kind) {
       'const post = {',
       'title: "' + title + '", slug: "' + slug + '",',
       'excerpt: "Private synthetic handoff rehearsal.",',
-      'section: "diary", publishedAt: "2026-11-04", status: "Draft",',
+      'section: "diary", publishedAt: "2026-11-04", status: "Recent",',
       'cardImage, cardAlt: "Card illustration.",',
       'heroImage, heroAlt: "Hero illustration.",',
       'bodyHtml: ' + String.fromCharCode(96) + '<p>Fixture.</p>' + figures +
