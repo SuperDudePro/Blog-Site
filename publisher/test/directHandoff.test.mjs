@@ -10,6 +10,7 @@ const sha = 'a'.repeat(40);
 const images = [
   { file: 'card-image.webp', role: 'card', alt: 'Card image.', caption: null },
   { file: 'hero-image.webp', role: 'hero', alt: 'Hero image.', caption: null },
+  ...Array.from({length:4},(_,i)=>({file:`body-image-${i+1}.webp`,role:`body-${i+1}`,alt:`Body image ${i+1}.`,caption:null})),
 ].map((image) => ({
   ...image,
   sha256: createHash('sha256').update(imageFixture(image.role)).digest('hex'),
@@ -33,6 +34,7 @@ const manifest = {
 const source = [
   'import cardImage from "./card-image.webp";',
   'import heroImage from "./hero-image.webp";',
+  ...Array.from({length:4},(_,i)=>`import body${i+1} from "./body-image-${i+1}.webp";`),
   'const post = {',
   '  title: "Direct Test",',
   '  slug: "direct-test",',
@@ -44,7 +46,7 @@ const source = [
   '  cardAlt: "Card image.",',
   '  heroImage,',
   '  heroAlt: "Hero image.",',
-  '  bodyHtml: "<p>Reading flow.</p><a href=\"/contact\">Contact us.</a>",',
+  '  bodyHtml: `<p>Reading flow.</p>${body1}${body2}${body3}${body4}<a href="/contact">Contact us.</a>`,'
   '};',
   'export default post;',
 ].join('\n');
@@ -98,12 +100,12 @@ const fixture = (options = {}) => {
   return { files, pull, calls, dependencies };
 };
 
-test('direct handoff preflight reads GitHub assets and accepts author-selected zero body images', async () => {
+test('direct handoff preflight reads GitHub assets and validates the selected body images', async () => {
   const f = fixture();
   const result = await verifyDirectHandoff({ repository: repo, prNumber: 99 }, f.dependencies);
   assert.equal(result.ok, true, result.errors.join('\n'));
-  assert.equal(result.imageCount, 2);
-  assert.equal(result.verifiedFiles, 3);
+  assert.equal(result.imageCount, 6);
+  assert.equal(result.verifiedFiles, 7);
   assert.equal(result.commitSha, sha);
   assert.ok(f.calls.length >= 5);
   assert.ok(f.calls.every((call) => call.method === 'GET'));
