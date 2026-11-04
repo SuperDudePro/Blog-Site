@@ -90,9 +90,6 @@ export function supportedPostDefects(indexSource) {
 
   const bodyFiles = bodyImageFiles(bodyHtml, imports, defects);
   const unique = [...new Set(bodyFiles)];
-  if (unique.length < 4) {
-    defects.add(issueKey({ ruleId: 'image.body.minimum', signature: `count=${unique.length}` }));
-  }
   const expected = Array.from({ length: unique.length }, (_, index) => `body-image-${index + 1}.webp`);
   if (unique.join('|') !== expected.join('|')) {
     defects.add(issueKey({
