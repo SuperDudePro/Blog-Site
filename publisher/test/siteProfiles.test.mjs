@@ -30,7 +30,7 @@ test('rejects gaps and target-specific path drift', () => {
   assert.match(imageManifestErrors(profile, images).join(' '), /body-image-3/);
 });
 
-test('both profiles permit the owner's choice of zero or more body roles', () => {
+test('both profiles permit any owner-selected body image count', () => {
   for (const profile of [
     getSiteProfile({ targetSite: 'Our Old Dad' }),
     getSiteProfile({ targetSite: 'LifeEducation' }),
