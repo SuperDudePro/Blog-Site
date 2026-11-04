@@ -11,7 +11,7 @@ type Handoff = { repository: string; branch: string; commit: string; prNumber: n
 type ResumeJob = { handoff:Handoff; manifest:Manifest; state:'open'|'closed'|'merged'; handoffMethod?:'direct-github'|'package'; updatedAt:string };
 type RecoverableJob = { jobKey:string; title:string; repository:string; prNumber:number; state:string; handoffMethod?:string; updatedAt:string };
 type Verification = { state:'pending'|'success'|'failed'; status?:number; smokeUrl?:string; error?:string; deployedCommit?:string; mergeCommit?:string };
-type Status = { checks: { state: 'pending' | 'success' | 'failed'; items: Array<{name:string; status:string; conclusion:string|null}> }; deploymentUrl: string | null; smoke: Verification; readyToMerge: boolean; merged: boolean; mergedAt: string|null; production: Verification; publishingComplete: boolean };
+type Status = { checks: { state: 'pending' | 'success' | 'failed'; items: Array<{name:string; status:string; conclusion:string|null}> }; deploymentUrl: string | null; smoke: Verification; directVerification?: { state:'success'|'failed'|'pending'|'not-applicable'; errors:string[] }; readyToMerge: boolean; merged: boolean; mergedAt: string|null; production: Verification; publishingComplete: boolean };
 type StepState = 'pending'|'active'|'complete'|'failed';
 type Step = { label: string; state: StepState; detail?: string };
 
@@ -150,6 +150,7 @@ export default function App(){
   async function poll(h:Handoff,m:Manifest){
     for(let attempt=0;attempt<180;attempt++){
       const current=await api<Status>('/api/publish/status',key,{handoff:h,manifest:m});setStatus(current);
+      if(current.directVerification?.state==='failed') { update(7,'failed','Direct GitHub source or image integrity failed.'); throw new Error(current.directVerification.errors.join('\n')||'Direct handoff verification failed.'); }
       if(current.checks.state==='failed'){update(5,'failed','A required check failed.');throw new Error('A pull-request check failed. Open the draft PR for details.');}
       update(5,current.checks.state==='success'?'complete':'active',current.checks.state==='success'?`${current.checks.items.length} checks passed`:'Waiting for checks');
       update(6,current.deploymentUrl?'complete':'pending',current.deploymentUrl||'Waiting for Vercel');
@@ -223,7 +224,8 @@ export default function App(){
     </section>}
     <header className="masthead"><div><p className="eyebrow">Wilbert Publisher</p><h1>Package in. Verified publishing out.</h1><p className="intro">Inspect the ZIP, create one controlled commit, verify the preview, leave the merge decision to you, then confirm the merged post reaches production.</p></div><button className="ghost" onClick={()=>{sessionStorage.removeItem(KEY);setAuthenticated(false);}}>Lock</button></header>
     <label className={`drop-zone ${drag?'active':''}`} onDragOver={e=>{e.preventDefault();setDrag(true)}} onDragLeave={()=>setDrag(false)} onDrop={(e:DragEvent)=>{e.preventDefault();setDrag(false);void load(e.dataTransfer.files?.[0])}}><input type="file" accept=".zip" onChange={(e:ChangeEvent<HTMLInputElement>)=>void load(e.target.files?.[0])}/><strong>{busy&&!inspection?'Reading package…':'Drop a finished post ZIP here'}</strong><span>or click to choose one</span></label>
-    {error&&<div className="error-banner">{error}</div>}
+    {error&&<div className="error-banner" style={{whiteSpace:'pre-wrap'}}>{error}</div>}
+    {handoff&&status?.directVerification&&status.directVerification.state!=='not-applicable'&&<p role="status">{status.directVerification.state==='success'?'Direct GitHub transfer verified against the full PR manifest and image digests.':status.directVerification.state==='failed'?'Direct GitHub verification failed. No publishing approval is granted.':'Checking direct GitHub source and image bytes before approval.'}</p>}
     {approval&&inspection&&<section className="panel approval"><p className="eyebrow">Approval required</p><h2>Create the draft preview?</h2><p>This writes only <code>{inspection.manifest.destinationPath}</code>, opens a draft PR, and does not merge production.</p><div className="actions"><button className="ghost" onClick={()=>setApproval(false)}>Cancel</button><button onClick={()=>void publish()}>Approve and start</button></div></section>}
     {inspection&&<>
       <section className="hero"><div><p className="eyebrow">{inspection.manifest.targetSite}</p><h2>{inspection.manifest.title}</h2><p>{inspection.manifest.excerpt}</p></div><div className={`score ${ready?'good':''}`}><span>{status?.publishingComplete?'Published':status?.merged?'Finishing production':status?.readyToMerge?'Ready for your merge':ready?'Ready for approval':'Needs attention'}</span><strong>{passed}/{total}</strong><small>checks passed</small></div></section>
