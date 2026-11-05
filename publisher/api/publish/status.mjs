@@ -123,8 +123,8 @@ export default async function handler(request, response) {
     const isCandidateOpen = pullRequest.state === 'open' && !merged;
     const directJob = jobFromPullRequest(repository, pullRequest);
     const isDirect = directJob?.handoffMethod === 'direct-github';
-    let directVerification = { state: isDirect ? 'pending' : 'not-applicable', errors: [], commitSha: null };
-    let previewCommit = { state: isDirect ? 'pending' : 'not-applicable' };
+    let directVerification = { state: isDirect && isCandidateOpen ? 'pending' : 'not-applicable', errors: [], commitSha: null };
+    let previewCommit = { state: isDirect && isCandidateOpen ? 'pending' : 'not-applicable' };
     if (isDirect && isCandidateOpen && checks.state === 'success') {
       try {
         const verified = await verifyDirectHandoff({ repository, prNumber });
@@ -160,7 +160,7 @@ export default async function handler(request, response) {
       mergedAt: pullRequest.merged_at || null,
       mergeCommit,
       production,
-      publishingComplete: merged && production.state === 'success' && (!isDirect || technicalReady),
+      publishingComplete: merged && production.state === 'success',
       prState: pullRequest.state || null,
     });
   } catch (error) {
