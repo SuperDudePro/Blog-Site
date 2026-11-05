@@ -30,10 +30,21 @@ test('rejects gaps and target-specific path drift', () => {
   assert.match(imageManifestErrors(profile, images).join(' '), /body-image-3/);
 });
 
-test('Junk Drawer requires one body image while ordinary posts still require four', () => {
+test('both profiles permit any owner-selected body image count', () => {
+  for (const profile of [
+    getSiteProfile({ targetSite: 'Our Old Dad' }),
+    getSiteProfile({ targetSite: 'LifeEducation' }),
+  ]) {
+    for (const count of [0, 1, 3, 4, 6]) {
+      assert.deepEqual(imageManifestErrors(profile, records(profile.imageDirectory, count)), []);
+    }
+  }
+  assert.deepEqual(imageManifestErrors(getSiteProfile({ targetSite: 'Our Old Dad' }), records('', 0), 'junk-drawer'), []);
+});
+
+test('Our Old Dad rejects status values that the website cannot compile', () => {
   const profile = getSiteProfile({ targetSite: 'Our Old Dad' });
-  assert.deepEqual(imageManifestErrors(profile, records('', 1), 'junk-drawer'), []);
-  assert.match(imageManifestErrors(profile, records('', 0), 'junk-drawer').join(' '), /At least 1/);
-  assert.match(imageManifestErrors(profile, records('', 1)).join(' '), /At least four|At least 4/);
-  assert.match(imageManifestErrors(getSiteProfile({ targetSite: 'LifeEducation' }), records('images/', 1), 'junk-drawer').join(' '), /At least 4/);
+  assert.deepEqual(profile.statuses, ['Featured', 'Recent']);
+  assert.ok(!profile.statuses.includes('Draft'));
+  assert.ok(!profile.statuses.includes('Starter'));
 });

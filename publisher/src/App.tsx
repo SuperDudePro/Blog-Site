@@ -8,14 +8,15 @@ import { clearPublisherJob, loadPublisherJob, savePublisherJob } from './jobPers
 import { resetPipelineForStatusCheck } from './pipelineState.js';
 type Session = { repository: string; slug: string; title: string; destinationPath: string; canonicalUrl: string; baseBranch: string; baseCommitSha: string; baseTreeSha: string; branch?: string; operation?: 'create'|'replace'; existingFiles?: Array<{path:string;sha:string;size?:number}> };
 type Handoff = { repository: string; branch: string; commit: string; prNumber: number; prUrl: string; baseBranch: string; canonicalUrl?: string; title?: string };
-type ResumeJob = { handoff:Handoff; manifest:Manifest; state:'open'|'closed'|'merged'; updatedAt:string };
+type ResumeJob = { handoff:Handoff; manifest:Manifest; state:'open'|'closed'|'merged'; handoffMethod?:'direct-github'|'package'; updatedAt:string };
+type RecoverableJob = { jobKey:string; title:string; repository:string; prNumber:number; state:string; handoffMethod?:string; updatedAt:string };
 type Verification = { state:'pending'|'success'|'failed'; status?:number; smokeUrl?:string; error?:string; deployedCommit?:string; mergeCommit?:string };
-type Status = { checks: { state: 'pending' | 'success' | 'failed'; items: Array<{name:string; status:string; conclusion:string|null}> }; deploymentUrl: string | null; smoke: Verification; readyToMerge: boolean; merged: boolean; mergedAt: string|null; production: Verification; publishingComplete: boolean };
+type Status = { checks: { state: 'pending' | 'success' | 'failed'; items: Array<{name:string; status:string; conclusion:string|null}> }; deploymentUrl: string | null; smoke: Verification; directVerification?: { state:'success'|'failed'|'pending'|'not-applicable'; errors:string[] }; previewCommit?: { state:'success'|'failed'|'pending'|'not-applicable'; error?:string }; readyToMerge: boolean; merged: boolean; mergedAt: string|null; production: Verification; publishingComplete: boolean };
 type StepState = 'pending'|'active'|'complete'|'failed';
 type Step = { label: string; state: StepState; detail?: string };
 
 const KEY = 'wilbert-publisher-access-key';
-const labels = ['Approval confirmed','GitHub base loaded','Production files uploaded','Atomic commit created','Draft PR opened','GitHub checks passed','Vercel preview discovered','Preview page verified','Ready for your merge','Production deployment verified'];
+const labels = ['Approval confirmed','GitHub base loaded','Production files uploaded','Atomic commit created','Draft PR opened','GitHub checks passed','Vercel preview discovered','Preview page verified','Technical checks passed — final editorial approval required','Production deployment verified'];
 const steps = (): Step[] => labels.map(label => ({ label, state:'pending' }));
 const normalize = (value:string) => value.replace(/\\/g,'/').replace(/^\.\//,'');
 const delay = (ms:number) => new Promise(resolve => window.setTimeout(resolve,ms));
@@ -45,6 +46,7 @@ export default function App(){
   const [keyInput,setKeyInput]=useState(key);
   const [authenticated,setAuthenticated]=useState(false);
   const [authError,setAuthError]=useState('');
+  const [recoverableJobs,setRecoverableJobs]=useState<RecoverableJob[]>([]);
   const [file,setFile]=useState<File|null>(null);
   const [inspection,setInspection]=useState<Inspection|null>(restoredJob?.inspection||null);
   const [selected,setSelected]=useState<ImageView|null>(null);
@@ -52,6 +54,7 @@ export default function App(){
   const [busy,setBusy]=useState(false);
   const [drag,setDrag]=useState(false);
   const [approval,setApproval]=useState(false);
+  const [serverPreflight,setServerPreflight]=useState<'idle'|'checking'|'passed'|'failed'>('idle');
   const [pipeline,setPipeline]=useState<Step[]>(()=>restoredJob
     ? steps().map((step,index)=>index<5?{...step,state:'complete' as StepState}:index===5?{...step,state:'active' as StepState}:step)
     : steps());
@@ -59,7 +62,7 @@ export default function App(){
   const [status,setStatus]=useState<Status|null>(null);
   const passed=inspection?.checks.filter(c=>c.ok).length||0;
   const total=inspection?.checks.length||0;
-  const ready=Boolean(inspection&&passed===total);
+  const ready=Boolean(inspection&&passed===total&&(handoff||serverPreflight==='passed'));
   const groups=useMemo(()=>inspection?[...new Set(inspection.checks.map(c=>c.group))]:[],[inspection]);
   const update=(i:number,state:StepState,detail?:string)=>setPipeline(current=>current.map((s,n)=>n===i?{...s,state,detail}:s));
 
@@ -79,7 +82,7 @@ export default function App(){
         sections: [],
       },
       files: [],
-      checks: [{ group:'Recovery', label:'Publishing job restored from GitHub', ok:true, detail:`PR #${job.handoff.prNumber}` }],
+      checks: [{ group:'Recovery', label:'Publishing PR restored from GitHub', ok:true, detail:`PR #${job.handoff.prNumber}; ${job.handoffMethod==='direct-github'?'direct transfer—PR must independently prove editorial approval and CI':'package workflow'}` }],
       images: [],
       productionFiles: [],
       preflight: {
@@ -94,30 +97,84 @@ export default function App(){
 
   async function login(candidate:string){ setAuthError(''); try{await api('/api/session',candidate);sessionStorage.setItem(KEY,candidate);setKey(candidate);setAuthenticated(true);}catch(e){setAuthenticated(false);setAuthError(e instanceof Error?e.message:'Access failed.');} }
   useEffect(()=>{if(key)void login(key);},[]);
+  function recoveredPipeline(job:ResumeJob):Step[]{
+    if(job.handoffMethod==='direct-github'){
+      return steps().map((step,index)=>({
+        ...step,
+        state: index===4?'complete':index===5?'active':'pending',
+        detail: index===0?'Confirm editorial and image approval in the PR before merging.'
+          : index===4?'Direct GitHub draft staged; source/asset checks remain required.'
+          : undefined,
+      }));
+    }
+    return steps().map((step,index)=>index<5?{...step,state:'complete' as StepState}:index===5?{...step,state:'active' as StepState}:step);
+  }
+
+  async function restoreFromGitHub(jobKey:string){
+    setBusy(true);setError('');
+    try{
+      const result=await api<{job:ResumeJob|null;jobKey:string;recoveryError?:string;recoverableJobs:RecoverableJob[]}>(
+        '/api/publish/resume',key,{job:jobKey},
+      );
+      setRecoverableJobs(result.recoverableJobs.filter(job=>job.state==='open'));
+      if(result.recoveryError&&!result.job){setError(result.recoveryError);return;}
+      if(!result.job){setError('That publishing PR was not found.');return;}
+      const recovered=resumeInspection(result.job);
+      setInspection(recovered);setHandoff(result.job.handoff);rememberJob(result.job.handoff);
+      savePublisherJob(localStorage,result.job.handoff,recovered);setRecoverableJobs([]);
+      setPipeline(recoveredPipeline(result.job));
+      await poll(result.job.handoff,result.job.manifest);
+    }catch(e){setError(e instanceof Error?e.message:'Could not restore the publishing job.');}
+    finally{setBusy(false);}
+  }
+
   useEffect(()=>{
     if(!authenticated||restoredJob||handoff||inspection||busy)return;
-    setBusy(true);
     const requestedJob=new URL(window.location.href).searchParams.get('job')||'';
-    void api<{job:ResumeJob|null;jobKey:string;recoveryError?:string}>('/api/publish/resume',key,{job:requestedJob})
-      .then(({job,recoveryError})=>{
-        if(recoveryError)setError(recoveryError);
-        if(!job)return;
-        const recovered=resumeInspection(job);
-        setInspection(recovered);
-        setHandoff(job.handoff);
-        rememberJob(job.handoff);
-        savePublisherJob(localStorage,job.handoff,recovered);
-        setPipeline(steps().map((step,index)=>index<5?{...step,state:'complete' as StepState}:index===5?{...step,state:'active' as StepState}:step));
-        return poll(job.handoff,job.manifest);
-      })
-      .catch(e=>setError(e instanceof Error?e.message:'Could not restore the active publishing job.'))
+    setBusy(true);
+    void api<{job:ResumeJob|null;jobKey:string;recoveryError?:string;recoverableJobs:RecoverableJob[]}>(
+      '/api/publish/resume',key,{job:requestedJob},
+    ).then(({job,recoveryError,recoverableJobs})=>{
+      setRecoverableJobs(recoverableJobs.filter(candidate=>candidate.state==='open'));
+      if(recoveryError)setError(recoveryError);
+      if(!job)return;
+      const recovered=resumeInspection(job);
+      setInspection(recovered);setHandoff(job.handoff);rememberJob(job.handoff);
+      savePublisherJob(localStorage,job.handoff,recovered);setRecoverableJobs([]);
+      setPipeline(recoveredPipeline(job));
+      return poll(job.handoff,job.manifest);
+    }).catch(e=>setError(e instanceof Error?e.message:'Could not restore the active publishing job.'))
       .finally(()=>setBusy(false));
   },[authenticated]);
-  async function load(chosen?:File){ if(!chosen)return; if(!chosen.name.toLowerCase().endsWith('.zip')){setError('Choose a ZIP package.');return;} inspection?.images.forEach(i=>i.url&&URL.revokeObjectURL(i.url));clearPublisherJob(localStorage);setBusy(true);setError('');setFile(chosen);setInspection(null);setSelected(null);setHandoff(null);setStatus(null);setPipeline(steps());try{const result=await inspectPackage(chosen);setInspection(result);setSelected(result.images[0]||null);}catch(e){setError(e instanceof Error?e.message:'Inspection failed.');}finally{setBusy(false);} }
+  async function load(chosen?:File){
+    if(!chosen)return;
+    if(!chosen.name.toLowerCase().endsWith('.zip')){setError('Choose a ZIP package.');return;}
+    inspection?.images.forEach(i=>i.url&&URL.revokeObjectURL(i.url));
+    clearPublisherJob(localStorage);
+    setBusy(true);setError('');setFile(chosen);setInspection(null);setSelected(null);
+    setHandoff(null);setStatus(null);setPipeline(steps());setServerPreflight('idle');
+    try{
+      const result=await inspectPackage(chosen);
+      setInspection(result);setSelected(result.images[0]||null);
+      if(result.checks.some(check=>!check.ok))return;
+      setServerPreflight('checking');
+      const report=await api<{ok:boolean;errors:string[]}>('/api/publish/preflight',key,{manifest:result.manifest,preflight:result.preflight});
+      if(!report.ok){
+        setServerPreflight('failed');
+        setError(`Server preflight found ${report.errors.length} defect(s):\n${report.errors.map(detail=>`- ${detail}`).join('\n')}`);
+        return;
+      }
+      setServerPreflight('passed');
+    }catch(e){
+      setServerPreflight('failed');
+      setError(e instanceof Error?e.message:'Inspection or server preflight failed.');
+    }finally{setBusy(false);}
+  }
 
   async function poll(h:Handoff,m:Manifest){
     for(let attempt=0;attempt<180;attempt++){
       const current=await api<Status>('/api/publish/status',key,{handoff:h,manifest:m});setStatus(current);
+      if(current.directVerification?.state==='failed') { update(7,'failed','Direct GitHub source or image integrity failed.'); throw new Error(current.directVerification.errors.join('\n')||'Direct handoff verification failed.'); }
       if(current.checks.state==='failed'){update(5,'failed','A required check failed.');throw new Error('A pull-request check failed. Open the draft PR for details.');}
       update(5,current.checks.state==='success'?'complete':'active',current.checks.state==='success'?`${current.checks.items.length} checks passed`:'Waiting for checks');
       update(6,current.deploymentUrl?'complete':'pending',current.deploymentUrl||'Waiting for Vercel');
@@ -180,9 +237,21 @@ export default function App(){
 
   return <main className="app-shell">
     <SiteArtUploader publisherKey={key} />
+    {!handoff&&!inspection&&recoverableJobs.length>0&&<section className="panel">
+      <p className="eyebrow">Direct GitHub handoff</p>
+      <h2>Resume a publishing draft without a ZIP</h2>
+      <p>Approved post files and images can be transferred directly to a draft GitHub PR. Select the job below to follow checks, preview and production verification. This does not approve or merge anything.</p>
+      {recoverableJobs.map(job=><div key={job.jobKey} className="actions">
+        <span>{job.repository.endsWith('LifeEducationOrg')?'LifeEducation':'Our Old Dad'} — {job.title} (PR #{job.prNumber}; {job.handoffMethod==='direct-github'?'direct transfer':'package'})</span>
+        <button className="ghost" disabled={busy} onClick={()=>void restoreFromGitHub(job.jobKey)}>Resume</button>
+      </div>)}
+    </section>}
     <header className="masthead"><div><p className="eyebrow">Wilbert Publisher</p><h1>Package in. Verified publishing out.</h1><p className="intro">Inspect the ZIP, create one controlled commit, verify the preview, leave the merge decision to you, then confirm the merged post reaches production.</p></div><button className="ghost" onClick={()=>{sessionStorage.removeItem(KEY);setAuthenticated(false);}}>Lock</button></header>
     <label className={`drop-zone ${drag?'active':''}`} onDragOver={e=>{e.preventDefault();setDrag(true)}} onDragLeave={()=>setDrag(false)} onDrop={(e:DragEvent)=>{e.preventDefault();setDrag(false);void load(e.dataTransfer.files?.[0])}}><input type="file" accept=".zip" onChange={(e:ChangeEvent<HTMLInputElement>)=>void load(e.target.files?.[0])}/><strong>{busy&&!inspection?'Reading package…':'Drop a finished post ZIP here'}</strong><span>or click to choose one</span></label>
-    {error&&<div className="error-banner">{error}</div>}
+    {error&&<div className="error-banner" style={{whiteSpace:'pre-wrap'}}>{error}</div>}
+    {inspection&&!handoff&&<p role="status">{serverPreflight==='checking'?'Running read-only server preflight before approval…':serverPreflight==='passed'?'Server preflight passed. No GitHub changes made.':serverPreflight==='failed'?'Server preflight failed; draft preview is blocked.':passed!==total?'Correct browser inspection defects before server preflight.':'Server preflight pending.'}</p>}
+    {handoff&&status?.directVerification&&status.directVerification.state!=='not-applicable'&&<p role="status">{status.directVerification.state==='success'?'Direct GitHub transfer bytes and source contract verified. Editorial and image approvals remain separate.':status.directVerification.state==='failed'?'Direct GitHub verification failed. No publishing approval is granted.':'Checking direct GitHub source and image bytes before approval.'}</p>}
+    {handoff&&status?.previewCommit&&status.previewCommit.state!=='not-applicable'&&<p role="status">{status.previewCommit.state==='success'?'Vercel preview commit matches the current publishing PR.':status.previewCommit.state==='failed'?`Preview is not verified: ${status.previewCommit.error||'wrong deployment commit'}`:'Waiting for preview to confirm the exact PR revision.'}</p>}
     {approval&&inspection&&<section className="panel approval"><p className="eyebrow">Approval required</p><h2>Create the draft preview?</h2><p>This writes only <code>{inspection.manifest.destinationPath}</code>, opens a draft PR, and does not merge production.</p><div className="actions"><button className="ghost" onClick={()=>setApproval(false)}>Cancel</button><button onClick={()=>void publish()}>Approve and start</button></div></section>}
     {inspection&&<>
       <section className="hero"><div><p className="eyebrow">{inspection.manifest.targetSite}</p><h2>{inspection.manifest.title}</h2><p>{inspection.manifest.excerpt}</p></div><div className={`score ${ready?'good':''}`}><span>{status?.publishingComplete?'Published':status?.merged?'Finishing production':status?.readyToMerge?'Ready for your merge':ready?'Ready for approval':'Needs attention'}</span><strong>{passed}/{total}</strong><small>checks passed</small></div></section>
@@ -190,7 +259,7 @@ export default function App(){
       {(busy||handoff)&&<section className="panel pipeline"><div className="panel-head"><div><p className="eyebrow">Publishing pipeline</p><h2>{status?.publishingComplete?'Publishing complete':status?.merged?'Verifying production':status?.readyToMerge?'Ready for final review':busy?'Working through the pipeline':'Current pipeline status'}</h2></div>{handoff&&<button className="ghost" disabled={busy} onClick={()=>checkStatus(handoff,inspection.manifest)}>Check status</button>}</div><div className="pipeline-grid"><div>{pipeline.map(s=><div className="step" key={s.label}><i className={s.state}>{s.state==='complete'?'✓':s.state==='failed'?'!':s.state==='active'?'…':'○'}</i><div><strong>{s.label}</strong><span>{s.detail||s.state}</span></div></div>)}</div>{handoff&&<aside><p><b>Branch</b><br/>{handoff.branch}</p><p><b>Commit</b><br/>{handoff.commit}</p><a href={handoff.prUrl} target="_blank" rel="noreferrer">Open draft PR</a>{status?.deploymentUrl&&<a href={status.deploymentUrl} target="_blank" rel="noreferrer">Open Vercel preview</a>}{status?.smoke.smokeUrl&&<a href={status.smoke.smokeUrl} target="_blank" rel="noreferrer">Open tested preview</a>}{status?.publishingComplete&&<a href={inspection.manifest.canonicalUrl} target="_blank" rel="noreferrer">Open published post</a>}</aside>}</div></section>}
       <section className="workspace"><div className="panel"><p className="eyebrow">Images</p><div className="image-grid">{inspection.images.map(img=><button className={selected?.file===img.file?'selected':''} key={img.file} onClick={()=>setSelected(img)}>{img.url?<img src={img.url} alt={img.alt}/>:<span>Missing</span>}<b>{img.file}</b><small>{img.role}</small></button>)}</div></div><aside className="panel inspector">{selected&&<><img src={selected.url} alt={selected.alt}/><h3>{selected.file}</h3><p><b>Alt:</b> {selected.alt}</p><p><b>Caption:</b> {selected.caption||'None'}</p></>}</aside></section>
       <section className="workspace lower"><div className="panel"><p className="eyebrow">Validation</p>{groups.map(g=><div key={g}><h3>{g}</h3>{inspection.checks.filter(c=>c.group===g).map(c=><div className="check" key={c.label}><i className={c.ok?'complete':'failed'}>{c.ok?'✓':'!'}</i><div><strong>{c.label}</strong><span>{c.detail}</span></div></div>)}</div>)}</div><div className="panel"><p className="eyebrow">Production files</p>{inspection.productionFiles.map(f=><code key={f}>{f.replace(`${inspection.root}/`,'')}</code>)}</div></section>
-      <footer><div><strong>{file?.name}</strong><span>{status?.publishingComplete?'Publishing complete. The merged post is live and verified.':status?.merged?'The PR is merged. Check status while production deploys.':status?.readyToMerge?'Open the PR for final review and manual merge.':handoff?'The draft preview exists.':'Package is ready for approval.'}</span></div>{status?.publishingComplete?<a href={inspection.manifest.canonicalUrl} target="_blank" rel="noreferrer">Open published post</a>:status?.readyToMerge&&handoff?<a href={handoff.prUrl} target="_blank" rel="noreferrer">Open PR to finish</a>:handoff?<button disabled={busy} onClick={()=>checkStatus(handoff,inspection.manifest)}>Check status</button>:<button disabled={!ready||busy} onClick={()=>setApproval(true)}>Create draft preview</button>}</footer>
+      <footer><div><strong>{file?.name|| (handoff?'Direct GitHub draft':'')}</strong><span>{status?.publishingComplete?'Publishing complete. The merged post is live and verified.':status?.merged?'The PR is merged. Check status while production deploys.':status?.readyToMerge?'Technical checks passed. Confirm text, every selected image and final production release before manually merging.':handoff?'The draft preview exists.':'Package is ready for approval.'}</span></div>{status?.publishingComplete?<a href={inspection.manifest.canonicalUrl} target="_blank" rel="noreferrer">Open published post</a>:status?.readyToMerge&&handoff?<a href={handoff.prUrl} target="_blank" rel="noreferrer">Open PR to finish</a>:handoff?<button disabled={busy} onClick={()=>checkStatus(handoff,inspection.manifest)}>Check status</button>:<button disabled={!ready||busy} onClick={()=>setApproval(true)}>Create draft preview</button>}</footer>
     </>}
   </main>;
 }

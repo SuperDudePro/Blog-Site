@@ -1,4 +1,7 @@
 import { requirePublisher } from '../../lib/auth.mjs';
+import { verifyDirectHandoff } from '../../lib/directHandoff.mjs';
+import { inspectPreviewCommit, directTechnicalReadiness } from '../../lib/previewCommit.mjs';
+import { jobFromPullRequest } from '../../lib/publishingJobs.mjs';
 import { repoRequest } from '../../lib/github.mjs';
 import { json, method, readJson } from '../../lib/http.mjs';
 import { validateRepository } from '../../lib/validation.mjs';
@@ -117,6 +120,29 @@ export default async function handler(request, response) {
       }
     }
     const merged = Boolean(pullRequest.merged || pullRequest.merged_at);
+    const isCandidateOpen = pullRequest.state === 'open' && !merged;
+    const directJob = jobFromPullRequest(repository, pullRequest);
+    const isDirect = directJob?.handoffMethod === 'direct-github';
+    let directVerification = { state: isDirect && isCandidateOpen ? 'pending' : 'not-applicable', errors: [], commitSha: null };
+    let previewCommit = { state: isDirect && isCandidateOpen ? 'pending' : 'not-applicable' };
+    if (isDirect && isCandidateOpen && checks.state === 'success') {
+      try {
+        const verified = await verifyDirectHandoff({ repository, prNumber });
+        directVerification = {
+          state: verified.ok && verified.commitSha === currentCommit ? 'success' : 'failed',
+          errors: verified.commitSha !== currentCommit
+            ? ['The direct handoff verification did not match the latest PR commit.']
+            : verified.errors,
+          commitSha: verified.commitSha,
+        };
+      } catch (error) {
+        directVerification = { state: 'failed', errors: [error.message], commitSha: null };
+      }
+    }
+    if (isDirect && isCandidateOpen && deploymentUrl && checks.state === 'success') {
+      previewCommit = await inspectPreviewCommit({ deploymentUrl, commitSha: currentCommit, fetchText });
+    }
+    const technicalReady = directTechnicalReadiness(isDirect, directVerification, previewCommit);
     const mergeCommit = pullRequest.merge_commit_sha || null;
     const production = merged
       ? await productionStatus(repository, canonicalUrl, title, mergeCommit, profile)
@@ -127,7 +153,9 @@ export default async function handler(request, response) {
       checks,
       deploymentUrl,
       smoke,
-      readyToMerge: !merged && checks.state === 'success' && Boolean(deploymentUrl) && smoke.state === 'success',
+      directVerification,
+      previewCommit,
+      readyToMerge: isCandidateOpen && checks.state === 'success' && Boolean(deploymentUrl) && smoke.state === 'success' && technicalReady,
       merged,
       mergedAt: pullRequest.merged_at || null,
       mergeCommit,

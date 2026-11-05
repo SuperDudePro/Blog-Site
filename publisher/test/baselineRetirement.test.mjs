@@ -58,18 +58,16 @@ test('retires only resolved exceptions after inspecting the uploaded post', () =
   assert.equal(result.baseline.entries['another-post'].length, 1);
 });
 
-test('preserves an exception while the uploaded post still has that exact defect', () => {
+test('retires obsolete minimum-count exceptions while preserving unresolved CTA', () => {
   const result = retireResolvedBaselineEntries({
     baseline: baseline(),
     repository: 'SuperDudePro/Blog-Site',
     slug: 'sample-post',
     indexSource: postSource({ cta: false, bodyCount: 3 }),
   });
-  assert.equal(result.changed, false);
-  assert.deepEqual(result.retained.map((entry) => entry.ruleId), [
-    'cta.contact.required',
-    'image.body.minimum',
-  ]);
+  assert.equal(result.changed, true);
+  assert.deepEqual(result.retained.map((entry) => entry.ruleId), ['cta.contact.required']);
+  assert.deepEqual(result.retired.map((entry) => entry.ruleId), ['image.body.minimum']);
 });
 
 test('does not retire unsupported exceptions speculatively', () => {
@@ -91,7 +89,7 @@ test('does not retire unsupported exceptions speculatively', () => {
 test('recomputes current defect signatures rather than deleting by rule name alone', () => {
   const defects = supportedPostDefects(postSource({ cta: false, bodyCount: 3 }));
   assert(defects.has('cta.contact.required\u0000/contact'));
-  assert(defects.has('image.body.minimum\u0000count=3'));
+  assert(![...defects].some((entry) => entry.startsWith('image.body.minimum')));
 });
 
 test('stages validated geometry and source exceptions for atomic retirement', () => {

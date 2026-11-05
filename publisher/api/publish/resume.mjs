@@ -31,6 +31,7 @@ export default async function handler(request, response) {
         repository: candidate.handoff.repository,
         prNumber: candidate.handoff.prNumber,
         state: candidate.state,
+        handoffMethod: candidate.handoffMethod,
         updatedAt: candidate.updatedAt,
       })),
     });

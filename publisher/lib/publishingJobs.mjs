@@ -20,6 +20,7 @@ export function jobFromPullRequest(repository, pullRequest) {
   const slug = codeField(pullRequest?.body, 'Slug');
   const targetSite = bodyField(pullRequest?.body, 'Site profile');
   const title = text(pullRequest?.title).replace(/^(?:Publish|Update)\s+/i, '');
+  const handoffMethod = bodyField(pullRequest?.body, 'Handoff method') === 'Direct GitHub' ? 'direct-github' : 'package';
 
   if (!branch.startsWith('publisher/') || !commit || !prNumber || !prUrl || !canonicalUrl || !title) return null;
   return {
@@ -41,6 +42,7 @@ export function jobFromPullRequest(repository, pullRequest) {
       destinationPath,
       canonicalUrl,
     },
+    handoffMethod,
     state: pullRequest?.merged_at ? 'merged' : text(pullRequest?.state) || 'open',
     updatedAt: text(pullRequest?.updated_at),
   };
