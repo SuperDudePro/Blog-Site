@@ -38,7 +38,7 @@ try {
         assert.equal(info.main, 1, route + ' main count');
         assert.ok(!info.overflow, route + ' horizontal mobile overflow');
         if (route.startsWith('/post/')) {
-          assert.ok(info.postImageCount >= 1, route + ' missing body images');
+          // Publishing 2.0 permits author-selected zero body images; validate any images that exist.
           assert.ok(info.images.every(i => i.src && i.alt !== null), route + ' image src/alt missing');
           // Force lazy inline images to load and verify decoded bytes, not just DOM tags.
           const decoded = await page.locator('article.post-article img').evaluateAll(async (images) =>
