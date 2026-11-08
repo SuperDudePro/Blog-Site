@@ -13,7 +13,7 @@ export function CategoriesPage() {
           <h1>Pick a corner of the mess.</h1>
           <p className="lead">
             Browse everything in order, or start with family stories, learning, music,
-            slow travel, or advice.
+            slow travel, advice, or the junk drawer.
           </p>
         </div>
       </section>

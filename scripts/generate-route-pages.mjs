@@ -24,6 +24,7 @@ const staticRouteMetadata = new Map([
   ['/section/music-playlists', { title: 'Music Playlists | Our Old Dad', description: 'Songs, seasons, road soundtracks, memory triggers, and what to put on next.' }],
   ['/section/slow-travel', { title: 'Slow Travel | Our Old Dad', description: 'Building the trip, building the life, and learning how to move more slowly on purpose.' }],
   ['/section/advice', { title: "An Old Dad's Advice | Our Old Dad", description: 'Direct pieces, sharper takes, hard-earned advice, and a little fatherly bluntness.' }],
+  ['/section/junk-drawer', { title: 'Junk Drawer | Our Old Dad', description: 'Short stories, stray memories, and bits and pieces that deserve somewhere to land.' }],
 ]);
 const sectionNames = new Map([
   ['diary', 'Diary of an Old Dad'],
@@ -31,6 +32,7 @@ const sectionNames = new Map([
   ['music-playlists', 'Music Playlists'],
   ['slow-travel', 'Slow Travel'],
   ['advice', "An Old Dad's Advice"],
+  ['junk-drawer', 'Junk Drawer'],
 ]);
 // Vite's manifest maps each imported source image to its hashed built file.
 const assetManifest = existsSync(manifestPath) ? JSON.parse(await readFile(manifestPath, 'utf8')) : {};
@@ -127,14 +129,14 @@ function staticPageMarkup(route, metadata) {
   if (route === '/' ) {
     body = `<h2>Latest posts</h2>${postListMarkup(publishedPosts.slice(0, 12))}`;
   } else if (sectionKey) {
-    body = postListMarkup(sectionKey === 'everything' ? publishedPosts : publishedPosts.filter((post) => post.section === sectionKey));
+    body = postListMarkup(sectionKey === 'everything' ? publishedPosts : publishedPosts.filter((post) => sectionKey === 'junk-drawer' ? post.format === 'junk-drawer' : post.section === sectionKey));
   } else if (route === '/playlists') {
     body = '<h2>Listen by year, era, artist, Straight Greats, or miscellaneous</h2>' + postListMarkup(publishedPosts.filter(post => post.section === 'music-playlists'));
   } else if (route === '/archive') {
     body = postListMarkup(publishedPosts);
   } else if (route === '/categories') {
     body = `<ul>${[...sectionNames].map(([key, name]) => {
-      const latest = publishedPosts.find((post) => post.section === key);
+      const latest = publishedPosts.find((post) => key === 'junk-drawer' ? post.format === 'junk-drawer' : post.section === key);
       return `<li><a href="/section/${key}">${escapeText(name)}</a>${latest ? ` — latest: <a href="/post/${escapeAttribute(latest.slug)}">${escapeText(latest.title)}</a>` : ''}</li>`;
     }).join('')}</ul>`;
   }
