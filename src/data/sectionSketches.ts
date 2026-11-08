@@ -7,10 +7,10 @@ export const sectionSketchAlt: Record<SectionKey, string> = {
   'music-playlists': 'An acoustic guitar and headphones in a charcoal-and-purple sketch.',
   'slow-travel': 'A hiking backpack beside a mountain landscape in a charcoal-and-purple sketch.',
   advice: 'A weathered wooden trail signpost in a charcoal-and-purple sketch.',
-  'junk-drawer': 'An open drawer with scattered notes, a key and keepsakes in a charcoal-and-purple illustration.',
+  'junk-drawer': 'A charcoal-and-purple vintage junk drawer filled with mementos, with a metal Junk Drawer label on its front.',
 };
 
 export function sectionSketchPath(key: SectionKey): string {
-  if (key === 'junk-drawer') return '/section-sketches/junk-drawer.svg';
+  if (key === 'junk-drawer') return '/section-sketches/junk-drawer.webp?v=20261107-approved';
   return `/section-sketches/${key}.webp?v=20261015-replacement`;
 }
