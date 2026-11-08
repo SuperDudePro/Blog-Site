@@ -66,7 +66,7 @@ test('branch drift and PR title mismatch fail',t=>{
  assert.match(checkPublishingPullRequest(f.event,{root:f.root}).errors.join('\n'),/identity fields or title/);
 });
 test('recognized legacy ZIP handoff is supported',t=>{
- const f=scenario(t);f.event.pull_request.body='- Operation: **Publish new post**\n- Complete package preflight passed before GitHub production blobs were created';
+ const f=scenario(t);f.event.pull_request.created_at='2026-10-25T22:00:00Z';f.event.pull_request.body='- Operation: **Publish new post**\n- Complete package preflight passed before GitHub production blobs were created';
  assert.equal(checkPublishingPullRequest(f.event,{root:f.root}).mode,'legacy-package');
 });
 test('unrelated PR is skipped, unknown publisher format fails closed',t=>{
@@ -74,4 +74,11 @@ test('unrelated PR is skipped, unknown publisher format fails closed',t=>{
  assert.equal(checkPublishingPullRequest(f.event,{root:f.root}).skipped,true);
  f.event.pull_request.head.ref='publisher/contract-check';f.event.pull_request.body='No manifest here';
  assert.ok(checkPublishingPullRequest(f.event,{root:f.root}).errors.length);
+});
+
+test('new PR cannot impersonate old ZIP workflow to bypass mandatory contract',t=>{
+ const f=scenario(t);
+ f.event.pull_request.created_at='2026-11-08T04:00:00Z';
+ f.event.pull_request.body='- Operation: **Publish new post**\n- Complete package preflight passed before GitHub production blobs were created';
+ assert.match(checkPublishingPullRequest(f.event,{root:f.root}).errors.join('\n'),/Handoff method/);
 });
