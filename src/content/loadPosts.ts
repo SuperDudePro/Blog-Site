@@ -28,7 +28,7 @@ export async function loadPostBySlug(slug: string): Promise<BlogPost | undefined
 }
 
 export function getPostsForSection(sectionKey: SectionKey): PostMetadata[] {
-  return sectionKey === 'everything' ? posts : posts.filter((post) => post.section === sectionKey);
+  return sectionKey === 'everything' ? posts : posts.filter((post) => sectionKey === 'junk-drawer' ? post.format === 'junk-drawer' : post.section === sectionKey);
 }
 
 export function getRelatedPosts(post: PostMetadata, limit = 3): PostMetadata[] {
