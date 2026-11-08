@@ -2,7 +2,7 @@ import everythingImage from '../assets/everything-page-girl.webp';
 import playlistsSkullMainImage from '../assets/playlists-skull-main.webp';
 import playlistsSkullInkImage from '../assets/playlists-skull-ink-enhanced.webp';
 
-export type SectionKey = 'everything' | 'diary' | 'life-education' | 'music-playlists' | 'slow-travel' | 'advice';
+export type SectionKey = 'everything' | 'diary' | 'life-education' | 'music-playlists' | 'slow-travel' | 'advice' | 'junk-drawer';
 
 export type SectionGalleryImage = { src: string; alt: string };
 export type Section = {
@@ -37,6 +37,7 @@ export const sections: Section[] = [
   ] },
   { key: 'slow-travel', name: 'Slow Travel', shortName: 'Slow Travel', description: 'Building the trip, building the life, and learning how to move more slowly on purpose.', intro: 'Planning the road ahead, learning from the trips already taken, and figuring out how to move more slowly on purpose.' },
   { key: 'advice', name: "An Old Dad's Advice", shortName: 'Advice', description: 'Direct pieces, sharper takes, hard-earned advice, and a little fatherly bluntness.', intro: 'Sharper takes, direct lessons, warnings, and hard-earned advice without too much setup.' },
+  { key: 'junk-drawer', name: 'Junk Drawer', shortName: 'Junk Drawer', description: 'Short stories, stray memories, and bits and pieces that deserve somewhere to land.', intro: 'Little stories and stray memories that do not need a bigger occasion. Open the drawer and see what turns up.' },
 ];
 
 export const navigation = [
