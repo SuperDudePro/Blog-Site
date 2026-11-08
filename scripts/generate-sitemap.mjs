@@ -8,10 +8,10 @@ const posts = readPosts()
   .filter((post) => !post.missingIndex && post.slug)
   .sort((a, b) => new Date(b.publishedAt || '1900-01-01') - new Date(a.publishedAt || '1900-01-01'));
 const latestPostDate = posts[0]?.publishedAt || today;
-const sections = ['everything', 'diary', 'life-education', 'music-playlists', 'slow-travel', 'advice'];
+const sections = ['everything', 'diary', 'life-education', 'music-playlists', 'slow-travel', 'advice', 'junk-drawer'];
 
 function sectionLastmod(section) {
-  return section === 'everything' ? latestPostDate : posts.find((post) => post.section === section)?.publishedAt || latestPostDate;
+  return section === 'everything' ? latestPostDate : posts.find((post) => section === 'junk-drawer' ? post.format === 'junk-drawer' : post.section === section)?.publishedAt || latestPostDate;
 }
 function escapeXml(value) {
   return String(value).replaceAll('&', '&amp;').replaceAll('"', '&quot;').replaceAll("'", '&apos;').replaceAll('<', '&lt;').replaceAll('>', '&gt;');
