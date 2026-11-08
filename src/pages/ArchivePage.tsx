@@ -13,10 +13,10 @@ export function ArchivePage() {
   );
   const normalizedQuery = query.trim().toLowerCase();
   const matches = posts.filter((post) => {
-    const searchable = `${post.title} ${post.excerpt} ${post.section}`.toLowerCase();
+    const searchable = `${post.title} ${post.excerpt} ${post.section} ${post.format ?? ''}`.toLowerCase();
     return (
       (!normalizedQuery || searchable.includes(normalizedQuery)) &&
-      (section === 'everything' || post.section === section) &&
+      (section === 'everything' || (section === 'junk-drawer' ? post.format === 'junk-drawer' : post.section === section)) &&
       (year === 'all' || post.publishedAt.startsWith(year))
     );
   });
