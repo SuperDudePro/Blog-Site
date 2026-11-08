@@ -13,6 +13,10 @@ function scenario(t) {
  const slug='contract-check', title='Contract Check';
  const folder=path.join(root,'src','content','posts',slug);
  fs.mkdirSync(folder,{recursive:true});
+ // A direct GitHub publishing PR must stage the new canonical URL in the checked-in sitemap.
+ fs.mkdirSync(path.join(root,'public'),{recursive:true});
+ fs.writeFileSync(path.join(root,'public','sitemap.xml'),
+   '<urlset><url><loc>https://ourolddad.com/post/'+slug+'</loc></url></urlset>');
  const images=['card','hero'].map(role=>{
    const file=role+'-image.webp',bytes=imageFixture(role);
    fs.writeFileSync(path.join(folder,file),bytes);
