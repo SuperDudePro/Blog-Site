@@ -157,7 +157,10 @@ while ((match = locationPattern.exec(sitemap)) !== null) {
   if (pathname !== '/') routes.add(pathname);
 }
 
+// Wilbert's public OAuth disclosure page is a standalone static HTML asset copied
+// from public/ by Vite; do not overwrite it with the React site shell.
 for (const route of routes) {
+  if (route === '/wilbert') continue;
   const relativePath = route.replace(/^\/+/, '');
   const routeDir = path.join(distDir, relativePath);
   const canonicalUrl = `${canonicalHost}${route}`;

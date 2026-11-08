@@ -25,6 +25,7 @@ const urls = [
   ...sections.map((section) => ({ loc: `${siteUrl}/section/${section}`, lastmod: sectionLastmod(section), changefreq: 'weekly', priority: section === 'everything' ? '0.9' : '0.8' })),
   { loc: `${siteUrl}/about`, changefreq: 'monthly', priority: '0.5' },
   { loc: `${siteUrl}/contact`, changefreq: 'monthly', priority: '0.5' },
+  { loc: `${siteUrl}/wilbert`, changefreq: 'yearly', priority: '0.1' },
   ...posts.map((post) => ({ loc: `${siteUrl}/post/${post.slug}`, lastmod: post.publishedAt || today, changefreq: 'monthly', priority: '0.8' })),
 ];
 
