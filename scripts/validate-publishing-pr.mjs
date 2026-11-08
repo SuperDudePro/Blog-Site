@@ -36,7 +36,12 @@ export function checkPublishingPullRequest(event, { root = process.cwd() } = {})
   }
   const body = String(pr.body || '');
   const direct = /^- Handoff method:\s*\*\*Direct GitHub\*\*\s*$/mi.test(body);
-  const legacy = /^- Operation:\s*\*\*Publish new post\*\*\s*$/mi.test(body)
+  // Only preserve historical ZIP-origin PRs created before this gate's release.
+  // A new PR cannot bypass the direct contract by copying a legacy description.
+  const creationTime = Date.parse(String(pr.created_at || ''));
+  const legacy = Number.isFinite(creationTime)
+    && creationTime < Date.parse('2026-11-08T00:00:00Z')
+    && /^- Operation:\s*\*\*Publish new post\*\*\s*$/mi.test(body)
     && /Complete package preflight passed before GitHub production blobs were created/i.test(body);
   if (!direct && legacy) return { skipped: true, mode: 'legacy-package', errors: [] };
   if (!direct) {
