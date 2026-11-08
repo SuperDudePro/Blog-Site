@@ -6,7 +6,7 @@ import body2 from './body-image-2.webp';
 import body3 from './body-image-3.webp';
 import body4 from './body-image-4.webp';
 const post: BlogPost = {
-slug: 'publishing-2-rehearsal-ood-20261104',
+slug: 'publishing-2-pr-gate-rehearsal-20261107',
 title: 'Publishing 2.0 OOD Rehearsal - Test Only',
 excerpt: 'Synthetic Publishing 2.0 test only; never merge or publish.',
 section: 'diary', publishedAt: '2026-11-04', status: 'Recent',
