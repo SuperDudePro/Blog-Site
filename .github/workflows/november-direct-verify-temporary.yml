@@ -1,0 +1,23 @@
+name: Temporary Publisher direct-handoff verification
+on:
+  push:
+    branches:
+      - publisher/2000-or-so-things-november-2026
+jobs:
+  direct-verify:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      pull-requests: read
+    steps:
+      - uses: actions/checkout@v4
+      - name: Verify Publisher direct handoff including approved images
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
+        run: |
+          node --input-type=module <<'NODE'
+          import { verifyDirectHandoff } from './publisher/lib/directHandoff.mjs';
+          const result = await verifyDirectHandoff({ repository: 'SuperDudePro/Blog-Site', prNumber: 169 });
+          console.log(JSON.stringify(result, null, 2));
+          if (!result.ok || result.imageCount !== 3 || result.verifiedFiles !== 4) process.exit(1);
+          NODE
