@@ -66,6 +66,7 @@ export function readPosts() {
         seoTitle: stringField(source, 'seoTitle'),
         seoDescription: stringField(source, 'seoDescription'),
         section: stringField(source, 'section'),
+        format: stringField(source, 'format'),
         publishedAt: stringField(source, 'publishedAt'),
         hasBodyHtml: hasField(source, 'bodyHtml'),
         hasHeroImage: hasField(source, 'heroImage'),
