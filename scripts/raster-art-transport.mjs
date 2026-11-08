@@ -71,8 +71,10 @@ export function verifyWrapper(svgPath, sourcePath) {
 
 export function auditSectionSketches(root) {
   const component = fs.readFileSync(path.join(root, 'src/components/SectionCard.tsx'), 'utf8');
-  if (!component.includes('src={`/section-sketches/${section.key}.webp?v=20261015-replacement`}')) {
-    throw new Error('SectionCard must load the versioned native WebP illustrations');
+  const paths = fs.readFileSync(path.join(root, 'src/data/sectionSketches.ts'), 'utf8');
+  if (!component.includes('src={sectionSketchPath(section.key)}') ||
+      !paths.includes('return `/section-sketches/${key}.webp?v=20261015-replacement`;')) {
+    throw new Error('SectionCard must preserve the versioned native WebP illustrations for the original six sections');
   }
   const output = [];
   for (const key of SECTION_KEYS) {
