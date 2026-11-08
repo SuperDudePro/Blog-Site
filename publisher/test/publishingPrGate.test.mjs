@@ -13,6 +13,10 @@ function scenario(t) {
  const slug='contract-check', title='Contract Check';
  const folder=path.join(root,'src','content','posts',slug);
  fs.mkdirSync(folder,{recursive:true});
+ // A direct GitHub publishing PR must stage the new canonical URL in the checked-in sitemap.
+ fs.mkdirSync(path.join(root,'public'),{recursive:true});
+ fs.writeFileSync(path.join(root,'public','sitemap.xml'),
+   '<urlset><url><loc>https://ourolddad.com/post/'+slug+'</loc></url></urlset>');
  const images=['card','hero'].map(role=>{
    const file=role+'-image.webp',bytes=imageFixture(role);
    fs.writeFileSync(path.join(folder,file),bytes);
@@ -47,6 +51,15 @@ test('valid zero-body draft and exact WebP digests pass',t=>{
  const f=scenario(t),r=checkPublishingPullRequest(f.event,{root:f.root});
  assert.deepEqual(r.errors,[]);assert.equal(r.imageCount,2);
 });
+test('missing or stale checked-in sitemap route fails before site build',t=>{
+ const f=scenario(t);
+ const sitemap=path.join(f.root,'public','sitemap.xml');
+ fs.writeFileSync(sitemap,'<urlset><url><loc>https://ourolddad.com/post/old-route</loc></url></urlset>');
+ assert.match(checkPublishingPullRequest(f.event,{root:f.root}).errors.join('\n'),/checked-in public\/sitemap.xml/);
+ fs.rmSync(sitemap);
+ assert.match(checkPublishingPullRequest(f.event,{root:f.root}).errors.join('\n'),/missing checked-in public\/sitemap.xml/);
+});
+
 test('missing manifest fails',t=>{
  const f=scenario(t);f.event.pull_request.body='- Handoff method: **Direct GitHub**';
  assert.match(checkPublishingPullRequest(f.event,{root:f.root}).errors.join('\n'),/manifest JSON/);

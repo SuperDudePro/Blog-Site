@@ -80,6 +80,19 @@ export function checkPublishingPullRequest(event, { root = process.cwd() } = {})
   if (errors.length) return { skipped: false, mode: 'direct-github', errors: unique(errors) };
 
   const profile = getSiteProfile(manifest);
+  // Direct-GitHub handoffs do not use the ZIP Publisher's automatic sitemap staging.
+  // Fail with an actionable error before the site's early validate:sitemap build step.
+  if (profile.id === 'our-old-dad') {
+    const sitemapPath = path.join(root, 'public', 'sitemap.xml');
+    if (!fs.existsSync(sitemapPath)) {
+      errors.push('Direct OOD publishing PR is missing checked-in public/sitemap.xml.');
+    } else {
+      const sitemap = fs.readFileSync(sitemapPath, 'utf8');
+      if (!sitemap.includes(`<loc>${manifest.canonicalUrl}</loc>`)) {
+        errors.push(`Direct OOD publishing PR must include ${manifest.canonicalUrl} in checked-in public/sitemap.xml before validation.`);
+      }
+    }
+  }
   const destination = path.join(root, 'src', 'content', 'posts', manifest.slug);
   if (!fs.existsSync(destination) || !fs.statSync(destination).isDirectory()) {
     return { skipped: false, mode: 'direct-github', errors: ['Missing production post directory: ' + manifest.destinationPath] };
