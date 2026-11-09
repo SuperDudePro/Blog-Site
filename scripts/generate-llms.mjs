@@ -10,6 +10,7 @@ const sections = [
   ['music-playlists', 'Music Playlists', 'Songs, seasons, road soundtracks, memory triggers, and what to put on next.'],
   ['slow-travel', 'Slow Travel', 'Building the trip, building the life, and learning how to move more slowly on purpose.'],
   ['advice', "An Old Dad's Advice", 'Direct pieces, sharper takes, hard-earned advice, and a little fatherly bluntness.'],
+  ['junk-drawer', 'Junk Drawer', 'Short stories, stray memories, and bits and pieces that deserve somewhere to land.'],
 ];
 const posts = readPosts()
   .filter((post) => !post.missingIndex && post.slug && post.publishedAt)
@@ -34,7 +35,7 @@ const lines = [
 ];
 
 for (const [key, name, description] of sections) {
-  const sectionPosts = posts.filter((post) => post.section === key);
+  const sectionPosts = posts.filter((post) => (post.format === 'junk-drawer' ? 'junk-drawer' : post.section) === key);
   if (!sectionPosts.length) continue;
   lines.push('', `## ${name}`, '', `${description} Section page: ${siteUrl}/section/${key}`, '');
   for (const post of sectionPosts) lines.push(link(post.title, `${siteUrl}/post/${post.slug}`, post.excerpt));

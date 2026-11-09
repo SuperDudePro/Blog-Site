@@ -1,6 +1,5 @@
-import { formatPostDate } from '../content/loadPosts';
+import { formatPostDate, getPostCategoryName } from '../content/loadPosts';
 import type { PostMetadata } from '../content/postTypes';
-import { getSectionName } from '../data/siteContent';
 import { postPath } from '../routes';
 import { ImagePlaceholder } from './ImagePlaceholder';
 import { SiteLink } from './SiteLink';
@@ -24,9 +23,9 @@ export function PostCard({ post }: Props) {
       </div>
 
       <div className="post-card__body">
-        <span className="post-pill">{post.status ?? 'Recent'}</span>
+        <span className="post-pill">{getPostCategoryName(post)}</span>
         <p className="post-card__meta">
-          {formatPostDate(post)} · {getSectionName(post.section)}
+          {formatPostDate(post)}
         </p>
         <h3>{post.title}</h3>
         <p>{post.excerpt}</p>
