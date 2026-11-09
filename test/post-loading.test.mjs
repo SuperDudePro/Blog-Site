@@ -18,7 +18,7 @@ test('listing data comes from the lightweight metadata index', () => {
 test('Junk Drawer is a format-based category without changing original post sections', async () => {
   const { readPosts } = await import('../scripts/read-posts.mjs');
   const tagged = readPosts().filter((post) => post.format === 'junk-drawer');
-  assert.equal(tagged.length, 3, 'expected all three currently published Junk Drawer pieces');
+  assert.equal(tagged.length, 4, 'expected all four currently published Junk Drawer pieces');
   assert.ok(tagged.every((post) => post.section === 'diary'), 'Junk Drawer must not reclassify existing posts');
 
   const sections = fs.readFileSync(new URL('../src/data/siteContent.ts', import.meta.url), 'utf8');
