@@ -1,6 +1,6 @@
 import { useMemo, useState } from 'react';
 import { PostCard } from '../components/PostCard';
-import { posts } from '../content/loadPosts';
+import { getPostCategoryKey, posts } from '../content/loadPosts';
 import { sections } from '../data/siteContent';
 
 export function ArchivePage() {
@@ -13,10 +13,10 @@ export function ArchivePage() {
   );
   const normalizedQuery = query.trim().toLowerCase();
   const matches = posts.filter((post) => {
-    const searchable = `${post.title} ${post.excerpt} ${post.section} ${post.format ?? ''}`.toLowerCase();
+    const searchable = `${post.title} ${post.excerpt} ${getPostCategoryKey(post)}`.toLowerCase();
     return (
       (!normalizedQuery || searchable.includes(normalizedQuery)) &&
-      (section === 'everything' || (section === 'junk-drawer' ? post.format === 'junk-drawer' : post.section === section)) &&
+      (section === 'everything' || getPostCategoryKey(post) === section) &&
       (year === 'all' || post.publishedAt.startsWith(year))
     );
   });

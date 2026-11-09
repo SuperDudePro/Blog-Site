@@ -6,9 +6,9 @@ import { SharePost } from '../components/SharePost';
 import { SiteLink } from '../components/SiteLink';
 import { YouTubePlaylistPlayers, extractYouTubePlaylists } from '../components/YouTubePlaylistPlayers';
 import { SubscribeForm } from '../components/SubscribeForm';
-import { formatPostDate, getPostMetadataBySlug, getRelatedPosts, loadPostBySlug } from '../content/loadPosts';
+import { formatPostDate, getPostCategoryKey, getPostCategoryName, getPostMetadataBySlug, getRelatedPosts, loadPostBySlug } from '../content/loadPosts';
 import type { BlogPost, PostMetadata } from '../content/postTypes';
-import { getSectionName, site } from '../data/siteContent';
+import { site } from '../data/siteContent';
 import { sectionPath } from '../routes';
 
 type Props = { slug: string };
@@ -17,12 +17,12 @@ function PostHero({ post }: { post: PostMetadata }) {
   return (
     <section className="page-hero page-hero--post">
       <div>
-        <span className="eyebrow">{getSectionName(post.section)}</span>
+        <span className="eyebrow">{getPostCategoryName(post)}</span>
         <h1>{post.title}</h1>
         <p className="lead">{post.excerpt}</p>
         <p className="post-page__meta">{formatPostDate(post)}</p>
         <div className="hero__actions">
-          <SiteLink className="button button--primary" href={sectionPath(post.section)}>More in this section</SiteLink>
+          <SiteLink className="button button--primary" href={sectionPath(getPostCategoryKey(post))}>More in this category</SiteLink>
           {post.section === "music-playlists" ? <SiteLink className="button button--ghost" href="/playlists">All playlists</SiteLink> : <SiteLink className="button button--ghost" href="/archive">Search the archive</SiteLink>}
         </div>
       </div>

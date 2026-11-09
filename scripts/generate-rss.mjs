@@ -25,7 +25,7 @@ const items = posts
     const url = `${siteUrl}/post/${post.slug}`;
     const published = new Date(`${post.publishedAt}T12:00:00Z`).toUTCString();
 
-    return `    <item>\n      <title>${escapeXml(post.title)}</title>\n      <link>${escapeXml(url)}</link>\n      <guid isPermaLink="true">${escapeXml(url)}</guid>\n      <pubDate>${escapeXml(published)}</pubDate>\n      <category>${escapeXml(post.section)}</category>\n      <description>${escapeXml(post.excerpt)}</description>\n    </item>`;
+    return `    <item>\n      <title>${escapeXml(post.title)}</title>\n      <link>${escapeXml(url)}</link>\n      <guid isPermaLink="true">${escapeXml(url)}</guid>\n      <pubDate>${escapeXml(published)}</pubDate>\n      <category>${escapeXml(post.format === 'junk-drawer' ? 'junk-drawer' : post.section)}</category>\n      <description>${escapeXml(post.excerpt)}</description>\n    </item>`;
   })
   .join('\n');
 

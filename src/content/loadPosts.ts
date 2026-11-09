@@ -1,4 +1,4 @@
-import { featuredPostSlug, type SectionKey } from '../data/siteContent';
+import { featuredPostSlug, getSectionName, type SectionKey } from '../data/siteContent';
 import { postMetadata } from './postMetadata.generated';
 import type { BlogPost, PostMetadata } from './postTypes';
 
@@ -27,8 +27,16 @@ export async function loadPostBySlug(slug: string): Promise<BlogPost | undefined
   return (await loader()).default;
 }
 
+export function getPostCategoryKey(post: Pick<PostMetadata, 'section' | 'format'>): Exclude<SectionKey, 'everything'> {
+  return post.format === 'junk-drawer' ? 'junk-drawer' : post.section;
+}
+
+export function getPostCategoryName(post: Pick<PostMetadata, 'section' | 'format'>): string {
+  return getSectionName(getPostCategoryKey(post));
+}
+
 export function getPostsForSection(sectionKey: SectionKey): PostMetadata[] {
-  return sectionKey === 'everything' ? posts : posts.filter((post) => sectionKey === 'junk-drawer' ? post.format === 'junk-drawer' : post.section === sectionKey);
+  return sectionKey === 'everything' ? posts : posts.filter((post) => getPostCategoryKey(post) === sectionKey);
 }
 
 export function getRelatedPosts(post: PostMetadata, limit = 3): PostMetadata[] {
@@ -38,7 +46,7 @@ export function getRelatedPosts(post: PostMetadata, limit = 3): PostMetadata[] {
     .map((candidate) => {
       const candidateWords = `${candidate.title} ${candidate.excerpt}`.toLowerCase().match(/[a-z0-9]{4,}/g) ?? [];
       const overlap = candidateWords.filter((word) => words.has(word)).length;
-      const sectionBoost = candidate.section === post.section ? 20 : 0;
+      const sectionBoost = getPostCategoryKey(candidate) === getPostCategoryKey(post) ? 20 : 0;
       return { candidate, score: sectionBoost + overlap };
     })
     .sort((a, b) => b.score - a.score || b.candidate.publishedAt.localeCompare(a.candidate.publishedAt))

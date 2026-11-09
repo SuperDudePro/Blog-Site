@@ -1,4 +1,4 @@
-import { getPostMetadataBySlug } from './content/loadPosts';
+import { getPostCategoryKey, getPostCategoryName, getPostMetadataBySlug } from './content/loadPosts';
 import { getSectionName, sections, site } from './data/siteContent';
 import type { Route } from './routes';
 
@@ -51,8 +51,8 @@ function getStructuredData(route: Route, metadata: RouteMetadata): JsonLd {
     const post = getPostMetadataBySlug(route.slug);
     if (post) {
       const image = post.cardImage ?? post.heroImage;
-      graph.push({ '@type': 'BlogPosting', '@id': `${canonicalUrl}#article`, headline: post.title, description: post.seoDescription || post.excerpt, url: canonicalUrl, mainEntityOfPage: canonicalUrl, datePublished: post.publishedAt, ...(post.modifiedAt ? { dateModified: post.modifiedAt } : {}), author: { '@id': authorId }, publisher: { '@id': authorId }, isPartOf: { '@id': websiteId }, articleSection: getSectionName(post.section), ...(image ? { image: absoluteUrl(image) } : {}) });
-      graph.push(breadcrumb([{ name: 'Home', path: '/' }, { name: getSectionName(post.section), path: `/section/${post.section}` }, { name: post.title, path: route.canonicalPath }]));
+      graph.push({ '@type': 'BlogPosting', '@id': `${canonicalUrl}#article`, headline: post.title, description: post.seoDescription || post.excerpt, url: canonicalUrl, mainEntityOfPage: canonicalUrl, datePublished: post.publishedAt, ...(post.modifiedAt ? { dateModified: post.modifiedAt } : {}), author: { '@id': authorId }, publisher: { '@id': authorId }, isPartOf: { '@id': websiteId }, articleSection: getPostCategoryName(post), ...(image ? { image: absoluteUrl(image) } : {}) });
+      graph.push(breadcrumb([{ name: 'Home', path: '/' }, { name: getPostCategoryName(post), path: `/section/${getPostCategoryKey(post)}` }, { name: post.title, path: route.canonicalPath }]));
     }
   } else if (route.page === 'section') {
     graph.push(breadcrumb([{ name: 'Home', path: '/' }, { name: getSectionName(route.sectionKey), path: route.canonicalPath }]));

@@ -11,6 +11,7 @@ import { postPath, sectionPath } from '../routes';
 export function HomePage() {
   const featured = getFeaturedPost();
   const recentPosts = posts.filter((post) => post.slug !== featured?.slug).slice(0, 6);
+  const featuredIsLatest = featured?.slug === posts[0]?.slug;
 
   return (
     <>
@@ -23,7 +24,7 @@ export function HomePage() {
 
           <div className="hero__actions">
             <SiteLink className="button button--primary" href={featured ? postPath(featured.slug) : sectionPath('everything')}>
-              Read latest post
+              {featuredIsLatest ? 'Read latest post' : 'Read featured post'}
             </SiteLink>
             <SiteLink className="button button--ghost" href={sectionPath('everything')}>
               Browse all posts
@@ -43,7 +44,7 @@ export function HomePage() {
       <section className="content-band content-band--featured">
         <div className="section-heading">
           <span className="eyebrow">latest</span>
-          <h2>{featured ? 'Latest post' : 'Latest writing'}</h2>
+          <h2>{featured ? (featuredIsLatest ? 'Latest post' : 'Featured post') : 'Latest writing'}</h2>
         </div>
 
         <div className="featured-grid">
@@ -53,7 +54,7 @@ export function HomePage() {
             className="featured-card card-link"
             href={featured ? postPath(featured.slug) : sectionPath('everything')}
           >
-            <span className="post-pill">{featured?.status ?? 'Recent'}</span>
+            <span className="post-pill">{featured ? (featuredIsLatest ? 'Latest post' : 'Featured post') : 'Writing'}</span>
             <h3>{featured?.title ?? 'Latest writing'}</h3>
             <p>{featured?.excerpt ?? 'The newest post appears here automatically.'}</p>
             <span className="button button--primary button--fake">

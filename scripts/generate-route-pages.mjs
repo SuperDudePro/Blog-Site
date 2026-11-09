@@ -26,6 +26,9 @@ const staticRouteMetadata = new Map([
   ['/section/advice', { title: "An Old Dad's Advice | Our Old Dad", description: 'Direct pieces, sharper takes, hard-earned advice, and a little fatherly bluntness.' }],
   ['/section/junk-drawer', { title: 'Junk Drawer | Our Old Dad', description: 'Short stories, stray memories, and bits and pieces that deserve somewhere to land.' }],
 ]);
+// The public category is the post's format when it is a dedicated series.
+// Keep the underlying section in post source for Publisher compatibility.
+const postCategory = (post) => post.format === 'junk-drawer' ? 'junk-drawer' : post.section;
 const sectionNames = new Map([
   ['diary', 'Diary of an Old Dad'],
   ['life-education', 'Life Education'],
@@ -129,14 +132,14 @@ function staticPageMarkup(route, metadata) {
   if (route === '/' ) {
     body = `<h2>Latest posts</h2>${postListMarkup(publishedPosts.slice(0, 12))}`;
   } else if (sectionKey) {
-    body = postListMarkup(sectionKey === 'everything' ? publishedPosts : publishedPosts.filter((post) => sectionKey === 'junk-drawer' ? post.format === 'junk-drawer' : post.section === sectionKey));
+    body = postListMarkup(sectionKey === 'everything' ? publishedPosts : publishedPosts.filter((post) => postCategory(post) === sectionKey));
   } else if (route === '/playlists') {
     body = '<h2>Listen by year, era, artist, Straight Greats, or miscellaneous</h2>' + postListMarkup(publishedPosts.filter(post => post.section === 'music-playlists'));
   } else if (route === '/archive') {
     body = postListMarkup(publishedPosts);
   } else if (route === '/categories') {
     body = `<ul>${[...sectionNames].map(([key, name]) => {
-      const latest = publishedPosts.find((post) => key === 'junk-drawer' ? post.format === 'junk-drawer' : post.section === key);
+      const latest = publishedPosts.find((post) => postCategory(post) === key);
       return `<li><a href="/section/${key}">${escapeText(name)}</a>${latest ? ` — latest: <a href="/post/${escapeAttribute(latest.slug)}">${escapeText(latest.title)}</a>` : ''}</li>`;
     }).join('')}</ul>`;
   }
@@ -195,7 +198,7 @@ for (const route of routes) {
           author: { '@id': `${canonicalHost}/#author` },
           publisher: { '@id': `${canonicalHost}/#author` },
           isPartOf: { '@id': `${canonicalHost}/#website` },
-          articleSection: sectionNames.get(metadata.post.section) ?? metadata.post.section,
+          articleSection: sectionNames.get(postCategory(metadata.post)) ?? postCategory(metadata.post),
         } : {
           '@type': 'WebPage',
           '@id': `${canonicalUrl}#webpage`,
