@@ -14,7 +14,7 @@
       "note": "Canonicalize the retired www host."
     },
     {
-      "source": "/search/label/Music Playlists",
+      "source": "/search/label/Music%20Playlists",
       "destination": "/section/music-playlists",
       "permanent": true,
       "note": "Retired Blogger Music Playlists label appears in Bing search; preserve the matching current category."
