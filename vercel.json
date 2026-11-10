@@ -12,6 +12,11 @@
       ],
       "destination": "https://ourolddad.com/:path*",
       "permanent": true
+    },
+    {
+      "source": "/search/label/Music%20Playlists",
+      "destination": "/section/music-playlists",
+      "permanent": true
     }
   ],
   "headers": [
