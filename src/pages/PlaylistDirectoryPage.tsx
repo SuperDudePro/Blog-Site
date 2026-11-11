@@ -21,7 +21,7 @@ const groups: Category[] = ['All', 'Year', 'Era', 'Artist', 'Straight Greats', '
 function isStraightGreat(post: BlogPost) {
   return /straight-greats|three-straight|3-straight|the-cult-three-great/i.test(post.slug) || /^Straight Greats No\.\s*\d+:/i.test(post.title);
 }
-function classify(post: BlogPost): Category {
+function classify(post: BlogPost): Exclude<Category, 'All'> {
   if (isStraightGreat(post)) return 'Straight Greats';
   if (/^(19|20)\d\d:/.test(post.title) || /the-83-hawaii/.test(post.slug)) return 'Year';
   if (/bad-company|joe-walsh|journey/.test(post.slug)) return 'Artist';
