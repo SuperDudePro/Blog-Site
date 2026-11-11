@@ -20,3 +20,9 @@
 
 .playlist-directory__channel-links{display:flex;flex-wrap:wrap;align-items:center;gap:.7rem 1.4rem;margin-top:1rem}
 .playlist-directory__channel-links a{font-weight:700}
+
+/* Updates belong under their original playlist, never as duplicate players. */
+.playlist-directory__updates{display:flex;flex-direction:column;align-items:flex-start;gap:.4rem;margin-top:.85rem;font-size:.9rem;line-height:1.35}
+.playlist-directory__updates span{font-weight:750}
+.playlist-directory__updates a{overflow-wrap:anywhere}
+.playlist-directory__tabs button{white-space:nowrap}

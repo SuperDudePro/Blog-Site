@@ -59,6 +59,26 @@ try {
         results.push({ route, status: 'fail', message: error.message });
       } finally { await page.close(); }
     }
+    // Playlist directory regression: actual mobile React behavior, not just static HTML.
+    const playlistPage = await browser.newPage({ viewport: { width: 390, height: 844 }, isMobile: true, hasTouch: true });
+    try {
+      await playlistPage.goto(origin + '/playlists', { waitUntil: 'domcontentloaded' });
+      await playlistPage.locator('.playlist-directory__card').first().waitFor({ timeout: 16000 });
+      const cards = () => playlistPage.locator('.playlist-directory__card').count();
+      assert.equal(await cards(), 16, 'Playlists: all 16 unique owned playlists should display initially');
+      assert.equal(await playlistPage.getByText('2000 or So Things — November 2026: 67 In, 2 Out').count(), 1,
+        'Monthly playlist update should appear once as a related link');
+      for (const [name, count] of [['Year', 4], ['Era', 2], ['Artist', 9], ['Straight Greats', 6], ['Miscellaneous', 1], ['All', 16]]) {
+        await playlistPage.getByRole('button', { name: new RegExp('^' + name + ' \\(') }).click();
+        assert.equal(await cards(), count, 'Playlist category ' + name + ' count');
+        assert.ok(await playlistPage.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth + 4),
+          'Playlists: mobile horizontal overflow in category ' + name);
+      }
+      assert.equal(await playlistPage.locator('iframe').count(), 0, 'Playlists should not embed videos before the reader clicks play');
+      results.push({ route: '/playlists#interaction', status: 'pass', uniquePlaylists: 16, submitted: false });
+    } catch (error) {
+      errors.push({ route: '/playlists#interaction', message: error.message });
+    } finally { await playlistPage.close(); }
     // Exercise native form constraints without clicking submit or calling any API.
     const formPage = await browser.newPage({ viewport: { width: 390, height: 844 } });
     try {
