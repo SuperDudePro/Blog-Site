@@ -322,7 +322,8 @@ class FakeServices {
         merged_at: null,
         merge_commit_sha: null,
         updated_at: '2026-07-30T18:00:00Z',
-        head: { ref: body.head, sha: this.nextCommit },
+        // GitHub always reports the head repository of a same-repository pull request.
+        head: { ref: body.head, sha: this.nextCommit, repo: { full_name: this.profile.repository } },
         base: { ref: body.base },
       };
       this.pulls = [pull];

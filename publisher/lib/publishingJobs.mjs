@@ -77,11 +77,15 @@ export function selectRecoverableJob(jobs, key) {
   return active.length === 1 ? active[0] : null;
 }
 
-export function findPublishingPullRequest(pullRequests, { slug, branch } = {}) {
+export function findPublishingPullRequest(pullRequests, { slug, branch, repository } = {}) {
   const expectedSlug = text(slug);
   const expectedBranch = text(branch);
+  const expectedRepository = text(repository).toLowerCase();
   return (Array.isArray(pullRequests) ? pullRequests : []).find((pullRequest) => {
     if (text(pullRequest?.state) !== 'open') return false;
+    // A fork may use any branch name. Only a branch that lives in the target
+    // repository can be this job's draft; GitHub reports a deleted fork as null.
+    if (expectedRepository && text(pullRequest?.head?.repo?.full_name).toLowerCase() !== expectedRepository) return false;
     const currentBranch = text(pullRequest?.head?.ref);
     if (!currentBranch.startsWith('publisher/')) return false;
     if (expectedBranch && currentBranch === expectedBranch) return true;

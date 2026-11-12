@@ -91,7 +91,9 @@ export default async function handler(request, response) {
         || verifiedPullRequest.head?.ref !== branch
         || verifiedPullRequest.head?.sha !== session.existingPullRequest.commit
         || verifiedPullRequest.base?.ref !== baseBranch
-        || verifiedPullRequest.head?.repo?.full_name && verifiedPullRequest.head.repo.full_name !== manifest.repository
+        // Strict: a deleted fork is reported as `head.repo: null`, and a pull
+        // request without a head repository cannot be this job's draft.
+        || verifiedPullRequest.head?.repo?.full_name !== manifest.repository
       ) throw new Error('The existing pull request does not belong to this publishing job.');
     }
 

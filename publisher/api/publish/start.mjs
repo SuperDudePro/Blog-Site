@@ -28,6 +28,7 @@ export default async function handler(request, response) {
     const existingPullRequest = findPublishingPullRequest(openPullRequests, {
       slug: manifest.slug,
       branch: desiredBranch,
+      repository: manifest.repository,
     });
 
     return json(response, 200, {

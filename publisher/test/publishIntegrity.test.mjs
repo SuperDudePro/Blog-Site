@@ -85,3 +85,54 @@ test('preflight reports on the submitted manifest, not one nested in the preflig
   assert.equal(result.payload.ok, false);
   assert.ok(result.payload.errors.length > 0);
 });
+
+// ---- A pull request from another repository is never this job's ----------
+
+for (const [label, headRepository] of [['a fork', 'outsider/Blog-Site'], ['a deleted fork', null]]) {
+  test(`start ignores a same-named publishing branch opened from ${label}`, async () => {
+    const fixture = publishingFixture('ood', 'fork-selection');
+    const fake = world();
+    const outsider = fake.openPullRequest(OOD, {
+      head: 'publisher/fork-selection',
+      headRepository,
+      headSha: fake.head(OOD, 'main'),
+      title: 'Publish Fixture fork-selection',
+      body: '- Slug: `fork-selection`',
+    });
+    const result = await run(fake, async () => {
+      const session = await begin(fixture);
+      assert.equal(session.existingPullRequest, null);
+      return finish(fixture, session);
+    });
+    // The job gets its own branch and draft; the outside pull request is untouched.
+    assert.equal(result.status, 200, result.text);
+    assert.notEqual(result.payload.result.prNumber, outsider.number);
+    const pulls = fake.pulls(OOD);
+    assert.equal(pulls.length, 2);
+    assert.deepEqual(pulls.find((pull) => pull.number === outsider.number), outsider);
+    assert.equal(pulls.find((pull) => pull.number === result.payload.result.prNumber).head.repo.full_name, OOD);
+  });
+}
+
+test('finish refuses a session that points at a pull request whose head repository is gone', async () => {
+  const fixture = publishingFixture('ood', 'fork-adoption');
+  const fake = world();
+  const outsider = fake.openPullRequest(OOD, {
+    head: 'publisher/fork-adoption',
+    headRepository: null,
+    headSha: fake.head(OOD, 'main'),
+    title: 'Outside change',
+  });
+  const before = describePulls(fake);
+  const result = await run(fake, async () => {
+    const session = await begin(fixture);
+    return finish(fixture, {
+      ...session,
+      existingPullRequest: { number: outsider.number, url: outsider.html_url, commit: outsider.head.sha },
+    });
+  });
+  assert.equal(result.status, 400, result.text);
+  assert.match(result.payload.error, /does not belong to this publishing job/);
+  assert.equal(describePulls(fake), before, 'the outside pull request must not be retitled or reported as the job');
+  assert.deepEqual(branchWrites(fake), []);
+});
