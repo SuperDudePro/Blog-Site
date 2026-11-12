@@ -14,6 +14,18 @@ export async function listDestinationFiles(repository, treeSha, destinationPath)
     .sort((a, b) => a.path.localeCompare(b.path));
 }
 
+// The commit a publishing branch points at right now, or null when the
+// branch does not exist.
+export async function publishingBranchHead(repository, branch) {
+  try {
+    const reference = await repoRequest(repository, `/git/ref/heads/${encodeURIComponent(branch)}`);
+    return reference?.object?.sha || null;
+  } catch (error) {
+    if (error.status === 404) return null;
+    throw error;
+  }
+}
+
 export function compareDestination(existingFiles, uploadedFiles) {
   const existing = new Map(existingFiles.map((file) => [safeRelative(file.path), file]));
   const uploaded = new Map(uploadedFiles.map((file) => [safeRelative(file.path), file]));

@@ -2,7 +2,7 @@ import { requirePublisher } from '../../lib/auth.mjs';
 import { decodeGithubBlob, encodeBaseline, retireValidatedBaselineEntries } from '../../lib/baselineRetirement.mjs';
 import { repoRequest } from '../../lib/github.mjs';
 import { json, method, readJson } from '../../lib/http.mjs';
-import { buildTreeEntries, compareDestination, listDestinationFiles } from '../../lib/repository.mjs';
+import { buildTreeEntries, compareDestination, listDestinationFiles, publishingBranchHead } from '../../lib/repository.mjs';
 import { includeOurOldDadPostInSitemap } from '../../lib/sitemap.mjs';
 import { branchFor, safeRelative, validateManifest, validateProductionPaths } from '../../lib/validation.mjs';
 
@@ -25,21 +25,39 @@ async function atStage(stage, operation) {
   }
 }
 
-async function setBranch(repository, branch, commitSha) {
+function branchChanged(branch, detail) {
+  const error = new Error(`The publishing branch ${branch} changed after this submission started, so nothing was overwritten. Start the submission again to work from the current draft.${detail ? ` (GitHub: ${detail})` : ''}`);
+  error.status = 409;
+  error.code = 'PUBLISHING_BRANCH_CHANGED';
+  return error;
+}
+
+// Moves the publishing branch only if it is still where this submission
+// found it. `expectedHead` is null when the branch must not exist yet.
+//
+// GitHub makes the decision, in the same request that writes: creating a
+// reference fails if it already exists, and an update without `force` fails
+// unless it is a fast-forward. The new commit lists `expectedHead` as a
+// parent, so the update fast-forwards only while nobody else has added to
+// the branch. Checking the branch first and then forcing it would leave a
+// gap in which a newer commit could be discarded without anyone noticing.
+async function setBranch(repository, branch, commitSha, expectedHead) {
   try {
-    await repoRequest(repository, `/git/ref/heads/${encodeURIComponent(branch)}`);
+    if (!expectedHead) {
+      await repoRequest(repository, '/git/refs', {
+        method: 'POST',
+        body: { ref: `refs/heads/${branch}`, sha: commitSha },
+      });
+      return 'created';
+    }
     await repoRequest(repository, `/git/refs/heads/${encodeURIComponent(branch)}`, {
       method: 'PATCH',
-      body: { sha: commitSha, force: true },
+      body: { sha: commitSha, force: false },
     });
     return 'updated';
   } catch (error) {
-    if (error.status !== 404) throw error;
-    await repoRequest(repository, '/git/refs', {
-      method: 'POST',
-      body: { ref: `refs/heads/${branch}`, sha: commitSha },
-    });
-    return 'created';
+    if (error.status === 409 || error.status === 422) throw branchChanged(branch, error.message);
+    throw error;
   }
 }
 
@@ -140,6 +158,13 @@ export default async function handler(request, response) {
       }
     }
 
+    // Refuse a stale submission before anything is written: the branch must
+    // still be exactly what this session was created against. setBranch
+    // repeats the condition atomically for a change that lands after this.
+    const expectedHead = verifiedPullRequest ? session.existingPullRequest.commit : (session.branchHead || null);
+    const currentHead = await atStage('load-publishing-branch', () => publishingBranchHead(manifest.repository, branch));
+    if (currentHead !== expectedHead) throw branchChanged(branch);
+
     const tree = buildTreeEntries(manifest.destinationPath, uploadedFiles, comparison.deleted);
     if (!tree.length) throw new Error('The Git tree would be empty.');
 
@@ -199,13 +224,17 @@ export default async function handler(request, response) {
 
     const verb = operation === 'replace' ? 'Update' : 'Publish';
     const message = `${verb} ${manifest.title}`;
+    // The tree is still the live default branch plus this post. The branch's
+    // current commit is added as a second parent only so that moving the
+    // branch is a fast-forward GitHub can verify (see setBranch).
+    const parents = expectedHead && expectedHead !== baseCommitSha ? [baseCommitSha, expectedHead] : [baseCommitSha];
     const createdCommit = await atStage('create-commit', () => repoRequest(manifest.repository, '/git/commits', {
       method: 'POST',
-      body: { message, tree: createdTree.sha, parents: [baseCommitSha] },
+      body: { message, tree: createdTree.sha, parents },
     }));
     if (!createdCommit?.sha) throw new Error('create-commit: GitHub returned no commit SHA.');
 
-    await atStage('create-or-update-branch', () => setBranch(manifest.repository, branch, createdCommit.sha));
+    await atStage('create-or-update-branch', () => setBranch(manifest.repository, branch, createdCommit.sha, expectedHead));
 
     const changeSummary = [
       summaryLine('Added', comparison.added),

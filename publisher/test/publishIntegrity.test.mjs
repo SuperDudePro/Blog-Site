@@ -136,3 +136,164 @@ test('finish refuses a session that points at a pull request whose head reposito
   assert.equal(describePulls(fake), before, 'the outside pull request must not be retitled or reported as the job');
   assert.deepEqual(branchWrites(fake), []);
 });
+
+// ---- A stale or racing submission never replaces newer branch content ----
+
+test('a push that lands between validation and the branch write is not overwritten', async () => {
+  const first = publishingFixture('ood', 'racing-update', { note: 'First version.' });
+  const second = publishingFixture('ood', 'racing-update', { note: 'Second version.' });
+  const fake = world();
+  let newerWork;
+  const result = await run(fake, async () => {
+    const draft = await publish(first);
+    const session = await begin(second);
+    assert.equal(session.existingPullRequest.commit, draft.commit);
+    // Another writer adds a commit to the draft after finish has checked the
+    // pull request and built its own commit, but before it moves the branch.
+    fake.once('after', commitCreated, () => {
+      newerWork = fake.push(OOD, draft.branch, { files: { 'src/content/posts/racing-update/index.ts': 'export default "hand-edited";\n' } });
+    });
+    return finish(second, session);
+  });
+  assert.ok(newerWork, 'the competing push ran');
+  assert.equal(fake.head(OOD, 'publisher/racing-update'), newerWork, 'the newer commit must still be the branch head');
+  assert.equal(result.status, 409, result.text);
+  assert.equal(result.payload.code, 'PUBLISHING_BRANCH_CHANGED');
+  assert.equal(fake.pulls(OOD).length, 1);
+  assert.match(fake.pulls(OOD)[0].body, /Publishes a new post folder/, 'the draft description must not be rewritten by the rejected update');
+});
+
+test('a branch created by another job between validation and the branch write is not overwritten', async () => {
+  const fixture = publishingFixture('ood', 'racing-create');
+  const fake = world();
+  let competing;
+  const result = await run(fake, async () => {
+    const session = await begin(fixture);
+    fake.once('after', commitCreated, () => {
+      competing = fake.push(OOD, 'publisher/racing-create', { files: { 'src/content/posts/racing-create/index.ts': 'export default "other job";\n' } });
+    });
+    return finish(fixture, session);
+  });
+  assert.ok(competing, 'the competing push ran');
+  assert.equal(fake.head(OOD, 'publisher/racing-create'), competing, 'the other job\'s commit must still be the branch head');
+  assert.equal(result.status, 409, result.text);
+  assert.equal(fake.pulls(OOD).length, 0, 'no pull request may be opened for content this request did not write');
+});
+
+test('a session that predates another job\'s draft cannot replace that draft', async () => {
+  const stale = publishingFixture('ood', 'stale-session', { note: 'Older package.' });
+  const fake = world();
+  const result = await run(fake, async () => {
+    const session = await begin(stale);
+    // After this session was created, a different submission staged the post
+    // and opened the draft (for example the direct GitHub handoff).
+    const newer = fake.push(OOD, 'publisher/stale-session', { files: { 'src/content/posts/stale-session/index.ts': 'export default "newer draft";\n' } });
+    fake.openPullRequest(OOD, { head: 'publisher/stale-session', title: 'Publish Fixture stale-session', body: 'Newer draft.' });
+    const before = fake.writes().length;
+    const outcome = await finish(stale, session);
+    assert.equal(fake.head(OOD, 'publisher/stale-session'), newer, 'the newer draft must still be the branch head');
+    assert.deepEqual(fake.writes().slice(before).filter((request) => !request.path.endsWith('/git/blobs')), [], 'nothing but the uploads may be written');
+    return outcome;
+  });
+  assert.equal(result.status, 409, result.text);
+  assert.equal(fake.pulls(OOD).length, 1);
+  assert.equal(fake.pulls(OOD)[0].body, 'Newer draft.');
+});
+
+test('finishing the same submission twice leaves one draft and one commit', async () => {
+  const fixture = publishingFixture('ood', 'finished-twice');
+  const fake = world();
+  await run(fake, async () => {
+    const session = await begin(fixture);
+    const first = await finish(fixture, session);
+    assert.equal(first.status, 200, first.text);
+    const head = fake.head(OOD, 'publisher/finished-twice');
+    assert.equal(head, first.payload.result.commit);
+
+    // The identical request again: a double submit, or a client-side retry.
+    const second = await finish(fixture, session);
+    assert.equal(fake.head(OOD, 'publisher/finished-twice'), head, 'the replay must not rewrite the published commit');
+    assert.equal(second.status, 409, second.text);
+    assert.equal(fake.pulls(OOD).length, 1);
+
+    // Restarting is the supported retry: it recognises the finished draft.
+    const restarted = await finish(fixture, await begin(fixture));
+    assert.equal(restarted.status, 200, restarted.text);
+    assert.equal(restarted.payload.result.recovered, true);
+    assert.equal(restarted.payload.result.commit, head);
+    assert.equal(fake.head(OOD, 'publisher/finished-twice'), head);
+    assert.equal(fake.pulls(OOD).length, 1);
+  });
+});
+
+test('when GitHub opens the draft but the response is lost, a replay cannot rewrite it', async () => {
+  const fixture = publishingFixture('ood', 'lost-response');
+  const fake = world();
+  await run(fake, async () => {
+    const session = await begin(fixture);
+    fake.loseResponse((request) => request.method === 'POST' && request.path.endsWith('/pulls'));
+    const lost = await finish(fixture, session);
+    // GitHub completed the work; the caller was told it failed, never that it succeeded.
+    assert.equal(lost.payload.ok, undefined);
+    assert.equal(lost.payload.stage, 'create-pull-request');
+    assert.equal(fake.pulls(OOD).length, 1);
+    const head = fake.head(OOD, 'publisher/lost-response');
+
+    const replay = await finish(fixture, session);
+    assert.equal(fake.head(OOD, 'publisher/lost-response'), head, 'the replay must not rewrite the commit GitHub already accepted');
+    assert.equal(replay.status, 409, replay.text);
+
+    const restarted = await finish(fixture, await begin(fixture));
+    assert.equal(restarted.status, 200, restarted.text);
+    assert.equal(restarted.payload.result.recovered, true);
+    assert.equal(restarted.payload.result.prNumber, fake.pulls(OOD)[0].number);
+    assert.equal(fake.pulls(OOD).length, 1);
+    assert.equal(fake.head(OOD, 'publisher/lost-response'), head);
+  });
+});
+
+// ---- The intended update paths still work, without a forced write --------
+
+test('updating an open draft fast-forwards the branch instead of forcing it', async () => {
+  const first = publishingFixture('ood', 'normal-update', { note: 'First version.' });
+  const second = publishingFixture('ood', 'normal-update', { note: 'Second version.' });
+  const fake = world();
+  await run(fake, async () => {
+    const main = fake.head(OOD, 'main');
+    const draft = await publish(first);
+    const updated = await publish(second);
+    assert.equal(updated.prNumber, draft.prNumber);
+    assert.equal(fake.pulls(OOD).length, 1);
+    const head = fake.head(OOD, 'publisher/normal-update');
+    assert.equal(head, updated.commit);
+    // Still one commit on top of the live default branch; the previous draft
+    // commit is kept as a second parent so the update is a fast-forward.
+    assert.deepEqual(fake.commit(OOD, head).parents, [main, draft.commit]);
+    assert.match(fake.files(OOD, head)['src/content/posts/normal-update/index.ts'], /Second version\./);
+    assert.deepEqual(changedPaths(fake, main, head), [
+      'public/sitemap.xml',
+      'src/content/posts/normal-update/card-image.webp',
+      'src/content/posts/normal-update/hero-image.webp',
+      'src/content/posts/normal-update/index.ts',
+    ]);
+    assert.deepEqual(branchWrites(fake).map((request) => [request.method, request.body.force]), [['POST', undefined], ['PATCH', false]]);
+  });
+});
+
+test('republishing over a branch left behind by a merged pull request still works without forcing', async () => {
+  const fixture = publishingFixture('ood', 'leftover-branch');
+  const fake = world();
+  await run(fake, async () => {
+    // The earlier publishing pull request was merged and its branch was kept.
+    const leftover = fake.push(OOD, 'publisher/leftover-branch', { files: { 'src/content/posts/leftover-branch/index.ts': 'export default "published earlier";\n' } });
+    const main = fake.push(OOD, 'main', { files: { 'src/content/posts/leftover-branch/index.ts': 'export default "published earlier";\n', 'README.md': '# Later main\n' } });
+    const result = await publish(fixture);
+    const head = fake.head(OOD, 'publisher/leftover-branch');
+    assert.equal(head, result.commit);
+    assert.deepEqual(fake.commit(OOD, head).parents, [main, leftover]);
+    assert.equal(fake.files(OOD, head)['README.md'], '# Later main\n');
+    assert.equal(fake.pulls(OOD).length, 1);
+    assert.equal(fake.pulls(OOD)[0].head.sha, head);
+    assert.deepEqual(branchWrites(fake).map((request) => [request.method, request.body.force]), [['PATCH', false]]);
+  });
+});

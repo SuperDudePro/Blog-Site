@@ -2,7 +2,7 @@ import { requirePublisher } from '../../lib/auth.mjs';
 import { repoRequest } from '../../lib/github.mjs';
 import { json, method, readJson } from '../../lib/http.mjs';
 import { findPublishingPullRequest } from '../../lib/publishingJobs.mjs';
-import { listDestinationFiles } from '../../lib/repository.mjs';
+import { listDestinationFiles, publishingBranchHead } from '../../lib/repository.mjs';
 import { branchFor, validatePackagePreflight } from '../../lib/validation.mjs';
 
 export default async function handler(request, response) {
@@ -16,9 +16,10 @@ export default async function handler(request, response) {
     validatePackagePreflight({ ...preflight, manifest });
 
     const desiredBranch = branchFor(manifest.slug);
-    const [repository, openPullRequests] = await Promise.all([
+    const [repository, openPullRequests, branchHead] = await Promise.all([
       repoRequest(manifest.repository, ''),
       repoRequest(manifest.repository, '/pulls?state=open&sort=updated&direction=desc&per_page=100'),
+      publishingBranchHead(manifest.repository, desiredBranch),
     ]);
     const baseBranch = repository.default_branch || 'main';
     const reference = await repoRequest(manifest.repository, `/git/ref/heads/${encodeURIComponent(baseBranch)}`);
@@ -45,6 +46,9 @@ export default async function handler(request, response) {
         operation: existingFiles.length ? 'replace' : 'create',
         existingFiles,
         branch: existingPullRequest?.head?.ref || desiredBranch,
+        // What finish must still find on the publishing branch before it may
+        // write there (null: the branch does not exist yet).
+        branchHead,
         existingPullRequest: existingPullRequest ? {
           number: existingPullRequest.number,
           url: existingPullRequest.html_url,
