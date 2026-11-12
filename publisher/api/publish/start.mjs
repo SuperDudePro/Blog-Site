@@ -11,7 +11,9 @@ export default async function handler(request, response) {
 
   try {
     const { manifest, preflight } = await readJson(request);
-    validatePackagePreflight({ manifest, ...preflight });
+    // `manifest` goes last: every request below uses it, so it must be the
+    // object that was validated, not one nested in the preflight record.
+    validatePackagePreflight({ ...preflight, manifest });
 
     const desiredBranch = branchFor(manifest.slug);
     const [repository, openPullRequests] = await Promise.all([

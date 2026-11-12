@@ -11,7 +11,9 @@ export default async function handler(request, response) {
   }
   try {
     const { manifest, preflight } = await readJson(request);
-    const errors = collectPackagePreflightErrors({ manifest, ...preflight });
+    // `manifest` goes last so a manifest nested in the preflight record can
+    // never replace the one being reported on.
+    const errors = collectPackagePreflightErrors({ ...preflight, manifest });
     return json(response, 200, { ok: errors.length === 0, errors });
   } catch (error) {
     return json(response, 400, { ok: false, errors: [error.message || 'Preflight failed.'] });
