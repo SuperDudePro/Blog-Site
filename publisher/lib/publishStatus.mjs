@@ -36,26 +36,96 @@ export function canonicalUrlsMatch(actual, expected) {
   }
 }
 
-const vercelUrls = (value) => (
-  String(value || '').match(/https:\/\/[a-z0-9.-]+\.vercel\.app(?:\/[a-zA-Z0-9_./?=&%#-]*)?/gi) || []
-).filter((candidate) => !candidate.includes('vercel.live'));
+// ---- Which preview may receive the deployment-protection bypass credential --
+//
+// Only one that GitHub's deployment records tie to the intended Vercel project
+// and to the pull request's head commit. Those records can be written only by
+// an actor with write access to the repository, and the ones accepted here
+// must come from the Vercel GitHub App itself. A pull-request comment, which
+// anyone can post on a public repository, and the shape of a hostname
+// establish nothing.
+const fromVercelApp = (record) => record?.creator?.login === 'vercel[bot]' && record?.creator?.type === 'Bot';
+const newestFirst = (a, b) => Date.parse(b?.created_at || 0) - Date.parse(a?.created_at || 0);
 
-export function findVercelUrl(comments, deploymentProject = '') {
-  const newestFirst = [...comments].reverse();
-  if (deploymentProject) {
-    const projectLink = `[${deploymentProject}](`.toLowerCase();
-    for (const comment of newestFirst) {
-      const rows = String(comment.body || '').split(/\r?\n/);
-      const projectRow = rows.find((row) => row.toLowerCase().includes(projectLink));
-      const url = vercelUrls(projectRow)[0];
-      if (url) return url.replace(/[)>.,]+$/, '');
-    }
+// Vercel labels a preview "Preview – <project>" when several projects deploy
+// from one repository, and plain "Preview" when only one does.
+function previewScope(environment, project) {
+  if (environment === `Preview – ${project}`) return 'project';
+  if (environment === 'Preview') return 'repository';
+  return '';
+}
+
+function previewOrigin(value, project, scope) {
+  let url;
+  try {
+    url = new URL(String(value || ''));
+  } catch {
+    return null;
   }
-  for (const comment of newestFirst) {
-    const url = vercelUrls(comment.body)[0];
-    if (url) return url.replace(/[)>.,]+$/, '');
+  if (url.protocol !== 'https:' || url.username || url.password || url.port) return null;
+  // Necessary, never sufficient: anyone can deploy to a vercel.app name.
+  if (!url.hostname.endsWith('.vercel.app')) return null;
+  // The plain label does not name a project, so the deployment hostname must.
+  if (scope === 'repository' && !url.hostname.startsWith(`${project}-`)) return null;
+  return url.origin;
+}
+
+// Returns the origin of the verified preview for `commit`, or null while the
+// evidence is missing. `request` reads the target repository's GitHub API.
+export async function findVerifiedPreview({ commit, project, request }) {
+  if (!/^[0-9a-f]{40}$/i.test(String(commit || '')) || !project) return null;
+  const deployments = await request(`/deployments?sha=${commit}&per_page=100`);
+  const candidates = (Array.isArray(deployments) ? deployments : [])
+    .filter((deployment) => (
+      deployment?.sha === commit
+      && Number.isSafeInteger(deployment.id)
+      && deployment.production_environment !== true
+      && fromVercelApp(deployment)
+      && previewScope(deployment.environment, project)
+    ))
+    .sort(newestFirst);
+  for (const deployment of candidates) {
+    const statuses = await request(`/deployments/${deployment.id}/statuses?per_page=100`);
+    // GitHub marks a superseded deployment inactive; the preview itself stays up.
+    const current = (Array.isArray(statuses) ? statuses : [])
+      .filter(fromVercelApp)
+      .sort(newestFirst)
+      .find((status) => status.state !== 'inactive');
+    if (current?.state !== 'success') continue;
+    const origin = previewOrigin(current.environment_url, project, previewScope(deployment.environment, project));
+    if (origin) return origin;
   }
   return null;
+}
+
+const REDIRECT_STATUS = new Set([301, 302, 303, 307, 308]);
+
+// Returns a fetchText(url) bound to one verified preview origin. It refuses
+// any other origin without sending anything, and it follows redirects itself:
+// an automatically followed redirect re-sends custom request headers, so the
+// preview could otherwise hand the credential to any host it names.
+export function createPreviewFetcher(origin, { secret = '', send = (url, options) => fetch(url, options), maxRedirects = 5 } = {}) {
+  return async function fetchText(url) {
+    let target = new URL(url);
+    for (let hop = 0; hop <= maxRedirects; hop += 1) {
+      if (target.origin !== origin) {
+        throw new Error(`Refused to contact ${target.host}: it is not the verified preview deployment.`);
+      }
+      const result = await send(target.toString(), {
+        cache: 'no-store',
+        redirect: 'manual',
+        signal: AbortSignal.timeout(25000),
+        headers: {
+          'cache-control': 'no-cache',
+          ...(secret ? { 'x-vercel-protection-bypass': secret } : {}),
+        },
+      });
+      const location = REDIRECT_STATUS.has(result.status) ? result.headers.get('location') : null;
+      if (!location) return { result, body: await result.text() };
+      target = new URL(location, target);
+    }
+    throw new Error('The verified preview redirected too many times.');
+  };
 }
 
 export async function inspectPublishedUrl({

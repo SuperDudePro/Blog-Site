@@ -34,6 +34,7 @@ export class FakeGitHub {
     this.repositories = new Map();
     this.requests = [];
     this.hooks = [];
+    this.refusals = [];
     this.sequence = 0;
   }
 
@@ -48,6 +49,9 @@ export class FakeGitHub {
       commits: new Map(),
       refs: new Map(),
       pulls: [],
+      comments: new Map(),
+      deployments: [],
+      checkRuns: new Map(),
     };
     this.repositories.set(fullName.toLowerCase(), repository);
     const commit = this.writeCommit(fullName, { files, parents: [], message: 'Initial commit' });
@@ -131,10 +135,74 @@ export class FakeGitHub {
       headRepository: headRepository === undefined ? repository.fullName : headRepository,
       headSha: headSha || null,
       baseRef: base || repository.defaultBranch,
-      updatedAt: new Date(Date.UTC(2026, 10, 1, 12, 0, this.sequence += 1)).toISOString(),
+      createdAt: new Date(Date.UTC(2026, 10, 12, 12, 0, this.sequence)).toISOString(),
+      updatedAt: new Date(Date.UTC(2026, 10, 12, 12, 0, this.sequence += 1)).toISOString(),
     };
     repository.pulls.push(pull);
     return this.pullJson(repository, pull);
+  }
+
+  // Squash-merges a pull request the way the GitHub merge button would.
+  mergePullRequest(fullName, number) {
+    const repository = this.repository(fullName);
+    const pull = repository.pulls.find((candidate) => candidate.number === number);
+    const head = repository.refs.get(pull.headRef);
+    const merge = this.storeCommit(repository, {
+      tree: repository.commits.get(head).tree,
+      parents: [repository.refs.get(pull.baseRef)],
+      message: `${pull.title} (#${number})`,
+    });
+    repository.refs.set(pull.baseRef, merge);
+    Object.assign(pull, { state: 'closed', merged: true, mergedAt: '2026-11-12T13:00:00Z', mergeCommitSha: merge });
+    return merge;
+  }
+
+  // An issue comment. Anyone who can see a public repository can post one.
+  addComment(fullName, number, { body, login = 'outside-commenter', type = 'User' }) {
+    const repository = this.repository(fullName);
+    const comments = repository.comments.get(number) || [];
+    comments.push({ id: 9000 + comments.length, body, user: { login, type }, created_at: '2026-11-12T12:30:00Z' });
+    repository.comments.set(number, comments);
+  }
+
+  // A GitHub deployment record with its statuses (oldest first). Only an
+  // actor with write access, or an installed app, can create these; the
+  // default actor is the Vercel GitHub App.
+  addDeployment(fullName, {
+    sha,
+    environment,
+    production = false,
+    creator = { login: 'vercel[bot]', type: 'Bot' },
+    statuses = [],
+  }) {
+    const repository = this.repository(fullName);
+    const id = 7000 + repository.deployments.length + 1;
+    repository.deployments.push({
+      id,
+      sha,
+      ref: sha,
+      task: 'deploy',
+      environment,
+      original_environment: environment,
+      production_environment: production,
+      transient_environment: false,
+      creator,
+      created_at: new Date(Date.UTC(2026, 10, 12, 12, 10, repository.deployments.length)).toISOString(),
+      statuses: statuses.map((status, index) => ({
+        id: id * 10 + index,
+        environment,
+        creator,
+        target_url: status.environment_url,
+        log_url: status.environment_url,
+        created_at: new Date(Date.UTC(2026, 10, 12, 12, 11, index)).toISOString(),
+        ...status,
+      })),
+    });
+    return id;
+  }
+
+  setCheckRuns(fullName, sha, runs) {
+    this.repository(fullName).checkRuns.set(sha, runs);
   }
 
   pullJson(repository, pull) {
@@ -149,6 +217,7 @@ export class FakeGitHub {
       merged: pull.merged,
       merged_at: pull.mergedAt,
       merge_commit_sha: pull.mergeCommitSha,
+      created_at: pull.createdAt,
       updated_at: pull.updatedAt,
       head: {
         ref: pull.headRef,
@@ -205,6 +274,12 @@ export class FakeGitHub {
     this.hooks.push({ when, matcher, action });
   }
 
+  // GitHub answers every matching request with an error instead of acting,
+  // for example a 403 when the token lacks a permission.
+  refuse(matcher, status, message) {
+    this.refusals.push({ matcher, status, message });
+  }
+
   // GitHub applies the matching request, then the response never arrives.
   loseResponse(matcher) {
     this.once('after', matcher, () => {
@@ -234,7 +309,8 @@ export class FakeGitHub {
     };
     this.requests.push(request);
     await this.runHooks('before', request);
-    const { status, body } = this.route(request);
+    const refusal = this.refusals.find((candidate) => candidate.matcher(request));
+    const { status, body } = refusal ? reply(refusal.status, { message: refusal.message }) : this.route(request);
     request.status = status;
     await this.runHooks('after', request);
     return new Response(body === undefined ? '' : JSON.stringify(body), {
@@ -367,9 +443,30 @@ export class FakeGitHub {
       return reply(200, { path: parts[1], sha: blob, size: bytes.length, encoding: 'base64', content: bytes.toString('base64') });
     }
 
-    if (/^\/commits\/[0-9a-f]{40}\/check-runs$/.test(rest)) return reply(200, { check_runs: [] });
+    if ((parts = rest.match(/^\/commits\/([0-9a-f]{40})\/check-runs$/))) {
+      return reply(200, { check_runs: repository.checkRuns.get(parts[1]) || [] });
+    }
     if (/^\/commits\/[0-9a-f]{40}\/status$/.test(rest)) return reply(200, { statuses: [] });
-    if (/^\/issues\/\d+\/comments$/.test(rest)) return reply(200, []);
+    if ((parts = rest.match(/^\/issues\/(\d+)\/comments$/))) {
+      return reply(200, repository.comments.get(Number(parts[1])) || []);
+    }
+
+    if (rest === '/deployments' && method === 'GET') {
+      const sha = query.get('sha');
+      const records = repository.deployments
+        .filter((deployment) => !sha || deployment.sha === sha)
+        .map(({ statuses, ...deployment }) => deployment)
+        .reverse();
+      return reply(200, records);
+    }
+    if ((parts = rest.match(/^\/deployments\/(\d+)\/statuses$/)) && method === 'GET') {
+      const deployment = repository.deployments.find((candidate) => candidate.id === Number(parts[1]));
+      return deployment ? reply(200, [...deployment.statuses].reverse()) : notFound();
+    }
+    if ((parts = rest.match(/^\/compare\/([0-9a-f]{40})\.\.\.([0-9a-f]{40})$/)) && method === 'GET') {
+      const status = parts[1] === parts[2] ? 'identical' : this.isAncestor(repository, parts[1], parts[2]) ? 'ahead' : 'diverged';
+      return reply(200, { status });
+    }
 
     return reply(404, { message: `Unhandled fixture route: ${method} ${rest}` });
   }

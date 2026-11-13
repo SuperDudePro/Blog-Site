@@ -1,5 +1,6 @@
-// Verify that a Vercel preview serves the exact PR head, not a stale preview
-// referenced by a reused GitHub issue comment.
+// Verify that a Vercel preview serves the exact PR head. The caller chooses
+// `deploymentUrl` from GitHub's deployment records and supplies a `fetchText`
+// bound to that origin; nothing here decides whether a host may be trusted.
 const fullSha = /^[0-9a-f]{40}$/i;
 
 export async function inspectPreviewCommit({ deploymentUrl, commitSha, fetchText }) {
@@ -8,7 +9,7 @@ export async function inspectPreviewCommit({ deploymentUrl, commitSha, fetchText
   try {
     const markerUrl = new URL('/deployment.json', deploymentUrl);
     if (markerUrl.protocol !== 'https:' || !markerUrl.hostname.endsWith('.vercel.app')) {
-      return { state: 'failed', error: 'The preview URL is not a trusted Vercel hostname.' };
+      return { state: 'failed', error: 'The preview URL is not a Vercel deployment hostname.' };
     }
     markerUrl.searchParams.set('publisher_verify', commitSha);
     const { result, body } = await fetchText(markerUrl.toString());

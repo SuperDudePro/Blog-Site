@@ -10,6 +10,14 @@ function codeField(body, label) {
   return text(body).match(pattern)?.[1]?.trim() || '';
 }
 
+// True only when the pull request's head branch lives in `repository`.
+// A fork can use any branch name, and GitHub reports a deleted fork as
+// `head.repo: null`, so a missing head repository is never a match.
+export function pullRequestIsFromRepository(pullRequest, repository) {
+  const expected = text(repository).toLowerCase();
+  return Boolean(expected) && text(pullRequest?.head?.repo?.full_name).toLowerCase() === expected;
+}
+
 export function jobFromPullRequest(repository, pullRequest) {
   const branch = text(pullRequest?.head?.ref);
   const commit = text(pullRequest?.head?.sha);

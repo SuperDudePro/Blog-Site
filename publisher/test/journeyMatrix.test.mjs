@@ -348,9 +348,25 @@ class FakeServices {
     if (path === `/commits/${this.nextCommit}/status`) {
       return this.json({ statuses: [{ context: 'Vercel', state: 'success', target_url: 'https://vercel.com/fixture' }] });
     }
-    if (path === `/issues/${this.nextPr}/comments`) {
+    // What the Vercel GitHub App records once the site preview is ready. The
+    // status handler takes the preview from these records, never from comments.
+    const vercelApp = { login: 'vercel[bot]', type: 'Bot' };
+    if (path === '/deployments' && method === 'GET') {
+      return this.json(url.searchParams.get('sha') === this.nextCommit ? [{
+        id: 1,
+        sha: this.nextCommit,
+        environment: `Preview – ${this.profile.project}`,
+        production_environment: false,
+        creator: vercelApp,
+        created_at: '2026-07-30T18:01:00Z',
+      }] : []);
+    }
+    if (path === '/deployments/1/statuses') {
       return this.json([{
-        body: `| Project | Deployment | Actions |\n| [${this.profile.project}](https://vercel.com/team/${this.profile.project}) | Ready | [Preview](https://${this.profile.project}-git-fixture.vercel.app) |`,
+        state: 'success',
+        environment_url: `https://${this.profile.project}-git-fixture.vercel.app`,
+        creator: vercelApp,
+        created_at: '2026-07-30T18:02:00Z',
       }]);
     }
     if (path.startsWith('/compare/')) return this.json({ status: 'identical' });

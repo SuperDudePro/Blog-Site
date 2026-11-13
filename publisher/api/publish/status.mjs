@@ -1,25 +1,23 @@
 import { requirePublisher } from '../../lib/auth.mjs';
 import { verifyDirectHandoff } from '../../lib/directHandoff.mjs';
 import { inspectPreviewCommit, directTechnicalReadiness } from '../../lib/previewCommit.mjs';
-import { jobFromPullRequest } from '../../lib/publishingJobs.mjs';
+import { jobFromPullRequest, pullRequestIsFromRepository } from '../../lib/publishingJobs.mjs';
 import { repoRequest } from '../../lib/github.mjs';
 import { json, method, readJson } from '../../lib/http.mjs';
 import { validateRepository } from '../../lib/validation.mjs';
 import { getSiteProfile } from '../../siteProfiles.mjs';
-import { activePullRequestCommit, deployedCommitIsReady, findVercelUrl, inspectPublishedHtml, inspectPublishedUrl, missingStatusFields, normalizeStatusRequest } from '../../lib/publishStatus.mjs';
+import { activePullRequestCommit, createPreviewFetcher, deployedCommitIsReady, findVerifiedPreview, inspectPublishedHtml, inspectPublishedUrl, missingStatusFields, normalizeStatusRequest } from '../../lib/publishStatus.mjs';
 
 const failedConclusions = new Set(['failure', 'cancelled', 'timed_out', 'action_required', 'stale', 'startup_failure']);
 
-async function fetchText(url) {
-  const bypassSecret = String(process.env.VERCEL_AUTOMATION_BYPASS_SECRET || '').trim();
+// Production is public. It is read without any credential, so following its
+// redirects cannot disclose one.
+async function fetchPublicText(url) {
   const result = await fetch(url, {
     cache: 'no-store',
     redirect: 'follow',
     signal: AbortSignal.timeout(25000),
-    headers: {
-      'cache-control': 'no-cache',
-      ...(bypassSecret ? { 'x-vercel-protection-bypass': bypassSecret } : {}),
-    },
+    headers: { 'cache-control': 'no-cache' },
   });
   return { result, body: await result.text() };
 }
@@ -57,7 +55,7 @@ async function productionStatus(repository, canonicalUrl, title, mergeCommit, pr
 
     const separator = canonicalUrl.includes('?') ? '&' : '?';
     const smokeUrl = `${canonicalUrl}${separator}publisher_verify=${encodeURIComponent(mergeCommit)}`;
-    const { result, body } = await fetchText(smokeUrl);
+    const { result, body } = await fetchPublicText(smokeUrl);
     if (!result.ok) {
       return { state: 'failed', ok: false, markerUrl, deployedCommit, mergeCommit, smokeUrl, status: result.status, error: `Production route returned HTTP ${result.status}.` };
     }
@@ -84,11 +82,15 @@ export default async function handler(request, response) {
     if (missing.length) throw new Error(`Publisher handoff is missing: ${missing.join(', ')}.`);
     if (!canonicalUrl.startsWith(profile.canonicalPrefix)) throw new Error('Canonical URL does not match the selected site profile.');
     const pullRequest = await repoRequest(repository, `/pulls/${prNumber}`);
+    // A fork's branch runs code the site owner did not push. It is never a
+    // Publisher job, and no preview of it may receive the bypass credential.
+    if (!pullRequestIsFromRepository(pullRequest, repository)) {
+      throw new Error('This pull request does not come from the selected site repository, so it is not a Publisher job.');
+    }
     const currentCommit = activePullRequestCommit(pullRequest, commit);
-    const [checkRuns, combinedStatus, comments] = await Promise.all([
+    const [checkRuns, combinedStatus] = await Promise.all([
       repoRequest(repository, `/commits/${currentCommit}/check-runs?per_page=100`, { headers: { accept: 'application/vnd.github+json' } }),
       repoRequest(repository, `/commits/${currentCommit}/status`),
-      repoRequest(repository, `/issues/${prNumber}/comments?per_page=100`),
     ]);
     const items = [
       ...(checkRuns.check_runs || []).map((item) => ({ name: item.name, source: item.app?.name || 'GitHub', status: item.status, conclusion: item.conclusion, url: item.html_url })),
@@ -97,8 +99,22 @@ export default async function handler(request, response) {
     const failed = items.some((item) => failedConclusions.has(item.conclusion) || ['failure', 'error'].includes(item.status));
     const complete = items.length > 0 && items.every((item) => item.conclusion === 'success' || item.status === 'success');
     const checks = { state: failed ? 'failed' : complete ? 'success' : 'pending', items };
-    const deploymentUrl = findVercelUrl(comments, profile.deploymentProject);
+    // The preview is whatever the Vercel GitHub App recorded for this exact
+    // commit and this site's project. Without that record nothing is fetched.
+    let deploymentUrl = null;
     let smoke = { state: 'pending', ok: false };
+    try {
+      deploymentUrl = await findVerifiedPreview({
+        commit: currentCommit,
+        project: profile.deploymentProject,
+        request: (suffix) => repoRequest(repository, suffix),
+      });
+    } catch (error) {
+      smoke = { state: 'pending', ok: false, error: `The Vercel deployment record for this commit could not be read, so the preview is unverified: ${error.message}` };
+    }
+    const fetchText = deploymentUrl
+      ? createPreviewFetcher(deploymentUrl, { secret: String(process.env.VERCEL_AUTOMATION_BYPASS_SECRET || '').trim() })
+      : null;
     if (deploymentUrl) {
       const pathname = new URL(canonicalUrl).pathname;
       const smokeUrl = new URL(pathname, deploymentUrl).toString();
