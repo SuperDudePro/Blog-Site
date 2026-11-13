@@ -12,6 +12,8 @@ export default async function handler(request, response) {
     const { job: requestedJob = '' } = await readJson(request);
     const results = await Promise.all(SITE_PROFILES.map(async ({ repository }) => {
       const pulls = await repoRequest(repository, '/pulls?state=all&sort=updated&direction=desc&per_page=20');
+      // jobFromPullRequest returns null for a pull request whose head is not in
+      // this repository, so a fork's pull request is never offered for recovery.
       return pulls.map((pullRequest) => jobFromPullRequest(repository, pullRequest)).filter(Boolean);
     }));
     const jobs = results.flat();

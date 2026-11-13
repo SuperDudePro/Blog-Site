@@ -10,7 +10,18 @@ function codeField(body, label) {
   return text(body).match(pattern)?.[1]?.trim() || '';
 }
 
+// True only when the pull request's head branch lives in `repository`.
+// A fork can use any branch name, and GitHub reports a deleted fork as
+// `head.repo: null`, so a missing head repository is never a match.
+export function pullRequestIsFromRepository(pullRequest, repository) {
+  const expected = text(repository).toLowerCase();
+  return Boolean(expected) && text(pullRequest?.head?.repo?.full_name).toLowerCase() === expected;
+}
+
 export function jobFromPullRequest(repository, pullRequest) {
+  // Every consumer (resume, status, the direct verifier, the CI gate) reads
+  // jobs through here, so a fork's pull request is not a job anywhere.
+  if (!pullRequestIsFromRepository(pullRequest, repository)) return null;
   const branch = text(pullRequest?.head?.ref);
   const commit = text(pullRequest?.head?.sha);
   const prNumber = Number(pullRequest?.number);
@@ -77,11 +88,13 @@ export function selectRecoverableJob(jobs, key) {
   return active.length === 1 ? active[0] : null;
 }
 
-export function findPublishingPullRequest(pullRequests, { slug, branch } = {}) {
+export function findPublishingPullRequest(pullRequests, { slug, branch, repository } = {}) {
   const expectedSlug = text(slug);
   const expectedBranch = text(branch);
   return (Array.isArray(pullRequests) ? pullRequests : []).find((pullRequest) => {
     if (text(pullRequest?.state) !== 'open') return false;
+    // Only a branch that lives in the target repository can be this job's draft.
+    if (text(repository) && !pullRequestIsFromRepository(pullRequest, repository)) return false;
     const currentBranch = text(pullRequest?.head?.ref);
     if (!currentBranch.startsWith('publisher/')) return false;
     if (expectedBranch && currentBranch === expectedBranch) return true;

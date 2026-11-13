@@ -1,10 +1,12 @@
 import { requirePublisher } from '../../lib/auth.mjs';
 import { decodeGithubBlob, encodeBaseline, retireValidatedBaselineEntries } from '../../lib/baselineRetirement.mjs';
+import { inspectProductionBlobs } from '../../lib/directHandoff.mjs';
 import { repoRequest } from '../../lib/github.mjs';
 import { json, method, readJson } from '../../lib/http.mjs';
-import { buildTreeEntries, compareDestination, listDestinationFiles } from '../../lib/repository.mjs';
+import { buildTreeEntries, compareDestination, listDestinationFiles, publishingBranchHead } from '../../lib/repository.mjs';
 import { includeOurOldDadPostInSitemap } from '../../lib/sitemap.mjs';
-import { branchFor, safeRelative, validateManifest, validateProductionPaths } from '../../lib/validation.mjs';
+import { branchFor, preflightFailure, safeRelative, validateManifest, validateProductionPaths } from '../../lib/validation.mjs';
+import { getSiteProfile } from '../../siteProfiles.mjs';
 
 const summaryLine = (label, files) => `- ${label}: ${files.length}${files.length ? ` — ${files.map((file) => `\`${file}\``).join(', ')}` : ''}`;
 
@@ -17,6 +19,23 @@ function stageError(stage, error) {
   return wrapped;
 }
 
+// The manifest published in the draft's description, where the CI gate reads
+// it: the validated package fields in a fixed order, with each image's
+// SHA-256 taken from the uploaded bytes rather than from the request.
+function manifestForPullRequest(manifest, digests) {
+  const fields = ['targetSite', 'repository', ...getSiteProfile(manifest).metadataFields, 'tags', 'format', 'destinationPath', 'canonicalUrl', 'buildCommand'];
+  return {
+    ...Object.fromEntries(fields.filter((field) => manifest[field] !== undefined).map((field) => [field, manifest[field]])),
+    images: manifest.images.map((image) => ({
+      file: image.file,
+      role: image.role,
+      alt: image.alt,
+      caption: image.caption ?? null,
+      sha256: digests.get(image.file),
+    })),
+  };
+}
+
 async function atStage(stage, operation) {
   try {
     return await operation();
@@ -25,21 +44,39 @@ async function atStage(stage, operation) {
   }
 }
 
-async function setBranch(repository, branch, commitSha) {
+function branchChanged(branch, detail) {
+  const error = new Error(`The publishing branch ${branch} changed after this submission started, so nothing was overwritten. Start the submission again to work from the current draft.${detail ? ` (GitHub: ${detail})` : ''}`);
+  error.status = 409;
+  error.code = 'PUBLISHING_BRANCH_CHANGED';
+  return error;
+}
+
+// Moves the publishing branch only if it is still where this submission
+// found it. `expectedHead` is null when the branch must not exist yet.
+//
+// GitHub makes the decision, in the same request that writes: creating a
+// reference fails if it already exists, and an update without `force` fails
+// unless it is a fast-forward. The new commit lists `expectedHead` as a
+// parent, so the update fast-forwards only while nobody else has added to
+// the branch. Checking the branch first and then forcing it would leave a
+// gap in which a newer commit could be discarded without anyone noticing.
+async function setBranch(repository, branch, commitSha, expectedHead) {
   try {
-    await repoRequest(repository, `/git/ref/heads/${encodeURIComponent(branch)}`);
+    if (!expectedHead) {
+      await repoRequest(repository, '/git/refs', {
+        method: 'POST',
+        body: { ref: `refs/heads/${branch}`, sha: commitSha },
+      });
+      return 'created';
+    }
     await repoRequest(repository, `/git/refs/heads/${encodeURIComponent(branch)}`, {
       method: 'PATCH',
-      body: { sha: commitSha, force: true },
+      body: { sha: commitSha, force: false },
     });
     return 'updated';
   } catch (error) {
-    if (error.status !== 404) throw error;
-    await repoRequest(repository, '/git/refs', {
-      method: 'POST',
-      body: { ref: `refs/heads/${branch}`, sha: commitSha },
-    });
-    return 'created';
+    if (error.status === 409 || error.status === 422) throw branchChanged(branch, error.message);
+    throw error;
   }
 }
 
@@ -77,6 +114,25 @@ export default async function handler(request, response) {
       if (expectedSize && expectedSize !== file.size) throw new Error(`${file.path} changed after package preflight.`);
     }
 
+    // The session's preflight is the browser's account of the package. Before
+    // anything is written, hold the uploaded bytes themselves to the same
+    // contract the CI gate applies to the pull request, and take each image's
+    // SHA-256 from those bytes.
+    const inspection = await atStage('verify-uploaded-package', () => inspectProductionBlobs({
+      repository: manifest.repository,
+      manifest,
+      files: uploadedFiles,
+    }));
+    const packageErrors = [...inspection.errors];
+    for (const image of manifest.images) {
+      // A package may state its own digests. When it does, they must be right.
+      if (image.sha256 && String(image.sha256).toLowerCase() !== inspection.digests.get(image.file)) {
+        packageErrors.push(`${image.file}: SHA-256 in the package manifest does not match the uploaded image bytes.`);
+      }
+    }
+    if (packageErrors.length) throw preflightFailure(packageErrors);
+    const publishedManifest = manifestForPullRequest(manifest, inspection.digests);
+
     const comparison = compareDestination(existingFiles, uploadedFiles);
     const operation = existingFiles.length ? 'replace' : 'create';
     const branch = branchFor(manifest.slug);
@@ -91,7 +147,9 @@ export default async function handler(request, response) {
         || verifiedPullRequest.head?.ref !== branch
         || verifiedPullRequest.head?.sha !== session.existingPullRequest.commit
         || verifiedPullRequest.base?.ref !== baseBranch
-        || verifiedPullRequest.head?.repo?.full_name && verifiedPullRequest.head.repo.full_name !== manifest.repository
+        // Strict: a deleted fork is reported as `head.repo: null`, and a pull
+        // request without a head repository cannot be this job's draft.
+        || verifiedPullRequest.head?.repo?.full_name !== manifest.repository
       ) throw new Error('The existing pull request does not belong to this publishing job.');
     }
 
@@ -137,6 +195,13 @@ export default async function handler(request, response) {
         });
       }
     }
+
+    // Refuse a stale submission before anything is written: the branch must
+    // still be exactly what this session was created against. setBranch
+    // repeats the condition atomically for a change that lands after this.
+    const expectedHead = verifiedPullRequest ? session.existingPullRequest.commit : (session.branchHead || null);
+    const currentHead = await atStage('load-publishing-branch', () => publishingBranchHead(manifest.repository, branch));
+    if (currentHead !== expectedHead) throw branchChanged(branch);
 
     const tree = buildTreeEntries(manifest.destinationPath, uploadedFiles, comparison.deleted);
     if (!tree.length) throw new Error('The Git tree would be empty.');
@@ -197,13 +262,17 @@ export default async function handler(request, response) {
 
     const verb = operation === 'replace' ? 'Update' : 'Publish';
     const message = `${verb} ${manifest.title}`;
+    // The tree is still the live default branch plus this post. The branch's
+    // current commit is added as a second parent only so that moving the
+    // branch is a fast-forward GitHub can verify (see setBranch).
+    const parents = expectedHead && expectedHead !== baseCommitSha ? [baseCommitSha, expectedHead] : [baseCommitSha];
     const createdCommit = await atStage('create-commit', () => repoRequest(manifest.repository, '/git/commits', {
       method: 'POST',
-      body: { message, tree: createdTree.sha, parents: [baseCommitSha] },
+      body: { message, tree: createdTree.sha, parents },
     }));
     if (!createdCommit?.sha) throw new Error('create-commit: GitHub returned no commit SHA.');
 
-    await atStage('create-or-update-branch', () => setBranch(manifest.repository, branch, createdCommit.sha));
+    await atStage('create-or-update-branch', () => setBranch(manifest.repository, branch, createdCommit.sha, expectedHead));
 
     const changeSummary = [
       summaryLine('Added', comparison.added),
@@ -215,7 +284,7 @@ export default async function handler(request, response) {
       ? `\n\n## Retired legacy exceptions\n\n${baselineRetirement.retired.map((entry) => `- \`${entry.ruleId}\` — \`${entry.signature}\``).join('\n')}\n`
       : '';
 
-    const pullBody = `## What changed\n\n${operation === 'replace' ? 'Replaces the complete existing post folder' : 'Publishes a new post folder'} for **${manifest.title}** from an approved Wilbert Publisher package.\n\n- Site profile: **${manifest.targetSite}**\n- Operation: **${operation === 'replace' ? 'Update existing post' : 'Publish new post'}**\n- Slug: \`${manifest.slug}\`\n- Destination: \`${manifest.destinationPath}\`\n- Canonical URL: ${manifest.canonicalUrl}\n- Repository check: \`${manifest.buildCommand}\`\n\n## Folder comparison\n\n${changeSummary}${retiredBaselineSummary}\n\n## Publisher controls\n\n- Complete package preflight passed before GitHub production blobs were created\n- Resolved legacy exceptions were staged atomically with the post repair\n- Unresolved and unsupported legacy exceptions were preserved\n- The uploaded drop-in folder was treated as authoritative for this destination only\n- Stale files were deleted only from \`${manifest.destinationPath}\`\n- Production assets were committed atomically through the GitHub API\n- GitHub Actions and Vercel must pass before merge\n- Production merge remains manual\n`;
+    const pullBody = `## What changed\n\n${operation === 'replace' ? 'Replaces the complete existing post folder' : 'Publishes a new post folder'} for **${manifest.title}** from an approved Wilbert Publisher package.\n\n- Site profile: **${manifest.targetSite}**\n- Operation: **${operation === 'replace' ? 'Update existing post' : 'Publish new post'}**\n- Handoff method: **Publisher package**\n- Slug: \`${manifest.slug}\`\n- Destination: \`${manifest.destinationPath}\`\n- Canonical URL: ${manifest.canonicalUrl}\n- Repository check: \`${manifest.buildCommand}\`\n\n## Publisher manifest\n\n\`\`\`json\n${JSON.stringify(publishedManifest, null, 2)}\n\`\`\`\n\n## Folder comparison\n\n${changeSummary}${retiredBaselineSummary}\n\n## Publisher controls\n\n- Complete package preflight passed before GitHub production blobs were created\n- The uploaded source and image bytes were checked against the manifest above, and its image SHA-256 values were computed from those bytes\n- Resolved legacy exceptions were staged atomically with the post repair\n- Unresolved and unsupported legacy exceptions were preserved\n- The uploaded drop-in folder was treated as authoritative for this destination only\n- Stale files were deleted only from \`${manifest.destinationPath}\`\n- Production assets were committed atomically through the GitHub API\n- GitHub Actions and Vercel must pass before merge\n- Production merge remains manual\n`;
     const pullRequest = verifiedPullRequest
       ? await atStage('update-pull-request', () => repoRequest(
           manifest.repository,
