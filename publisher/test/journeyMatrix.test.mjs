@@ -266,6 +266,13 @@ class FakeServices {
       this.blobs.set(blobSha, content);
       return this.json({ sha: blobSha });
     }
+    // finish reads each uploaded blob back to verify it before writing.
+    if (path.startsWith('/git/blobs/') && method === 'GET') {
+      const blobSha = path.split('/')[3];
+      const content = this.blobs.get(blobSha);
+      if (!content) return this.json({ message: 'Not Found' }, 404);
+      return this.json({ sha: blobSha, size: content.length, encoding: 'base64', content: content.toString('base64') });
+    }
     if (path.startsWith('/contents/public/sitemap.xml') && this.profile.repository === 'SuperDudePro/Blog-Site') {
       const sitemap = `<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n  <url><loc>https://ourolddad.com/</loc></url>\n</urlset>\n`;
       return this.json({ encoding: 'base64', content: Buffer.from(sitemap).toString('base64') });

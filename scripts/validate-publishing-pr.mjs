@@ -45,33 +45,38 @@ export function checkPublishingPullRequest(event, { root = process.cwd() } = {})
   }
   const body = String(pr.body || '');
   const direct = /^- Handoff method:\s*\*\*Direct GitHub\*\*\s*$/mi.test(body);
+  // A draft the Publisher opens from an uploaded package names that method and
+  // carries the same manifest. The marker selects no shortcut: both methods
+  // are held to every check below.
+  const packaged = /^- Handoff method:\s*\*\*Publisher package\*\*\s*$/mi.test(body);
   // Only preserve historical ZIP-origin PRs created before this gate's release.
-  // A new PR cannot bypass the direct contract by copying a legacy description.
+  // A new PR cannot bypass the contract by copying a legacy description.
   const creationTime = Date.parse(String(pr.created_at || ''));
   const legacy = Number.isFinite(creationTime)
     && creationTime < Date.parse('2026-11-08T00:00:00Z')
     && /^- Operation:\s*\*\*Publish new post\*\*\s*$/mi.test(body)
     && /Complete package preflight passed before GitHub production blobs were created/i.test(body);
-  if (!direct && legacy) return { skipped: true, mode: 'legacy-package', errors: [] };
-  if (!direct) {
-    return { skipped: false, mode: 'direct-github', errors: [
-      'Publishing PR needs the exact Handoff method: **Direct GitHub** marker and full Publisher manifest, or a verified legacy-package handoff.',
+  if (!direct && !packaged && legacy) return { skipped: true, mode: 'legacy-package', errors: [] };
+  if (direct === packaged) {
+    return { skipped: false, mode: 'unrecognized-handoff', errors: [
+      'Publishing PR needs exactly one exact Handoff method marker, **Direct GitHub** or **Publisher package**, and the full Publisher manifest, or a verified legacy-package handoff.',
     ] };
   }
+  const mode = direct ? 'direct-github' : 'publisher-package';
 
   const errors = [];
   const job = jobFromPullRequest(repository, pr);
-  if (!job || job.handoffMethod !== 'direct-github') {
+  if (!job || job.handoffMethod !== (direct ? 'direct-github' : 'package')) {
     errors.push('Publishing PR identity fields are incomplete. Include Site profile, Slug, Destination, Canonical URL and a Publish/Update title.');
   }
 
   let manifest;
   try { manifest = parseDirectManifest(body); }
   catch (error) {
-    return { skipped: false, mode: 'direct-github', errors: unique([...errors, error.message]) };
+    return { skipped: false, mode, errors: unique([...errors, error.message]) };
   }
   errors.push(...collectManifestErrors(manifest));
-  if (errors.length) return { skipped: false, mode: 'direct-github', errors: unique(errors) };
+  if (errors.length) return { skipped: false, mode, errors: unique(errors) };
 
   if (manifest.repository !== repository) errors.push('Manifest repository does not match GitHub PR repository.');
   if (job && Object.entries({
@@ -85,25 +90,26 @@ export function checkPublishingPullRequest(event, { root = process.cwd() } = {})
       || !pullRequestIsFromRepository(pr, repository)) {
     errors.push('The handoff must use the publisher/<slug> branch from the target repository into main.');
   }
-  if (errors.length) return { skipped: false, mode: 'direct-github', errors: unique(errors) };
+  if (errors.length) return { skipped: false, mode, errors: unique(errors) };
 
   const profile = getSiteProfile(manifest);
-  // Direct-GitHub handoffs do not use the ZIP Publisher's automatic sitemap staging.
-  // Fail with an actionable error before the site's early validate:sitemap build step.
+  // The Publisher stages the sitemap route for a package; a direct handoff must
+  // stage it by hand. Either way it has to be in this pull request: fail with an
+  // actionable error before the site's early validate:sitemap build step.
   if (profile.id === 'our-old-dad') {
     const sitemapPath = path.join(root, 'public', 'sitemap.xml');
     if (!fs.existsSync(sitemapPath)) {
-      errors.push('Direct OOD publishing PR is missing checked-in public/sitemap.xml.');
+      errors.push('OOD publishing PR is missing checked-in public/sitemap.xml.');
     } else {
       const sitemap = fs.readFileSync(sitemapPath, 'utf8');
       if (!sitemap.includes(`<loc>${manifest.canonicalUrl}</loc>`)) {
-        errors.push(`Direct OOD publishing PR must include ${manifest.canonicalUrl} in checked-in public/sitemap.xml before validation.`);
+        errors.push(`OOD publishing PR must include ${manifest.canonicalUrl} in checked-in public/sitemap.xml before validation.`);
       }
     }
   }
   const destination = path.join(root, 'src', 'content', 'posts', manifest.slug);
   if (!fs.existsSync(destination) || !fs.statSync(destination).isDirectory()) {
-    return { skipped: false, mode: 'direct-github', errors: ['Missing production post directory: ' + manifest.destinationPath] };
+    return { skipped: false, mode, errors: ['Missing production post directory: ' + manifest.destinationPath] };
   }
 
   const productionPaths = listProductionFiles(destination, errors);
@@ -144,7 +150,7 @@ export function checkPublishingPullRequest(event, { root = process.cwd() } = {})
     }
   }
   errors.push(...collectPackagePreflightErrors({ manifest, productionPaths, sourceFiles, imageMetadata }));
-  return { skipped: false, mode: 'direct-github', errors: unique(errors), slug: manifest.slug, imageCount: manifest.images.length };
+  return { skipped: false, mode, errors: unique(errors), slug: manifest.slug, imageCount: manifest.images.length };
 }
 
 if (process.argv[1] && path.resolve(process.argv[1]) === path.resolve(new URL(import.meta.url).pathname)) {

@@ -26,13 +26,14 @@ const sites = {
   },
 };
 
-function sources(kind, slug, note) {
+function sources(kind, slug, note, bodyImages) {
   const cta = '<p><a href="/contact">Tell us what we missed.</a></p>';
+  const bodies = Array.from({ length: bodyImages }, (_, index) => index + 1);
   if (kind === 'ood') {
     return {
       'index.ts': `import cardImage from "./card-image.webp";
 import heroImage from "./hero-image.webp";
-const post = {
+${bodies.map((n) => `import body${n} from "./body-image-${n}.webp";\n`).join('')}const post = {
   title: "Fixture ${slug}",
   slug: "${slug}",
   excerpt: "Deterministic publishing fixture.",
@@ -43,7 +44,7 @@ const post = {
   cardAlt: "Card image.",
   heroImage,
   heroAlt: "Hero image.",
-  bodyHtml: \`<p>${note}</p>${cta}\`,
+  bodyHtml: \`<p>${note}</p>${bodies.map((n) => `<img src="\${body${n}}" alt="Body image ${n}." />`).join('')}${cta}\`,
 };
 export default post;
 `,
@@ -67,23 +68,32 @@ export const metadata = {
 };
 `,
     'index.tsx': `import { metadata } from "./meta";
-const post = { ...metadata, body: <><p>${note}</p>${cta}</> };
+${bodies.map((n) => `import body${n} from "./images/body-image-${n}.webp";\n`).join('')}const post = { ...metadata, body: <><p>${note}</p>${bodies.map((n) => `<PostFigure src={body${n}} alt="Body image ${n}." />`).join('')}${cta}</> };
 export default post;
 `,
   };
 }
 
 // `note` changes the production source, so two fixtures with different
-// notes are two different versions of the same post.
-export function publishingFixture(kind, slug, { note = 'First version.' } = {}) {
+// notes are two different versions of the same post. `bodyImages` adds that
+// many body images after the card and hero (zero is a valid post).
+export function publishingFixture(kind, slug, { note = 'First version.', bodyImages = 0 } = {}) {
   const site = sites[kind];
-  const images = ['card', 'hero'].map((role) => ({
-    file: `${site.imagePrefix}${role}-image.webp`,
-    role,
-    alt: `${role[0].toUpperCase()}${role.slice(1)} image.`,
-    caption: null,
-  }));
-  const sourceFiles = sources(kind, slug, note);
+  const images = [
+    ...['card', 'hero'].map((role) => ({
+      file: `${site.imagePrefix}${role}-image.webp`,
+      role,
+      alt: `${role[0].toUpperCase()}${role.slice(1)} image.`,
+      caption: null,
+    })),
+    ...Array.from({ length: bodyImages }, (_, index) => ({
+      file: `${site.imagePrefix}body-image-${index + 1}.webp`,
+      role: `body-${index + 1}`,
+      alt: `Body image ${index + 1}.`,
+      caption: null,
+    })),
+  ];
+  const sourceFiles = sources(kind, slug, note, bodyImages);
   const production = Object.fromEntries([
     ...Object.entries(sourceFiles).map(([name, text]) => [name, Buffer.from(text)]),
     ...images.map((image) => [image.file, Buffer.from(imageFixture(image.role))]),

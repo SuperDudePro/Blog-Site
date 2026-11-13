@@ -17,7 +17,7 @@ const fail = (message) => {
 
 const unique = (values) => [...new Set(values.filter(Boolean))];
 
-function preflightFailure(errors) {
+export function preflightFailure(errors) {
   const values = unique(errors);
   const error = new Error(values.length === 1
     ? values[0]

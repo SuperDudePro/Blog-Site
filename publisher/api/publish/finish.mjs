@@ -1,10 +1,12 @@
 import { requirePublisher } from '../../lib/auth.mjs';
 import { decodeGithubBlob, encodeBaseline, retireValidatedBaselineEntries } from '../../lib/baselineRetirement.mjs';
+import { inspectProductionBlobs } from '../../lib/directHandoff.mjs';
 import { repoRequest } from '../../lib/github.mjs';
 import { json, method, readJson } from '../../lib/http.mjs';
 import { buildTreeEntries, compareDestination, listDestinationFiles, publishingBranchHead } from '../../lib/repository.mjs';
 import { includeOurOldDadPostInSitemap } from '../../lib/sitemap.mjs';
-import { branchFor, safeRelative, validateManifest, validateProductionPaths } from '../../lib/validation.mjs';
+import { branchFor, preflightFailure, safeRelative, validateManifest, validateProductionPaths } from '../../lib/validation.mjs';
+import { getSiteProfile } from '../../siteProfiles.mjs';
 
 const summaryLine = (label, files) => `- ${label}: ${files.length}${files.length ? ` — ${files.map((file) => `\`${file}\``).join(', ')}` : ''}`;
 
@@ -15,6 +17,23 @@ function stageError(stage, error) {
   wrapped.details = error.details;
   wrapped.stage = stage;
   return wrapped;
+}
+
+// The manifest published in the draft's description, where the CI gate reads
+// it: the validated package fields in a fixed order, with each image's
+// SHA-256 taken from the uploaded bytes rather than from the request.
+function manifestForPullRequest(manifest, digests) {
+  const fields = ['targetSite', 'repository', ...getSiteProfile(manifest).metadataFields, 'tags', 'format', 'destinationPath', 'canonicalUrl', 'buildCommand'];
+  return {
+    ...Object.fromEntries(fields.filter((field) => manifest[field] !== undefined).map((field) => [field, manifest[field]])),
+    images: manifest.images.map((image) => ({
+      file: image.file,
+      role: image.role,
+      alt: image.alt,
+      caption: image.caption ?? null,
+      sha256: digests.get(image.file),
+    })),
+  };
 }
 
 async function atStage(stage, operation) {
@@ -94,6 +113,25 @@ export default async function handler(request, response) {
       const expectedSize = preflightSizes.get(file.path);
       if (expectedSize && expectedSize !== file.size) throw new Error(`${file.path} changed after package preflight.`);
     }
+
+    // The session's preflight is the browser's account of the package. Before
+    // anything is written, hold the uploaded bytes themselves to the same
+    // contract the CI gate applies to the pull request, and take each image's
+    // SHA-256 from those bytes.
+    const inspection = await atStage('verify-uploaded-package', () => inspectProductionBlobs({
+      repository: manifest.repository,
+      manifest,
+      files: uploadedFiles,
+    }));
+    const packageErrors = [...inspection.errors];
+    for (const image of manifest.images) {
+      // A package may state its own digests. When it does, they must be right.
+      if (image.sha256 && String(image.sha256).toLowerCase() !== inspection.digests.get(image.file)) {
+        packageErrors.push(`${image.file}: SHA-256 in the package manifest does not match the uploaded image bytes.`);
+      }
+    }
+    if (packageErrors.length) throw preflightFailure(packageErrors);
+    const publishedManifest = manifestForPullRequest(manifest, inspection.digests);
 
     const comparison = compareDestination(existingFiles, uploadedFiles);
     const operation = existingFiles.length ? 'replace' : 'create';
@@ -246,7 +284,7 @@ export default async function handler(request, response) {
       ? `\n\n## Retired legacy exceptions\n\n${baselineRetirement.retired.map((entry) => `- \`${entry.ruleId}\` — \`${entry.signature}\``).join('\n')}\n`
       : '';
 
-    const pullBody = `## What changed\n\n${operation === 'replace' ? 'Replaces the complete existing post folder' : 'Publishes a new post folder'} for **${manifest.title}** from an approved Wilbert Publisher package.\n\n- Site profile: **${manifest.targetSite}**\n- Operation: **${operation === 'replace' ? 'Update existing post' : 'Publish new post'}**\n- Slug: \`${manifest.slug}\`\n- Destination: \`${manifest.destinationPath}\`\n- Canonical URL: ${manifest.canonicalUrl}\n- Repository check: \`${manifest.buildCommand}\`\n\n## Folder comparison\n\n${changeSummary}${retiredBaselineSummary}\n\n## Publisher controls\n\n- Complete package preflight passed before GitHub production blobs were created\n- Resolved legacy exceptions were staged atomically with the post repair\n- Unresolved and unsupported legacy exceptions were preserved\n- The uploaded drop-in folder was treated as authoritative for this destination only\n- Stale files were deleted only from \`${manifest.destinationPath}\`\n- Production assets were committed atomically through the GitHub API\n- GitHub Actions and Vercel must pass before merge\n- Production merge remains manual\n`;
+    const pullBody = `## What changed\n\n${operation === 'replace' ? 'Replaces the complete existing post folder' : 'Publishes a new post folder'} for **${manifest.title}** from an approved Wilbert Publisher package.\n\n- Site profile: **${manifest.targetSite}**\n- Operation: **${operation === 'replace' ? 'Update existing post' : 'Publish new post'}**\n- Handoff method: **Publisher package**\n- Slug: \`${manifest.slug}\`\n- Destination: \`${manifest.destinationPath}\`\n- Canonical URL: ${manifest.canonicalUrl}\n- Repository check: \`${manifest.buildCommand}\`\n\n## Publisher manifest\n\n\`\`\`json\n${JSON.stringify(publishedManifest, null, 2)}\n\`\`\`\n\n## Folder comparison\n\n${changeSummary}${retiredBaselineSummary}\n\n## Publisher controls\n\n- Complete package preflight passed before GitHub production blobs were created\n- The uploaded source and image bytes were checked against the manifest above, and its image SHA-256 values were computed from those bytes\n- Resolved legacy exceptions were staged atomically with the post repair\n- Unresolved and unsupported legacy exceptions were preserved\n- The uploaded drop-in folder was treated as authoritative for this destination only\n- Stale files were deleted only from \`${manifest.destinationPath}\`\n- Production assets were committed atomically through the GitHub API\n- GitHub Actions and Vercel must pass before merge\n- Production merge remains manual\n`;
     const pullRequest = verifiedPullRequest
       ? await atStage('update-pull-request', () => repoRequest(
           manifest.repository,
