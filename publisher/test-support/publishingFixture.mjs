@@ -1,5 +1,6 @@
 // A minimal valid Publisher package (card + hero, no body images) for each
 // registered site profile, in the shape the browser sends to the handlers.
+import { createHash } from 'node:crypto';
 import { inspectImageBytes } from '../lib/imageMetadata.mjs';
 import { imageFixture } from './fixtures.mjs';
 
@@ -127,4 +128,45 @@ export function siteRepositoryFiles(repository, extra = {}) {
     'src/content/posts/untouched-neighbor/index.ts': 'export default { slug: "untouched-neighbor" };\n',
     ...extra,
   };
+}
+
+// ---- direct GitHub handoff -------------------------------------------------
+
+// The manifest an assistant publishes for a direct handoff: the package
+// manifest plus the SHA-256 of each image's exact bytes.
+export function manifestWithDigests({ manifest, production }) {
+  return {
+    ...manifest,
+    images: manifest.images.map((image) => ({
+      ...image,
+      sha256: createHash('sha256').update(production[image.file]).digest('hex'),
+    })),
+  };
+}
+
+export function directHandoffBody(fixture) {
+  const { manifest } = fixture;
+  return [
+    `- Site profile: **${manifest.targetSite}**`,
+    '- Handoff method: **Direct GitHub**',
+    `- Slug: \`${manifest.slug}\``,
+    `- Destination: \`${manifest.destinationPath}\``,
+    `- Canonical URL: ${manifest.canonicalUrl}`,
+    '',
+    '## Publisher manifest',
+    '',
+    '```json',
+    JSON.stringify(manifestWithDigests(fixture), null, 2),
+    '```',
+  ].join('\n');
+}
+
+// What a direct handoff stages on its branch: the post folder and, for Our
+// Old Dad, the new route in the checked-in sitemap.
+export function directHandoffFiles({ manifest, production }, currentSitemap) {
+  const files = Object.fromEntries(Object.entries(production).map(([file, bytes]) => [`${manifest.destinationPath}${file}`, bytes]));
+  if (manifest.repository === OOD) {
+    files['public/sitemap.xml'] = String(currentSitemap).replace('</urlset>', `  <url>\n    <loc>${manifest.canonicalUrl}</loc>\n  </url>\n</urlset>`);
+  }
+  return files;
 }

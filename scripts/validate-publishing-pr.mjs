@@ -3,7 +3,7 @@ import path from 'node:path';
 import { createHash } from 'node:crypto';
 import { parseDirectManifest } from '../publisher/lib/directHandoff.mjs';
 import { inspectImageBytes } from '../publisher/lib/imageMetadata.mjs';
-import { jobFromPullRequest } from '../publisher/lib/publishingJobs.mjs';
+import { jobFromPullRequest, pullRequestIsFromRepository } from '../publisher/lib/publishingJobs.mjs';
 import { getSiteProfile } from '../publisher/siteProfiles.mjs';
 import { branchFor, collectManifestErrors, collectPackagePreflightErrors } from '../publisher/lib/validation.mjs';
 
@@ -34,6 +34,15 @@ export function checkPublishingPullRequest(event, { root = process.cwd() } = {})
   if (!pr || !String(pr.head?.ref || '').startsWith('publisher/')) {
     return { skipped: true, mode: 'unrelated', errors: [] };
   }
+  const repository = String(event.repository?.full_name || '');
+  // A publisher/* branch offered from a fork is not a publishing handoff,
+  // whatever it carries. GitHub reports a deleted fork as `head.repo: null`,
+  // so the head repository must be present and must be this repository.
+  if (!pullRequestIsFromRepository(pr, repository)) {
+    return { skipped: false, mode: 'not-same-repository', errors: [
+      'Publishing PR must come from a publisher/<slug> branch in the target repository, not from a fork.',
+    ] };
+  }
   const body = String(pr.body || '');
   const direct = /^- Handoff method:\s*\*\*Direct GitHub\*\*\s*$/mi.test(body);
   // Only preserve historical ZIP-origin PRs created before this gate's release.
@@ -50,7 +59,6 @@ export function checkPublishingPullRequest(event, { root = process.cwd() } = {})
     ] };
   }
 
-  const repository = String(event.repository?.full_name || '');
   const errors = [];
   const job = jobFromPullRequest(repository, pr);
   if (!job || job.handoffMethod !== 'direct-github') {
@@ -74,7 +82,7 @@ export function checkPublishingPullRequest(event, { root = process.cwd() } = {})
   }
   if (pr.head?.ref !== branchFor(manifest.slug)
       || pr.base?.ref !== 'main'
-      || (pr.head?.repo?.full_name && pr.head.repo.full_name !== repository)) {
+      || !pullRequestIsFromRepository(pr, repository)) {
     errors.push('The handoff must use the publisher/<slug> branch from the target repository into main.');
   }
   if (errors.length) return { skipped: false, mode: 'direct-github', errors: unique(errors) };

@@ -1,7 +1,7 @@
 import { createHash } from 'node:crypto';
 import { repoRequest } from './github.mjs';
 import { inspectImageBytes } from './imageMetadata.mjs';
-import { jobFromPullRequest } from './publishingJobs.mjs';
+import { jobFromPullRequest, pullRequestIsFromRepository } from './publishingJobs.mjs';
 import { listDestinationFiles } from './repository.mjs';
 import { branchFor, collectPackagePreflightErrors, validateManifest, validateRepository } from './validation.mjs';
 
@@ -43,6 +43,11 @@ export async function verifyDirectHandoff({ repository, prNumber }, dependencies
   const request = dependencies.request || repoRequest;
   const listFiles = dependencies.listFiles || listDestinationFiles;
   const pull = await request(repository, '/pulls/' + prNumber);
+  // Checked first and strictly: a fork can reproduce the branch name, the
+  // description, and the files, and a deleted fork reports no head repository.
+  if (!pullRequestIsFromRepository(pull, repository)) {
+    throw invalid('The pull request does not come from ' + repository + '; a fork cannot be a Publisher handoff.');
+  }
   const job = jobFromPullRequest(repository, pull);
   if (!job || job.handoffMethod !== 'direct-github') throw invalid('The PR is not a marked Publisher direct GitHub handoff.');
   if (pull.state !== 'open' && !pull.merged_at) throw invalid('The publishing PR was closed without merging.');
@@ -59,7 +64,7 @@ export async function verifyDirectHandoff({ repository, prNumber }, dependencies
   }
   if (pull.head?.ref !== branchFor(manifest.slug)
     || pull.base?.ref !== 'main'
-    || (pull.head?.repo?.full_name && pull.head.repo.full_name !== repository)
+    || !pullRequestIsFromRepository(pull, repository)
     || !/^[0-9a-f]{40}$/i.test(pull.head?.sha || '')) {
     throw invalid('Direct handoff must use the deterministic publisher/slug branch in its target repository.');
   }

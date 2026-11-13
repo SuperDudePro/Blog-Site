@@ -10,6 +10,9 @@
 // Nothing here opens a socket. Hooks let a test act as "another writer" or
 // drop a response after GitHub has already applied the request.
 import { createHash } from 'node:crypto';
+import fs from 'node:fs';
+import os from 'node:os';
+import path from 'node:path';
 
 const sha1 = (value) => createHash('sha1').update(value).digest('hex');
 const toBuffer = (value) => (Buffer.isBuffer(value) ? value : Buffer.from(value));
@@ -243,6 +246,20 @@ export class FakeGitHub {
     return Object.fromEntries([...tree].map(([path, blob]) => [path, repository.blobs.get(blob).toString('utf8')]));
   }
 
+  // Returns a path -> Buffer map of the tree at a commit (binary safe).
+  fileBytes(fullName, commitSha) {
+    const repository = this.repository(fullName);
+    const tree = repository.trees.get(repository.commits.get(commitSha).tree);
+    return new Map([...tree].map(([file, blob]) => [file, repository.blobs.get(blob)]));
+  }
+
+  // The `pull_request` event payload GitHub Actions hands to a workflow.
+  pullRequestEvent(fullName, number) {
+    const repository = this.repository(fullName);
+    const pull = repository.pulls.find((candidate) => candidate.number === number);
+    return { repository: { full_name: repository.fullName }, pull_request: this.pullJson(repository, pull) };
+  }
+
   pulls(fullName) {
     const repository = this.repository(fullName);
     return repository.pulls.map((pull) => this.pullJson(repository, pull));
@@ -470,6 +487,19 @@ export class FakeGitHub {
 
     return reply(404, { message: `Unhandled fixture route: ${method} ${rest}` });
   }
+}
+
+// Writes a commit's tree to a temporary directory, the way the CI checkout
+// step would, and removes it when the test finishes.
+export function checkoutCommit(t, github, fullName, commitSha) {
+  const root = fs.mkdtempSync(path.join(os.tmpdir(), 'publisher-checkout-'));
+  t.after(() => fs.rmSync(root, { recursive: true, force: true }));
+  for (const [file, bytes] of github.fileBytes(fullName, commitSha)) {
+    const target = path.join(root, file);
+    fs.mkdirSync(path.dirname(target), { recursive: true });
+    fs.writeFileSync(target, bytes);
+  }
+  return root;
 }
 
 // ---- handler harness ------------------------------------------------------

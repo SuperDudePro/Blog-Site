@@ -9,6 +9,10 @@ import {
   selectPublishingJob,
 } from '../lib/publishingJobs.mjs';
 
+// GitHub always reports the head repository of a same-repository pull request.
+const life = { full_name: 'SuperDudePro/LifeEducationOrg' };
+const ood = { full_name: 'SuperDudePro/Blog-Site' };
+
 const pull = (overrides = {}) => ({
   number: 26,
   html_url: 'https://github.com/SuperDudePro/LifeEducationOrg/pull/26',
@@ -20,7 +24,7 @@ const pull = (overrides = {}) => ({
   state: 'closed',
   merged_at: '2026-07-29T18:00:00Z',
   updated_at: '2026-07-29T18:01:00Z',
-  head: { ref: 'publisher/domain-10-life-skills-project-execution-1785360813309', sha: 'a'.repeat(40) },
+  head: { ref: 'publisher/domain-10-life-skills-project-execution-1785360813309', sha: 'a'.repeat(40), repo: life },
   base: { ref: 'main' },
   ...overrides,
 });
@@ -34,7 +38,7 @@ test('reconstructs a durable publisher job from its GitHub pull request', () => 
 });
 
 test('ignores pull requests that were not created by Publisher', () => {
-  assert.equal(jobFromPullRequest('SuperDudePro/LifeEducationOrg', pull({ head: { ref: 'feature/domain-10', sha: 'a'.repeat(40) } })), null);
+  assert.equal(jobFromPullRequest('SuperDudePro/LifeEducationOrg', pull({ head: { ref: 'feature/domain-10', sha: 'a'.repeat(40), repo: life } })), null);
 });
 
 test('prefers an open job before a more recently updated merged job', () => {
@@ -44,7 +48,7 @@ test('prefers an open job before a more recently updated merged job', () => {
     state: 'open',
     merged_at: null,
     updated_at: '2026-07-28T18:01:00Z',
-    head: { ref: 'publisher/another-post-1', sha: 'b'.repeat(40) },
+    head: { ref: 'publisher/another-post-1', sha: 'b'.repeat(40), repo: ood },
   }));
   assert.equal(newestPublishingJob([merged, open]).handoff.prNumber, 70);
   assert.equal(publishingJobKey(merged), 'SuperDudePro/LifeEducationOrg#26');
@@ -84,19 +88,19 @@ test('does not recover closed or non-Publisher pull requests', () => {
 });
 
 test('refresh recovery never guesses between active jobs from different sites', () => {
-  const life = jobFromPullRequest('SuperDudePro/LifeEducationOrg', pull({
+  const lifeJob = jobFromPullRequest('SuperDudePro/LifeEducationOrg', pull({
     state: 'open',
     merged_at: null,
   }));
-  const ood = jobFromPullRequest('SuperDudePro/Blog-Site', pull({
+  const oodJob = jobFromPullRequest('SuperDudePro/Blog-Site', pull({
     number: 70,
     state: 'open',
     merged_at: null,
-    head: { ref: 'publisher/ood-post', sha: 'b'.repeat(40) },
+    head: { ref: 'publisher/ood-post', sha: 'b'.repeat(40), repo: ood },
   }));
-  assert.equal(selectRecoverableJob([life, ood], ''), null);
+  assert.equal(selectRecoverableJob([lifeJob, oodJob], ''), null);
   assert.equal(
-    selectRecoverableJob([life, ood], 'SuperDudePro/Blog-Site#70')?.handoff.repository,
+    selectRecoverableJob([lifeJob, oodJob], 'SuperDudePro/Blog-Site#70')?.handoff.repository,
     'SuperDudePro/Blog-Site',
   );
 });
@@ -107,7 +111,7 @@ test('direct GitHub handoffs are resumable without a ZIP and are not mislabeled 
     title: 'Publish Direct Story',
     state: 'open',
     merged_at: null,
-    head: { ref: 'publisher/direct-story', sha: 'd'.repeat(40) },
+    head: { ref: 'publisher/direct-story', sha: 'd'.repeat(40), repo: ood },
     body: `- Site profile: **Our Old Dad**
 - Handoff method: **Direct GitHub**
 - Slug: \`direct-story\`
