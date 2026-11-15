@@ -1102,3 +1102,27 @@ p {
 
 /* Same charcoal-and-purple illustrations as the home section cards. */
 .categories-page__sketch{display:block;width:min(100%,176px);height:auto;margin:.7rem auto 1rem;object-fit:contain}
+
+/* Reader navigation: one clear desktop row and an accessible compact disclosure. */
+.site-nav__desktop { display: flex; align-items: center; flex-wrap: nowrap; gap: 0.35rem; }
+.site-nav__compact { display: none; }
+.archive-empty { max-width: 38rem; padding: 1.35rem; border: 2px solid var(--box-border); border-radius: 16px; background: white; }
+.archive-empty p { margin-bottom: 1rem; }
+.archive-empty .button { cursor: pointer; }
+@media (max-width: 1080px) {
+  .site-header__inner { flex-wrap: wrap; }
+  .site-nav { width: 100%; }
+  .site-nav__desktop { display: none; }
+  .site-nav__compact { display: block; width: 100%; }
+  .site-nav__toggle { display: flex; align-items: center; justify-content: space-between; width: 100%; min-height: 46px; padding: 0.65rem 1rem; border: 2px solid var(--accent-light); border-radius: 13px; background: var(--black); color: white; font: inherit; font-weight: 750; cursor: pointer; }
+  .site-nav__toggle:hover, .site-nav__toggle:focus-visible { background: var(--accent); outline-offset: 3px; }
+  .site-nav__mobile-links[hidden] { display: none; }
+  .site-nav__mobile-links { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 0.5rem; padding-top: 0.65rem; }
+  .site-nav__mobile-links .site-nav__link { min-width: 0; }
+}
+@media (max-width: 620px) {
+  .site-nav__mobile-links { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+}
+@media (max-width: 390px) {
+  .site-nav__mobile-links { grid-template-columns: 1fr; }
+}
