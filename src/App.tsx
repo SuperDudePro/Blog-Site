@@ -58,6 +58,7 @@ export default function App() {
   })();
 
   return (
+    <>
     <SiteShell>
       {route.page === 'home' && <HomePage />}
       {route.page === 'categories' && <CategoriesPage />}
@@ -68,7 +69,8 @@ export default function App() {
       {route.page === 'post' && <PostPage slug={route.slug} />}
       {route.page === 'playlists' && <PlaylistDirectoryPage />}
       {route.page === 'not-found' && <SectionPage sectionKey="everything" oldLinkNotice />}
-      <LongPostNav homeHref="/" postsHref={readerReturn.href} postsLabel={readerReturn.label} />
     </SiteShell>
+    <LongPostNav homeHref="/" postsHref={readerReturn.href} postsLabel={readerReturn.label} />
+    </>
   );
 }
