@@ -42,6 +42,21 @@ export default function App() {
     applyRouteMetadata(route);
   }, [route]);
 
+  const readerReturn = (() => {
+    if (route.page === 'post') {
+      const post = getPostMetadataBySlug(route.slug);
+      if (post) {
+        const category = getPostCategoryKey(post);
+        return category === 'music-playlists'
+          ? { href: '/playlists', label: 'All playlists' }
+          : { href: sectionPath(category), label: 'This category' };
+      }
+    }
+    if (route.page === 'section') return { href: '/categories', label: 'All categories' };
+    if (route.page === 'playlists') return { href: sectionPath('music-playlists'), label: 'Music posts' };
+    return { href: '/archive', label: 'All posts' };
+  })();
+
   return (
     <SiteShell>
       {route.page === 'home' && <HomePage />}
@@ -53,14 +68,7 @@ export default function App() {
       {route.page === 'post' && <PostPage slug={route.slug} />}
       {route.page === 'playlists' && <PlaylistDirectoryPage />}
       {route.page === 'not-found' && <SectionPage sectionKey="everything" oldLinkNotice />}
-      <LongPostNav
-        homeHref="/"
-        postsHref={route.page === 'post'
-          ? (() => { const post = getPostMetadataBySlug(route.slug); return post ? (getPostCategoryKey(post) === 'music-playlists' ? '/playlists' : sectionPath(getPostCategoryKey(post))) : '/archive'; })()
-          : route.page === 'section' ? '/categories'
-          : route.page === 'playlists' ? sectionPath('music-playlists') : '/archive'}
-        postsLabel={route.page === 'post' ? (getPostMetadataBySlug(route.slug) && getPostCategoryKey(getPostMetadataBySlug(route.slug)!) === 'music-playlists' ? 'All playlists' : 'This category') : route.page === 'section' ? 'All categories' : route.page === 'playlists' ? 'Music posts' : 'All posts'}
-      />
+      <LongPostNav homeHref="/" postsHref={readerReturn.href} postsLabel={readerReturn.label} />
     </SiteShell>
   );
 }
