@@ -150,7 +150,12 @@ try {
             return { hit: button === target || button.contains(target), rootPointer: getComputedStyle(root).pointerEvents, target: target?.className?.toString().slice(0, 90) };
           });
           if (!navHit.hit || navHit.rootPointer !== 'auto') failures.push(`Section: floating menu obstructed: ${JSON.stringify(navHit)}`);
-          else await mobile.getByRole('button', { name: /Menu/ }).last().click({ timeout: 5000 });
+          else {
+            // Mouse coordinates avoid Playwright scrollIntoView moving a fixed control off its visible state.
+            const box = await mobile.getByRole('button', { name: /Menu/ }).last().boundingBox();
+            if (!box) failures.push('Section: floating menu lacks a clickable box');
+            else await mobile.mouse.click(box.x + box.width / 2, box.y + box.height / 2);
+          }
           if (!await mobile.getByRole('link', { name: 'All categories' }).isVisible()) failures.push('Section: long-read return does not point to categories');
         }
         report.routes.push({ path: route, viewport: '390px mobile', readerNavigation: true });
