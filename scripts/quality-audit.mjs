@@ -106,6 +106,47 @@ try {
       } catch (error) { failures.push(`${path}: ${error.message}`); }
       finally { await page.close(); }
     }
+
+    // Reader journeys on a real narrow viewport: compact header, archive recovery, and category return.
+    const mobile = await browser.newPage({ viewport: { width: 390, height: 844 }, isMobile: true, hasTouch: true });
+    try {
+      for (const route of ['/', '/archive', '/section/diary', '/post/the-math-isnt-good']) {
+        const response = await mobile.goto(`${origin}${route}`, { waitUntil: 'networkidle', timeout: 30000 });
+        assert.equal(response?.status(), 200, `${route}: mobile page unavailable`);
+        await mobile.locator('main h1').first().waitFor();
+        const overflow = await mobile.evaluate(() => document.documentElement.scrollWidth > window.innerWidth + 2);
+        if (overflow) failures.push(`${route}: mobile horizontal overflow`);
+        const toggle = mobile.getByRole('button', { name: 'Explore site' });
+        if (!await toggle.isVisible()) failures.push(`${route}: compact navigation missing`);
+        else {
+          if (await toggle.getAttribute('aria-expanded') !== 'false') failures.push(`${route}: compact navigation not collapsed`);
+          await toggle.click();
+          if (await mobile.getByRole('button', { name: 'Close menu' }).getAttribute('aria-expanded') !== 'true') failures.push(`${route}: menu not expanded`);
+          if (!await mobile.locator('#ood-mobile-navigation').getByRole('link', { name: 'Categories' }).isVisible()) failures.push(`${route}: Categories absent in mobile menu`);
+          await mobile.getByRole('button', { name: 'Close menu' }).click();
+        }
+        if (route === '/') {
+          if (!await mobile.getByRole('link', { name: 'Search all posts' }).isVisible()) failures.push('Home: searchable archive not available');
+          if (!await mobile.getByRole('link', { name: 'Browse by category' }).isVisible()) failures.push('Home: categories entry missing');
+        }
+        if (route === '/archive') {
+          const search = mobile.getByRole('textbox', { name: 'Search posts' });
+          await search.fill('zzzz-our-old-dad-unmatched-query');
+          if (!await mobile.getByRole('status').getByText('No posts match those filters.').isVisible()) failures.push('Archive: empty-state guidance missing');
+          await mobile.getByRole('button', { name: 'Clear filters and show all posts' }).click();
+          if (await search.inputValue() !== '') failures.push('Archive: reset left search text');
+          if (await mobile.locator('.post-card').count() === 0) failures.push('Archive: reset did not restore posts');
+        }
+        if (route === '/section/diary') {
+          await mobile.evaluate(() => window.scrollTo(0, document.body.scrollHeight));
+          await mobile.getByRole('button', { name: /Menu/ }).last().waitFor();
+          await mobile.getByRole('button', { name: /Menu/ }).last().click();
+          if (!await mobile.getByRole('link', { name: 'All categories' }).isVisible()) failures.push('Section: long-read return does not point to categories');
+        }
+        report.routes.push({ path: route, viewport: '390px mobile', readerNavigation: true });
+      }
+    } catch (error) { failures.push(`Mobile reader journey: ${error.message}`); }
+    finally { await mobile.close(); }
   } finally { await browser.close(); }
 } finally {
   try { process.kill(-server.pid); } catch { /* preview already exited */ }
