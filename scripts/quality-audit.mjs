@@ -141,7 +141,16 @@ try {
           // Use a settled reading position, not a smooth-scroll-in-progress at the footer.
           await mobile.evaluate(() => window.scrollTo({ top: Math.min(1200, document.body.scrollHeight / 2), behavior: 'instant' }));
           await mobile.locator('.long-post-nav--visible').waitFor();
-          await mobile.getByRole('button', { name: /Menu/ }).last().click();
+          const navHit = await mobile.evaluate(() => {
+            const button = document.querySelector('.long-post-nav__button:not(.long-post-nav__button--top)');
+            const root = document.querySelector('.long-post-nav');
+            if (!button || !root) return { hit: false, rootPointer: 'missing' };
+            const rect = button.getBoundingClientRect();
+            const target = document.elementFromPoint(rect.left + rect.width / 2, rect.top + rect.height / 2);
+            return { hit: button === target || button.contains(target), rootPointer: getComputedStyle(root).pointerEvents, target: target?.className?.toString().slice(0, 90) };
+          });
+          if (!navHit.hit || navHit.rootPointer !== 'auto') failures.push(`Section: floating menu obstructed: ${JSON.stringify(navHit)}`);
+          else await mobile.getByRole('button', { name: /Menu/ }).last().click({ timeout: 5000 });
           if (!await mobile.getByRole('link', { name: 'All categories' }).isVisible()) failures.push('Section: long-read return does not point to categories');
         }
         report.routes.push({ path: route, viewport: '390px mobile', readerNavigation: true });
