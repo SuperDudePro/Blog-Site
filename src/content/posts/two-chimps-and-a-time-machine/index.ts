@@ -1,3 +1,4 @@
+// Publisher acceptance test: unmerged draft update; no rendered content change.
 import type { BlogPost } from '../../postTypes';
 import cardImage from './card-image.webp';
 import heroImage from './hero-image.webp';
