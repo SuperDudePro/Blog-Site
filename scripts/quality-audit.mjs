@@ -138,8 +138,9 @@ try {
           if (await mobile.locator('.post-card').count() === 0) failures.push('Archive: reset did not restore posts');
         }
         if (route === '/section/diary') {
-          await mobile.evaluate(() => window.scrollTo(0, document.body.scrollHeight));
-          await mobile.getByRole('button', { name: /Menu/ }).last().waitFor();
+          // Use a settled reading position, not a smooth-scroll-in-progress at the footer.
+          await mobile.evaluate(() => window.scrollTo({ top: Math.min(1200, document.body.scrollHeight / 2), behavior: 'instant' }));
+          await mobile.locator('.long-post-nav--visible').waitFor();
           await mobile.getByRole('button', { name: /Menu/ }).last().click();
           if (!await mobile.getByRole('link', { name: 'All categories' }).isVisible()) failures.push('Section: long-read return does not point to categories');
         }
