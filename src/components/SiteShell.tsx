@@ -1,4 +1,4 @@
-import type { ReactNode } from 'react';
+import { useEffect, useState, type ReactNode } from 'react';
 import { navigation, site } from '../data/siteContent';
 import { homePath, normalizePath } from '../routes';
 import { SmileyMark } from './SmileyMark';
@@ -9,7 +9,8 @@ type Props = {
   children: ReactNode;
 };
 
-const footerNavigation = navigation.filter((item) => item.label !== 'Everything');
+const primaryNavigation = navigation.filter((item) => item.label !== 'Everything');
+const footerNavigation = primaryNavigation;
 
 function getCurrentPath() {
   return normalizePath(window.location.pathname);
@@ -26,6 +27,17 @@ function isActive(href: string) {
 export function SiteShell({ children }: Props) {
   const currentPath = getCurrentPath();
   const homeActive = currentPath === homePath;
+  const [menuOpen, setMenuOpen] = useState(false);
+  useEffect(() => setMenuOpen(false), [currentPath]);
+  const navLinks = (mobile: boolean) => primaryNavigation.map((item) => (
+    <SiteLink
+      key={item.href}
+      href={item.href}
+      onClick={() => { if (mobile) setMenuOpen(false); }}
+      className={`site-nav__link ${isActive(item.href) ? 'is-active' : ''}`}
+      aria-current={isActive(item.href) ? 'page' : undefined}
+    >{item.label}</SiteLink>
+  ));
 
   return (
     <div className="site-shell">
@@ -44,16 +56,13 @@ export function SiteShell({ children }: Props) {
           </SiteLink>
 
           <nav className="site-nav" aria-label="Primary navigation">
-            {navigation.map((item) => (
-              <SiteLink
-                key={item.href}
-                href={item.href}
-                className={`site-nav__link ${isActive(item.href) ? 'is-active' : ''}`}
-                aria-current={isActive(item.href) ? 'page' : undefined}
-              >
-                {item.label}
-              </SiteLink>
-            ))}
+            <div className="site-nav__desktop">{navLinks(false)}</div>
+            <div className="site-nav__compact">
+              <button type="button" className="site-nav__toggle" aria-expanded={menuOpen} aria-controls="ood-mobile-navigation" onClick={() => setMenuOpen((open) => !open)}>
+                {menuOpen ? 'Close menu' : 'Explore site'} <span aria-hidden="true">{menuOpen ? '−' : '+'}</span>
+              </button>
+              <div id="ood-mobile-navigation" className="site-nav__mobile-links" hidden={!menuOpen}>{navLinks(true)}</div>
+            </div>
           </nav>
         </div>
       </header>

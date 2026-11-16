@@ -26,8 +26,11 @@ export function HomePage() {
             <SiteLink className="button button--primary" href={featured ? postPath(featured.slug) : sectionPath('everything')}>
               {featuredIsLatest ? 'Read latest post' : 'Read featured post'}
             </SiteLink>
-            <SiteLink className="button button--ghost" href={sectionPath('everything')}>
-              Browse all posts
+            <SiteLink className="button button--ghost" href="/archive">
+              Search all posts
+            </SiteLink>
+            <SiteLink className="button button--ghost" href="/categories">
+              Browse by category
             </SiteLink>
           </div>
         </div>
@@ -38,8 +41,6 @@ export function HomePage() {
           className="feature-image feature-image--tall feature-image--home-skull"
         />
       </section>
-
-      <SubscribeForm />
 
       <section className="content-band content-band--featured">
         <div className="section-heading">
@@ -84,6 +85,8 @@ export function HomePage() {
           )}
         </div>
       </section>
+
+      <SubscribeForm />
 
       <section className="content-band content-band--muted">
         <div className="section-heading">

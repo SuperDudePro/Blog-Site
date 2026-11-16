@@ -13,7 +13,8 @@ export function ArchivePage() {
   );
   const normalizedQuery = query.trim().toLowerCase();
   const matches = posts.filter((post) => {
-    const searchable = `${post.title} ${post.excerpt} ${getPostCategoryKey(post)}`.toLowerCase();
+    const category = sections.find((item) => item.key === getPostCategoryKey(post));
+    const searchable = `${post.title} ${post.excerpt} ${category?.name ?? ''} ${getPostCategoryKey(post)}`.toLowerCase();
     return (
       (!normalizedQuery || searchable.includes(normalizedQuery)) &&
       (section === 'everything' || getPostCategoryKey(post) === section) &&
@@ -34,7 +35,7 @@ export function ArchivePage() {
       <section className="content-band" aria-labelledby="archive-results-title">
         <div className="section-heading">
           <span className="eyebrow">search and filter</span>
-          <h2 id="archive-results-title">{matches.length} matching post{matches.length === 1 ? '' : 's'}</h2>
+          <h2 id="archive-results-title" aria-live="polite">{matches.length} matching post{matches.length === 1 ? '' : 's'}</h2>
         </div>
         <div className="hero__actions" style={{ alignItems: 'end', flexWrap: 'wrap', marginBottom: '2rem' }}>
           <label>
@@ -55,9 +56,18 @@ export function ArchivePage() {
             </select>
           </label>
         </div>
-        <div className="post-grid">
-          {matches.map((post) => <PostCard key={post.slug} post={post} />)}
-        </div>
+        {matches.length ? (
+          <div className="post-grid">
+            {matches.map((post) => <PostCard key={post.slug} post={post} />)}
+          </div>
+        ) : (
+          <div className="archive-empty" role="status">
+            <p>No posts match those filters. Try another phrase or show everything.</p>
+            <button type="button" className="button button--primary" onClick={() => { setQuery(''); setSection('everything'); setYear('all'); }}>
+              Clear filters and show all posts
+            </button>
+          </div>
+        )}
       </section>
     </div>
   );

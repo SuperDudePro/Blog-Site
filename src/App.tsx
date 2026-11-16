@@ -2,6 +2,8 @@ import { useEffect, useState } from 'react';
 import { LongPostNav } from './components/LongPostNav';
 import { SiteShell } from './components/SiteShell';
 import { applyRouteMetadata } from './metadata';
+import { getPostMetadataBySlug, getPostCategoryKey } from './content/loadPosts';
+import { sectionPath } from './routes';
 import { AboutPage } from './pages/AboutPage';
 import { ArchivePage } from './pages/ArchivePage';
 import { CategoriesPage } from './pages/CategoriesPage';
@@ -40,7 +42,23 @@ export default function App() {
     applyRouteMetadata(route);
   }, [route]);
 
+  const readerReturn = (() => {
+    if (route.page === 'post') {
+      const post = getPostMetadataBySlug(route.slug);
+      if (post) {
+        const category = getPostCategoryKey(post);
+        return category === 'music-playlists'
+          ? { href: '/playlists', label: 'All playlists' }
+          : { href: sectionPath(category), label: 'This category' };
+      }
+    }
+    if (route.page === 'section') return { href: '/categories', label: 'All categories' };
+    if (route.page === 'playlists') return { href: sectionPath('music-playlists'), label: 'Music posts' };
+    return { href: '/archive', label: 'All posts' };
+  })();
+
   return (
+    <>
     <SiteShell>
       {route.page === 'home' && <HomePage />}
       {route.page === 'categories' && <CategoriesPage />}
@@ -51,7 +69,8 @@ export default function App() {
       {route.page === 'post' && <PostPage slug={route.slug} />}
       {route.page === 'playlists' && <PlaylistDirectoryPage />}
       {route.page === 'not-found' && <SectionPage sectionKey="everything" oldLinkNotice />}
-      <LongPostNav homeHref="/" postsHref="/archive" postsLabel="All posts" />
     </SiteShell>
+    <LongPostNav homeHref="/" postsHref={readerReturn.href} postsLabel={readerReturn.label} />
+    </>
   );
 }
