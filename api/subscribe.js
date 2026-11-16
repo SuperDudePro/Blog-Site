@@ -44,15 +44,7 @@ async function resendRequest(path, apiKey, options = {}) {
 async function ensureExistingContact(email, apiKey, segmentId) {
   const encodedEmail = encodeURIComponent(email);
 
-  const updateResponse = await resendRequest(`/contacts/${encodedEmail}`, apiKey, {
-    method: 'PATCH',
-    body: JSON.stringify({ unsubscribed: false }),
-  });
-
-  if (!updateResponse.ok && updateResponse.status !== 404) {
-    throw new Error(`Could not update existing contact (${updateResponse.status}).`);
-  }
-
+  // Never reset an existing contact's unsubscribed status.
   const segmentResponse = await resendRequest(
     `/contacts/${encodedEmail}/segments/${encodeURIComponent(segmentId)}`,
     apiKey,
@@ -120,7 +112,7 @@ export default async function handler(request, response) {
     });
 
     if (!createResponse.ok) {
-      if (createResponse.status === 409 || createResponse.status === 422) {
+      if (createResponse.status === 409) {
         await ensureExistingContact(email, RESEND_API_KEY, RESEND_OOD_SEGMENT_ID);
       } else {
         const errorText = await createResponse.text();

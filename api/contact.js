@@ -54,20 +54,12 @@ async function subscribeContact(email, name, apiKey, segmentId) {
 
   if (createResponse.ok) return;
 
-  if (createResponse.status !== 409 && createResponse.status !== 422) {
+  if (createResponse.status !== 409) {
     throw new Error(`Resend contact creation failed (${createResponse.status}).`);
   }
 
   const encodedEmail = encodeURIComponent(email);
-  const updateResponse = await resendRequest(`/contacts/${encodedEmail}`, apiKey, {
-    method: 'PATCH',
-    body: JSON.stringify({ first_name: name, unsubscribed: false }),
-  });
-
-  if (!updateResponse.ok && updateResponse.status !== 404) {
-    throw new Error(`Could not update existing contact (${updateResponse.status}).`);
-  }
-
+  // Preserve an existing contact's opt-out; do not reactivate them.
   const segmentResponse = await resendRequest(
     `/contacts/${encodedEmail}/segments/${encodeURIComponent(segmentId)}`,
     apiKey,
