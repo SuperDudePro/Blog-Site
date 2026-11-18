@@ -20,6 +20,25 @@ function decodeHtml(value) {
 
 const normalizeText = (value) => decodeHtml(value).replace(/\s+/g, ' ').trim().toLowerCase();
 
+// GitHub may return separate suites for synchronize and edited events on the
+// same commit. Concurrency cancels the older suite; only the newest run for
+// each app/check name describes its current result. Check names in the site
+// workflows are unique across workflows. Keep ambiguous records rather than
+// letting missing identity silently hide a failure.
+export function latestCheckRuns(runs) {
+  const newest = new Map();
+  const unidentified = [];
+  for (const run of runs) {
+    if (!Number.isSafeInteger(run.id) || !Number.isSafeInteger(run.app?.id) || !run.name) {
+      unidentified.push(run);
+      continue;
+    }
+    const identity = JSON.stringify([run.app.id, run.name]);
+    if (!newest.has(identity) || run.id > newest.get(identity).id) newest.set(identity, run);
+  }
+  return [...newest.values(), ...unidentified];
+}
+
 export function canonicalUrlsMatch(actual, expected) {
   try {
     const normalize = (value) => {

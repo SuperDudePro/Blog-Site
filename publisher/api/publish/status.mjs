@@ -6,7 +6,7 @@ import { repoRequest } from '../../lib/github.mjs';
 import { json, method, readJson } from '../../lib/http.mjs';
 import { validateRepository } from '../../lib/validation.mjs';
 import { getSiteProfile } from '../../siteProfiles.mjs';
-import { activePullRequestCommit, createPreviewFetcher, deployedCommitIsReady, findVerifiedPreview, inspectPublishedHtml, inspectPublishedUrl, missingStatusFields, normalizeStatusRequest } from '../../lib/publishStatus.mjs';
+import { activePullRequestCommit, createPreviewFetcher, deployedCommitIsReady, findVerifiedPreview, inspectPublishedHtml, inspectPublishedUrl, latestCheckRuns, missingStatusFields, normalizeStatusRequest } from '../../lib/publishStatus.mjs';
 
 const failedConclusions = new Set(['failure', 'cancelled', 'timed_out', 'action_required', 'stale', 'startup_failure']);
 
@@ -93,7 +93,7 @@ export default async function handler(request, response) {
       repoRequest(repository, `/commits/${currentCommit}/status`),
     ]);
     const items = [
-      ...(checkRuns.check_runs || []).map((item) => ({ name: item.name, source: item.app?.name || 'GitHub', status: item.status, conclusion: item.conclusion, url: item.html_url })),
+      ...latestCheckRuns(checkRuns.check_runs || []).map((item) => ({ name: item.name, source: item.app?.name || 'GitHub', status: item.status, conclusion: item.conclusion, url: item.html_url })),
       ...(combinedStatus.statuses || []).map((item) => ({ name: item.context, source: 'Commit status', status: item.state, conclusion: item.state === 'success' ? 'success' : item.state === 'pending' ? null : item.state, url: item.target_url })),
     ];
     const failed = items.some((item) => failedConclusions.has(item.conclusion) || ['failure', 'error'].includes(item.status));
