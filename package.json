@@ -37,7 +37,8 @@
     "baseline:quality": "node scripts/quality-audit.mjs --record",
     "test:raster-art-transport": "node --test test/raster-art-transport.test.mjs",
     "test:playlist-directory": "node --test test/playlist-directory.test.mjs",
-    "generate:section-webps": "node scripts/generate-section-webps.mjs"
+    "generate:section-webps": "node scripts/generate-section-webps.mjs",
+    "build:deploy": "npm run generate:rss && npm run generate:llms && npm run generate:deployment && npm run generate:post-metadata && npm run generate:section-webps && vite build && npm run generate:routes"
   },
   "dependencies": {
     "react": "^18.3.1",

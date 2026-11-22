@@ -1,9 +1,11 @@
 {
   "framework": "vite",
   "ignoreCommand": "git diff --quiet HEAD^ HEAD ./",
-  "buildCommand": "npm run build",
+  "buildCommand": "npm run build:deploy",
   "outputDirectory": "dist",
   "functions": {
-    "api/**/*.mjs": { "maxDuration": 300 }
+    "api/**/*.mjs": {
+      "maxDuration": 300
+    }
   }
 }
