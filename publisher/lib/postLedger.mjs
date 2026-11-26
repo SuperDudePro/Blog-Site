@@ -108,11 +108,16 @@ export function upsertLedger(source, record) {
   // Only source-authoritative fields and this writer's own verification lines
   // are replaced; retain hand-authored synopsis, hooks, categories and history.
   let block = existing ? existing.block.replace(/^### [^\n]+/, () => heading) : heading + '\n\n';
+  const sourceSection = (manifest.section || manifest.topic) + (manifest.format ? '; format: ' + manifest.format : '');
+  const existingSection = existing && (field(block, 'Section/topic') || field(block, 'Section/topic (current site)'));
+  // Curated series labels belong to Writing & Communications, not the source
+  // section enum. Preserve that enrichment when the source category agrees.
+  const section = existingSection && (existingSection === sourceSection || existingSection.startsWith(sourceSection + ' /') || existingSection.startsWith(sourceSection + ' (')) ? existingSection : sourceSection;
   const values = [
     ['Site', 'Site', site],
     ['Status', 'Status', manifest.status + '; live publication verified'],
     ['Publish date(?: \\([^\\n]*\\))?', 'Publish date', manifest.publishedAt],
-    ['Section/topic(?: \\([^\\n]*\\))?', 'Section/topic', oneLine((manifest.section || manifest.topic) + (manifest.format ? '; format: ' + manifest.format : ''))],
+    ['Section/topic(?: \\([^\\n]*\\))?', 'Section/topic', oneLine(section)],
     ['Slug', 'Slug', '\x60' + manifest.slug + '\x60'],
     ['(?:Intended )?(?:canonical )?URL', 'URL', manifest.canonicalUrl],
     ['Source', 'Source', '\x60' + profile.repository + '/' + manifest.destinationPath + metadataFile + '\x60 (merged source)'],
@@ -184,7 +189,8 @@ export async function verifyLivePost({ repository, pull, request, fetchText, dat
   if (deployed !== mergeCommit && folderIdentity(mergedFolder) !== folderIdentity(await request(folder + '?ref=' + deployed))) {
     throw new Error('Deployed post folder differs from the merged post; refusing stale metadata.');
   }
-  folderIdentity(mergedFolder);
+  const identity = folderIdentity(mergedFolder);
+  if (!SHA.test(pull.head?.sha || '') || identity !== folderIdentity(await request(folder + '?ref=' + pull.head.sha))) throw new Error('Merged post folder differs from the reviewed publishing head.');
   const sourceFiles = await Promise.all(profile.sourceFiles.map(name => request(folder + '/' + name + '?ref=' + deployed)));
   const meta = decodeFile(sourceFiles[0]);
   for (const key of profile.metadataFields) if (extractField(meta, key) !== String(manifest[key] ?? '')) throw new Error('Merged source metadata differs from manifest: ' + key);

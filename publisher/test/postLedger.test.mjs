@@ -90,3 +90,10 @@ test('only verified GitHub Actions ledger status can finish publishing', () => {
   assert.equal(ledgerStatusFromStatuses([good]).state,'success');
   assert.equal(ledgerStatusFromStatuses([{...good,state:'failure'}]).state,'failed');
 });
+
+test('curated series enrichment survives same-section reconciliation', () => {
+  const record = make('ood','existing');
+  record.manifest.format = '';
+  const input = tracker.replace('- Synopsis: hand-authored synopsis', '- Section/topic: diary / Recurring feature\n- Synopsis: hand-authored synopsis');
+  assert.match(upsertLedger(input,record).content,/Section\/topic: diary \/ Recurring feature/);
+});
