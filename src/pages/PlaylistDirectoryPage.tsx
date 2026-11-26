@@ -13,7 +13,7 @@ type Playlist = { id: string; label?: string };
 type Entry = { post: BlogPost; playlist: Playlist; relatedPosts: BlogPost[]; artists: string[]; category: Exclude<Category, 'All'> };
 const musicPosts = getPostsForSection('music-playlists');
 const artistNames: Record<string, string> = {
-  'bad-company': 'Bad Company', 'joe-walsh': 'Joe Walsh', journey: 'Journey',
+  'bad-company': 'Bad Company', 'joe-walsh': 'Joe Walsh', journey: 'Journey', 'stevie-wonder': 'Stevie Wonder',
   'radiohead': 'Radiohead', 'aerosmith': 'Aerosmith', 'rem': 'R.E.M.',
   'rolling-stones': 'The Rolling Stones', 'pink-floyd': 'Pink Floyd', 'the-cult': 'The Cult',
 };
@@ -24,7 +24,7 @@ function isStraightGreat(post: BlogPost) {
 function classify(post: BlogPost): Exclude<Category, 'All'> {
   if (isStraightGreat(post)) return 'Straight Greats';
   if (/^(19|20)\d\d:/.test(post.title) || /the-83-hawaii/.test(post.slug)) return 'Year';
-  if (/bad-company|joe-walsh|journey/.test(post.slug)) return 'Artist';
+  if (getArtists(post).length > 0) return 'Artist';
   if (/five-years-before|reconsider-the-80s/.test(post.slug)) return 'Era';
   return 'Misc';
 }
