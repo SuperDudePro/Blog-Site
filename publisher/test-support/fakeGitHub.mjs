@@ -55,6 +55,7 @@ export class FakeGitHub {
       comments: new Map(),
       deployments: [],
       checkRuns: new Map(),
+      commitStatuses: new Map(),
     };
     this.repositories.set(fullName.toLowerCase(), repository);
     const commit = this.writeCommit(fullName, { files, parents: [], message: 'Initial commit' });
@@ -463,7 +464,7 @@ export class FakeGitHub {
     if ((parts = rest.match(/^\/commits\/([0-9a-f]{40})\/check-runs$/))) {
       return reply(200, { check_runs: repository.checkRuns.get(parts[1]) || [] });
     }
-    if (/^\/commits\/[0-9a-f]{40}\/status$/.test(rest)) return reply(200, { statuses: [] });
+    if ((parts = rest.match(/^\/commits\/([0-9a-f]{40})\/status$/))) return reply(200, { statuses: repository.commitStatuses.get(parts[1]) || [] });
     if ((parts = rest.match(/^\/issues\/(\d+)\/comments$/))) {
       return reply(200, repository.comments.get(Number(parts[1])) || []);
     }

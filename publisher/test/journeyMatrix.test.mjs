@@ -355,6 +355,9 @@ class FakeServices {
     if (path === `/commits/${this.nextCommit}/status`) {
       return this.json({ statuses: [{ context: 'Vercel', state: 'success', target_url: 'https://vercel.com/fixture' }] });
     }
+    if (path === `/commits/${MERGE_COMMIT}/status`) {
+      return this.json({ statuses: [{ context: 'Wilbert post ledger', state: 'success', creator: { login: 'github-actions[bot]', type: 'Bot' } }] });
+    }
     // What the Vercel GitHub App records once the site preview is ready. The
     // status handler takes the preview from these records, never from comments.
     const vercelApp = { login: 'vercel[bot]', type: 'Bot' };

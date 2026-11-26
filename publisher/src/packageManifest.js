@@ -83,5 +83,6 @@ export function normalizePackageManifest(raw, source = '') {
     buildCommand: asString(raw.buildCommand) || profile.buildCommand,
     images,
     ...(playlistLinks ? { playlistLinks } : {}),
+    ...(raw.tracker && typeof raw.tracker === 'object' && !Array.isArray(raw.tracker) ? { tracker: { synopsis: asString(raw.tracker.synopsis), socialHooks: Array.isArray(raw.tracker.socialHooks) ? raw.tracker.socialHooks.map(asString).filter(Boolean) : asString(raw.tracker.socialHooks) } } : {}),
   };
 }
