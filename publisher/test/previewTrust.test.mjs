@@ -319,6 +319,16 @@ test('production verification never carries the bypass credential', async () => 
       [path]: { status: 301, location: `https://www.ourolddad.com${path}` },
     });
     web.site('https://www.ourolddad.com', { [path]: page(job) });
+    const pending = await status(job);
+    assert.equal(pending.payload.production.state, 'success');
+    assert.equal(pending.payload.ledger.state, 'pending');
+    assert.equal(pending.payload.publishingComplete, false);
+    const statuses = github.repository(OOD).commitStatuses;
+    statuses.set(mergeCommit, [{ context: 'Wilbert post ledger', state: 'failure', creator: { login: 'github-actions[bot]', type: 'Bot' } }]);
+    const failed = await status(job);
+    assert.equal(failed.payload.ledger.state, 'failed');
+    assert.equal(failed.payload.publishingComplete, false);
+    statuses.set(mergeCommit, [{ context: 'Wilbert post ledger', state: 'success', creator: { login: 'github-actions[bot]', type: 'Bot' } }]);
     return status(job);
   });
   assert.equal(result.status, 200, result.text);

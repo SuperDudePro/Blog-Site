@@ -53,7 +53,8 @@ function blockEntries(source) {
     return { id: Number(m[1]), a, b, block, site: exactSite(field(block, 'Site')), slug: slugOf(block), title: m[2] };
   });
   if (new Set(entries.map(x => x.id)).size !== entries.length) throw new Error('Duplicate tracker numbers; refusing write.');
-  const keys = entries.filter(x => x.site && x.slug).map(x => x.site + '/' + x.slug);
+  if (entries.some(x => !['ourolddad', 'lifeeducation'].includes(x.site) || !x.slug)) throw new Error('Tracker entry identity is incomplete; refusing write.');
+  const keys = entries.map(x => x.site + '/' + x.slug);
   if (new Set(keys).size !== keys.length) throw new Error('Duplicate tracker post identity; refusing write.');
   return { entries, end };
 }
@@ -225,7 +226,9 @@ export async function reconcileLedger(record, request, { attempts = 5 } = {}) {
     // post since our CAS write, but our exact identity must remain present.
     const current = decodeFile(await request(endpoint + '?ref=main'));
     const found = blockEntries(current).entries.find(e => e.site === exactSite(siteName(record.profile)) && e.slug === record.manifest.slug);
-    if (!found || found.id !== result.id || !field(found.block, 'Publisher verification')) throw new Error('Ledger entry not present on current main.');
+    const verified = found && field(found.block, 'Publisher verification');
+    const verifiedAt = verified && verified.match(/merged at ([0-9TZ:.-]+);/)?.[1];
+    if (!found || found.id !== result.id || (!String(verified || '').includes('merge ' + record.mergeCommit + ';') && !(Date.parse(verifiedAt) > Date.parse(record.mergedAt)))) throw new Error('Verified ledger entry not present on current main.');
     return { ...result, commit: saved.commit.sha };
   }
   throw new Error('Ledger was concurrently changed; rerun closeout.');

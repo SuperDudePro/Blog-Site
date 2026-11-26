@@ -97,3 +97,7 @@ test('curated series enrichment survives same-section reconciliation', () => {
   const input = tracker.replace('- Synopsis: hand-authored synopsis', '- Section/topic: diary / Recurring feature\n- Synopsis: hand-authored synopsis');
   assert.match(upsertLedger(input,record).content,/Section\/topic: diary \/ Recurring feature/);
 });
+
+test('missing tracker identity fails closed', () => {
+  assert.throws(() => upsertLedger(tracker.replace('- Site: OurOldDad','- Site: unknown'),make()),/identity is incomplete/);
+});
