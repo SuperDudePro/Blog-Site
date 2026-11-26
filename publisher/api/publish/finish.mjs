@@ -23,7 +23,7 @@ function stageError(stage, error) {
 // it: the validated package fields in a fixed order, with each image's
 // SHA-256 taken from the uploaded bytes rather than from the request.
 function manifestForPullRequest(manifest, digests) {
-  const fields = ['targetSite', 'repository', ...getSiteProfile(manifest).metadataFields, 'tags', 'format', 'destinationPath', 'canonicalUrl', 'buildCommand'];
+  const fields = ['targetSite', 'repository', ...getSiteProfile(manifest).metadataFields, 'tags', 'format', 'destinationPath', 'canonicalUrl', 'buildCommand', 'tracker'];
   return {
     ...Object.fromEntries(fields.filter((field) => manifest[field] !== undefined).map((field) => [field, manifest[field]])),
     images: manifest.images.map((image) => ({

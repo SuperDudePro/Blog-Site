@@ -1,3 +1,4 @@
+import { ledgerStatusFromStatuses } from '../../lib/postLedger.mjs';
 import { requirePublisher } from '../../lib/auth.mjs';
 import { verifyDirectHandoff } from '../../lib/directHandoff.mjs';
 import { inspectPreviewCommit, directTechnicalReadiness } from '../../lib/previewCommit.mjs';
@@ -163,6 +164,15 @@ export default async function handler(request, response) {
     const production = merged
       ? await productionStatus(repository, canonicalUrl, title, mergeCommit, profile)
       : { state: 'pending', ok: false };
+    let ledger = { state: 'pending', error: 'Waiting for verified production.' };
+    if (merged && production.state === 'success') {
+      try {
+        const releaseStatus = await repoRequest(repository, `/commits/${mergeCommit}/status`);
+        ledger = ledgerStatusFromStatuses(releaseStatus.statuses);
+      } catch {
+        ledger = { state: 'pending', error: 'Could not read the automatic ledger reconciliation status.' };
+      }
+    }
     return json(response, 200, {
       ok: true,
       currentCommit,
@@ -176,7 +186,8 @@ export default async function handler(request, response) {
       mergedAt: pullRequest.merged_at || null,
       mergeCommit,
       production,
-      publishingComplete: merged && production.state === 'success',
+      ledger,
+      publishingComplete: merged && production.state === 'success' && ledger.state === 'success',
       prState: pullRequest.state || null,
     });
   } catch (error) {

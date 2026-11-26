@@ -21,6 +21,7 @@ export type NormalizedManifest = {
   destinationPath: string;
   buildCommand: string;
   images: NormalizedImage[];
+  tracker?: { synopsis: string; socialHooks: string | string[] };
   playlistLinks?: {
     youtube: string;
     youtubeMusic: string;

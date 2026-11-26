@@ -1,0 +1,41 @@
+name: Post ledger closeout implementation
+
+on:
+  workflow_call:
+    inputs:
+      pr_number:
+        required: true
+        type: number
+      implementation_ref:
+        required: true
+        type: string
+    secrets:
+      WILBERT_LEDGER_TOKEN:
+        required: false
+
+permissions:
+  contents: read
+  pull-requests: read
+  statuses: write
+
+jobs:
+  reconcile:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 12
+    steps:
+      # Only the trusted, reviewed implementation is checked out, never a PR head.
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+        with:
+          repository: SuperDudePro/Blog-Site
+          ref: ${{ inputs.implementation_ref }}
+          persist-credentials: false
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - name: Verify production and reconcile canonical tracker
+        run: node publisher/scripts/close-post-ledger.mjs
+        env:
+          SITE_REPOSITORY: ${{ github.repository }}
+          PUBLISHING_PR_NUMBER: ${{ inputs.pr_number }}
+          GITHUB_TOKEN: ${{ github.token }}
+          WILBERT_LEDGER_TOKEN: ${{ secrets.WILBERT_LEDGER_TOKEN }}
